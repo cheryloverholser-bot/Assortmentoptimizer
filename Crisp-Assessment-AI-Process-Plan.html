@@ -108,6 +108,61 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .setup-resume { text-align: center; font-size: 12px; color: #9ab8b4;
   margin-top: 12px; cursor: pointer; }
 .setup-resume:hover { color: var(--muted); }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 26px; }
+.page-title { font-size: 22px; font-weight: 700; color: var(--teal-dark); }
+.page-subtitle { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.gate-pill { background: var(--green-light); color: #009E7C; font-size: 11px;
+  font-weight: 600; padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--green-border); white-space: nowrap; margin-top: 4px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.two-col   { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.card.ai { border-color: var(--green-border); background: var(--green-light); }
+.card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: #9ab8b4; margin-bottom: 10px; }
+.card.ai .card-label { color: #009E7C; }
+.ai-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 10px;
+  font-weight: 700; color: #009E7C; background: white; border: 1px solid var(--green-border);
+  border-radius: 3px; padding: 2px 7px; margin-bottom: 8px; }
+.item-list { list-style: none; }
+.item-list li { font-size: 13px; padding: 3px 0; color: #374151;
+  display: flex; align-items: flex-start; gap: 6px; }
+.item-list li::before { content: "›"; color: #a8c8c2; flex-shrink: 0; }
+.card.ai .item-list li::before { color: var(--green); }
+.ai-step { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0;
+  border-bottom: 1px solid rgba(0,196,154,0.15); }
+.ai-step:last-child { border-bottom: none; }
+.ai-step-badge { font-size: 9px; font-weight: 700; padding: 2px 5px;
+  border-radius: 3px; flex-shrink: 0; margin-top: 2px; }
+.badge-current { background: #d1fae5; color: #065f46; }
+.badge-new     { background: #fef3c7; color: #92400e; }
+.ai-step-text  { font-size: 12px; color: #1B4F4F; }
+.sec-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: #9ab8b4; margin: 14px 0 8px; }
+.tpl-link { display: inline-flex; align-items: center; gap: 5px; font-size: 11px;
+  color: #009E7C; background: var(--green-light); border: 1px solid var(--green-border);
+  border-radius: 5px; padding: 3px 9px; cursor: pointer; text-decoration: none; }
+.tpl-link:hover { background: #d0f2ea; }
+.templates-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.raci-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.chip { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
+.chip-r { background: var(--green-light); color: #009E7C; border: 1px solid var(--green-border); }
+.chip-a { background: #e8f4f8; color: #1B6B8A; border: 1px solid #b8d8e8; }
+.chip-c { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+.chip-i { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.gate-card { background: white; border: 1px solid var(--green-border);
+  border-left: 4px solid var(--green); border-radius: 10px; padding: 14px 18px;
+  display: flex; align-items: flex-start; gap: 12px; }
+.gate-icon { font-size: 18px; margin-top: 1px; }
+.gate-title { font-size: 13px; font-weight: 700; color: var(--teal-dark); margin-bottom: 4px; }
+.gate-items { list-style: none; }
+.gate-items li { font-size: 12px; color: var(--muted); padding: 2px 0;
+  display: flex; align-items: center; gap: 6px; }
+.gate-items li::before { content: "✓"; color: var(--green); font-weight: 700; }
+.progress-task { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.progress-check { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
+.progress-task.done label { text-decoration: line-through; color: #9ab8b4; }
+.progress-task label { font-size: 13px; color: #374151; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -197,7 +252,68 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="nav-link" id="nav-gates" onclick="nav('gates')">🚦 Decision Gates</div>
   </div>
   <div class="main" id="mainContent">
-    <p>Main content here</p>
+    <div id="searchResults" class="hidden"></div>
+
+    <div class="page-section active" id="page-overview">
+      <div style="background:var(--teal-dark);color:white;border-radius:12px;padding:28px;
+                  margin-bottom:20px;position:relative;overflow:hidden;">
+        <div style="position:absolute;right:30px;top:0;bottom:0;width:200px;
+                    background-image:radial-gradient(circle,rgba(255,255,255,0.08) 1px,transparent 1px);
+                    background-size:10px 10px;pointer-events:none;"></div>
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:8px;">Crisp Assessment Process — AI-Enhanced</h2>
+        <p style="font-size:13px;opacity:0.75;max-width:500px;line-height:1.6;">
+          A living reference for running AI-assisted category management assessments.
+          Each phase documents what the team does, where Claude helps, and what must
+          be complete before moving forward.
+        </p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        <div class="card" style="border-top:3px solid var(--green);cursor:pointer;" onclick="nav('phase1')">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Phase 1</div>
+          <div style="font-size:14px;font-weight:700;color:var(--teal-dark);margin-bottom:6px;">Intake</div>
+          <div style="font-size:11px;color:var(--muted);">Output: Baseline insight on people, process &amp; tech</div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--green);cursor:pointer;" onclick="nav('phase2')">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Phase 2</div>
+          <div style="font-size:14px;font-weight:700;color:var(--teal-dark);margin-bottom:6px;">Discovery</div>
+          <div style="font-size:11px;color:var(--muted);">Output: Workshop notes &amp; current-state view</div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--green);cursor:pointer;" onclick="nav('phase3')">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Phase 3</div>
+          <div style="font-size:14px;font-weight:700;color:var(--teal-dark);margin-bottom:6px;">Analysis</div>
+          <div style="font-size:11px;color:var(--muted);">Output: Prioritized opportunity log</div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--green);cursor:pointer;" onclick="nav('phase4')">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Phase 4</div>
+          <div style="font-size:14px;font-weight:700;color:var(--teal-dark);margin-bottom:6px;">Roadmap &amp; Readout</div>
+          <div style="font-size:11px;color:var(--muted);">Output: Solution roadmap &amp; exec readout</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:20px;">
+        <h3 style="font-size:14px;font-weight:700;color:var(--teal-dark);margin-bottom:12px;">How to use this site</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+          <div style="font-size:12px;color:var(--muted);"><strong style="display:block;color:var(--teal-dark);margin-bottom:3px;">Navigate by phase</strong>Use the sidebar to move through the 4 phases in order. Don't skip a phase until its gate is cleared.</div>
+          <div style="font-size:12px;color:var(--muted);"><strong style="display:block;color:var(--teal-dark);margin-bottom:3px;">Use the AI steps</strong>Each phase has AI steps — current (NOW) and new (NEW). Full prompts are in the AI Prompt Library.</div>
+          <div style="font-size:12px;color:var(--muted);"><strong style="display:block;color:var(--teal-dark);margin-bottom:3px;">Check the gates</strong>Each phase ends with a gate. All criteria must be met before the next phase begins.</div>
+        </div>
+      </div>
+      <div class="hidden" id="changelogSection">
+        <div style="background:white;border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+          <div style="padding:14px 18px;cursor:pointer;background:#f9fafb;display:flex;align-items:center;justify-content:space-between;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+            <strong style="font-size:14px;color:var(--teal-dark);">📝 What changed in v2.0</strong><span>▾</span>
+          </div>
+          <div style="display:none;padding:16px 18px;">
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Added ✦ AI Steps to all 4 phases — both existing and new AI-powered workflows</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Added AI Prompt Library with 10 copy-ready Claude prompts</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Added per-project setup with toggleable features (progress, print, search, changelog)</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Updated Discovery: post-session gap flagging + CM benchmarking</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Updated Analysis: impact quantification + prioritization logic</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Updated Roadmap: auto-populated timelines + cost estimate ranges</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Replaces static PPTX process map with interactive web reference</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 <script>
