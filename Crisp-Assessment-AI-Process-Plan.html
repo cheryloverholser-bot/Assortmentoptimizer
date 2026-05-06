@@ -218,8 +218,10 @@ function launchProject() {
   const client = document.getElementById('clientName').value.trim();
   if (!client) { document.getElementById('clientName').focus(); return; }
   const lead = document.getElementById('engagementLead').value.trim();
+  if (!lead) { document.getElementById('engagementLead').focus(); return; }
   projectData = { client, lead, features: {...features}, progress: {1:{},2:{},3:{},4:{}} };
-  localStorage.setItem('crispAssessment', JSON.stringify(projectData));
+  try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
+  catch { console.warn('localStorage unavailable; project state will not persist.'); }
   applyFeatures();
   document.getElementById('clientDisplay').textContent = client;
   document.getElementById('setupModal').classList.add('hidden');
@@ -227,7 +229,9 @@ function launchProject() {
 }
 
 function resumeProject() {
-  const saved = JSON.parse(localStorage.getItem('crispAssessment'));
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem('crispAssessment') || ''); }
+  catch { localStorage.removeItem('crispAssessment'); return; }
   if (!saved) return;
   projectData = saved;
   features = saved.features || features;
@@ -251,6 +255,12 @@ function resumeProject() {
 function newProject() {
   document.getElementById('clientName').value = '';
   document.getElementById('engagementLead').value = '';
+  features = { progress: true, print: true, search: false, changelog: false };
+  document.querySelectorAll('.toggle-item').forEach(el => {
+    const feat = el.dataset.feature;
+    if (features[feat]) el.classList.add('on');
+    else el.classList.remove('on');
+  });
   document.getElementById('setupModal').classList.remove('hidden');
 }
 
