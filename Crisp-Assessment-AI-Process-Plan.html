@@ -69,9 +69,96 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .hidden { display: none !important; }
 .page-section { display: none; }
 .page-section.active { display: block; }
+.setup-overlay { position: fixed; inset: 0; background: rgba(13,61,53,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; backdrop-filter: blur(4px); }
+.setup-overlay.hidden { display: none; }
+.setup-card { background: white; border-radius: 14px; padding: 36px;
+  width: 100%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.setup-logo { font-weight: 700; font-size: 20px; color: white; background: var(--green);
+  display: inline-block; padding: 4px 12px; border-radius: 4px; margin-bottom: 18px; }
+.setup-title { font-size: 22px; font-weight: 700; color: var(--teal-dark); margin-bottom: 6px; }
+.setup-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+.form-field { margin-bottom: 18px; }
+.form-field label { display: block; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 6px; }
+.form-field input { width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+  border-radius: 7px; font-size: 14px; background: #f9fafb; }
+.form-field input:focus { outline: none; border-color: var(--green); background: white; }
+.toggle-section-label { font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--muted); margin-bottom: 12px; }
+.toggle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+.toggle-item { display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: all 0.15s; }
+.toggle-item.on { border-color: var(--green-border); background: var(--green-light); }
+.toggle-item-left { display: flex; flex-direction: column; gap: 1px; }
+.toggle-item-name { font-size: 13px; font-weight: 600; color: var(--teal-dark); }
+.toggle-item-desc { font-size: 11px; color: var(--muted); }
+.toggle-switch { width: 34px; height: 18px; border-radius: 9px; background: #d1d5db;
+  position: relative; flex-shrink: 0; transition: background 0.2s; }
+.toggle-item.on .toggle-switch { background: var(--green); }
+.toggle-switch::after { content: ''; position: absolute; width: 12px; height: 12px;
+  border-radius: 50%; background: white; top: 3px; left: 3px; transition: left 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle-item.on .toggle-switch::after { left: 19px; }
+.btn-primary { width: 100%; padding: 13px; background: var(--green); color: white;
+  font-size: 15px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; }
+.btn-primary:hover { background: var(--green-dark); }
+.setup-resume { text-align: center; font-size: 12px; color: #9ab8b4;
+  margin-top: 12px; cursor: pointer; }
+.setup-resume:hover { color: var(--muted); }
 </style>
 </head>
 <body>
+<div class="setup-overlay" id="setupModal">
+  <div class="setup-card">
+    <div class="setup-logo">crisp.</div>
+    <div class="setup-title">Start a New Assessment</div>
+    <div class="setup-sub">Set up this engagement so the process plan is ready to use.</div>
+    <div class="form-field">
+      <label>Client Name</label>
+      <input type="text" id="clientName" placeholder="e.g. Walmart, Kroger, Target…" />
+    </div>
+    <div class="form-field">
+      <label>Engagement Lead</label>
+      <input type="text" id="engagementLead" placeholder="Your name" />
+    </div>
+    <div class="toggle-section-label">Enable for this project</div>
+    <div class="toggle-grid">
+      <div class="toggle-item on" onclick="toggleFeature(this,'progress')" data-feature="progress">
+        <div class="toggle-item-left">
+          <div class="toggle-item-name">Progress Tracker</div>
+          <div class="toggle-item-desc">Check off tasks as you go</div>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-item on" onclick="toggleFeature(this,'print')" data-feature="print">
+        <div class="toggle-item-left">
+          <div class="toggle-item-name">Print View</div>
+          <div class="toggle-item-desc">Clean printable layout</div>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-item" onclick="toggleFeature(this,'search')" data-feature="search">
+        <div class="toggle-item-left">
+          <div class="toggle-item-name">Search</div>
+          <div class="toggle-item-desc">Search all content</div>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-item" onclick="toggleFeature(this,'changelog')" data-feature="changelog">
+        <div class="toggle-item-left">
+          <div class="toggle-item-name">Changelog</div>
+          <div class="toggle-item-desc">What's new in v2.0</div>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="launchProject()">Launch Assessment Process →</button>
+    <div class="setup-resume hidden" id="resumeLink" onclick="resumeProject()">Resume existing project →</div>
+  </div>
+</div>
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo-pill">crisp.</div>
@@ -114,6 +201,71 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
 <script>
+let features = { progress: true, print: true, search: false, changelog: false };
+let projectData = {};
+
+window.onload = function() {
+  const saved = localStorage.getItem('crispAssessment');
+  if (saved) document.getElementById('resumeLink').classList.remove('hidden');
+};
+
+function toggleFeature(el, feature) {
+  el.classList.toggle('on');
+  features[feature] = el.classList.contains('on');
+}
+
+function launchProject() {
+  const client = document.getElementById('clientName').value.trim();
+  if (!client) { document.getElementById('clientName').focus(); return; }
+  const lead = document.getElementById('engagementLead').value.trim();
+  projectData = { client, lead, features: {...features}, progress: {1:{},2:{},3:{},4:{}} };
+  localStorage.setItem('crispAssessment', JSON.stringify(projectData));
+  applyFeatures();
+  document.getElementById('clientDisplay').textContent = client;
+  document.getElementById('setupModal').classList.add('hidden');
+  nav('overview');
+}
+
+function resumeProject() {
+  const saved = JSON.parse(localStorage.getItem('crispAssessment'));
+  if (!saved) return;
+  projectData = saved;
+  features = saved.features || features;
+  applyFeatures();
+  document.getElementById('clientDisplay').textContent = saved.client || '—';
+  document.getElementById('setupModal').classList.add('hidden');
+  if (saved.progress) {
+    [1,2,3,4].forEach(p => {
+      Object.keys(saved.progress[p] || {}).forEach(t => {
+        if (saved.progress[p][t]) {
+          const cb = document.querySelector(`[data-phase="${p}"][data-task="${t}"] .progress-check`);
+          if (cb) { cb.checked = true; cb.closest('.progress-task').classList.add('done'); }
+        }
+      });
+      updateProgress(p);
+    });
+  }
+  nav('overview');
+}
+
+function newProject() {
+  document.getElementById('clientName').value = '';
+  document.getElementById('engagementLead').value = '';
+  document.getElementById('setupModal').classList.remove('hidden');
+}
+
+function applyFeatures() {
+  document.querySelectorAll('.progress-check').forEach(cb =>
+    cb.classList.toggle('hidden', !features.progress));
+  [1,2,3,4].forEach(p => {
+    const el = document.getElementById(`prog${p}`);
+    if (el) el.classList.toggle('hidden', !features.progress);
+  });
+  document.getElementById('printBtn')?.classList.toggle('hidden', !features.print);
+  document.getElementById('searchWrap')?.classList.toggle('hidden', !features.search);
+  document.getElementById('changelogSection')?.classList.toggle('hidden', !features.changelog);
+}
+
 function nav(page) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item, .nav-link').forEach(i => i.classList.remove('active'));
@@ -123,7 +275,8 @@ function nav(page) {
   if (navEl) navEl.classList.add('active');
   document.getElementById('mainContent').scrollTop = 0;
 }
-function newProject() { /* placeholder — implemented in Task 3 */ }
+
+function updateProgress(phase) { /* placeholder — implemented in Task 5 */ }
 </script>
 </body>
 </html>
