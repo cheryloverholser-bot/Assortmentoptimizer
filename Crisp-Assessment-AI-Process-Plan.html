@@ -627,23 +627,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
     <div class="page-section" id="page-prompts">
-      <div style="margin-bottom:24px">
-        <div style="font-size:22px;font-weight:700;color:var(--teal-dark)">🤖 AI Prompt Library</div>
-        <div style="font-size:13px;color:var(--muted);margin-top:4px">All Claude prompts organized by phase. Click any card to expand, then copy the prompt directly to your clipboard.</div>
-      </div>
-      <div class="prompt-phase-title">Phase 1 — Intake</div>
-      <div class="prompt-card" id="pc1">
-        <div class="prompt-header" onclick="togglePrompt('pc1')">
-          <div><div class="prompt-title">Questionnaire Maturity Scorer</div><div class="prompt-meta">Phase 1 · <span class="ai-step-badge badge-current">NOW</span></div></div>
-          <div class="prompt-chevron">▾</div>
-        </div>
-        <div class="prompt-body">
-          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Completed CMS Questionnaire responses — paste cells as plain text if copying from Excel.</div></div>
-          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-            <div class="prompt-text" id="pt1">You are a category management maturity assessor for a CPG consulting firm. Review the
+  <div class="page-header">
+    <div>
+      <div class="page-title">AI Prompt Library</div>
+      <div class="page-subtitle">10 copy-ready prompts for Claude — organized by phase</div>
+    </div>
+  </div>
+
+  <div class="prompt-phase-title">Phase 1 — Intake</div>
+
+  <div class="prompt-card" id="pc1">
+    <div class="prompt-header" onclick="togglePrompt('pc1')">
+      <div><div class="prompt-title">Questionnaire Maturity Scorer</div><div class="prompt-meta">Input: completed questionnaire · Output: maturity scores + priority gaps</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">The completed CMS questionnaire responses — paste as plain text. If responses are in Excel, copy cells.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc1-text">You are a category management maturity assessor for a CPG consulting firm. Review the
 following completed assessment questionnaire and:
 
-1. Score the client's maturity across these dimensions: Data &amp; Analytics, Process
+1. Score the client's maturity across these dimensions: Data & Analytics, Process
    Maturity, Technology, Collaboration, Strategy. Use a 1–5 scale (1=basic, 5=best-in-class).
 2. Flag any dimensions scoring 2 or below as priority gaps.
 3. Identify the top 3 areas of strength.
@@ -654,20 +658,21 @@ Incomplete Inputs (if any)
 
 Questionnaire responses:
 [PASTE QUESTIONNAIRE HERE]</div>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt1', this)">Copy Prompt</button>
-          </div>
-          <div class="prompt-note">If the questionnaire is in Excel, paste cells as plain text.</div>
-        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc1', this)">Copy Prompt</button>
       </div>
-      <div class="prompt-card" id="pc2">
-        <div class="prompt-header" onclick="togglePrompt('pc2')">
-          <div><div class="prompt-title">Stakeholder Outreach Email Draft</div><div class="prompt-meta">Phase 1 · <span class="ai-step-badge badge-current">NOW</span></div></div>
-          <div class="prompt-chevron">▾</div>
-        </div>
-        <div class="prompt-body">
-          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Stakeholder names and titles, workshop dates, format (on-site/remote), and questionnaire due date.</div></div>
-          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-            <div class="prompt-text" id="pt2">Draft a professional stakeholder outreach email from the Crisp consulting team to
+      <div class="prompt-note">If the questionnaire is in Excel, paste cells as plain text before using this prompt.</div>
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc2">
+    <div class="prompt-header" onclick="togglePrompt('pc2')">
+      <div><div class="prompt-title">Stakeholder Outreach Email Draft</div><div class="prompt-meta">Input: stakeholder list + dates · Output: professional outreach email</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Fill in the bracketed fields in the prompt: client name, stakeholder names/titles, workshop dates, format, and questionnaire due date.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc2-text">Draft a professional stakeholder outreach email from the Crisp consulting team to
 [CLIENT NAME] preparing for a category management assessment. The email should:
 
 - Introduce the assessment process at a high level (4 phases)
@@ -680,19 +685,20 @@ Stakeholders: [LIST NAMES AND TITLES]
 Workshop dates: [DATES]
 Format: [ON-SITE / REMOTE]
 Questionnaire due date: [DATE]</div>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt2', this)">Copy Prompt</button>
-          </div>
-        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc2', this)">Copy Prompt</button>
       </div>
-      <div class="prompt-card" id="pc3">
-        <div class="prompt-header" onclick="togglePrompt('pc3')">
-          <div><div class="prompt-title">SOW Logistics Checklist Generator</div><div class="prompt-meta">Phase 1 · <span class="ai-step-badge badge-new">NEW</span></div></div>
-          <div class="prompt-chevron">▾</div>
-        </div>
-        <div class="prompt-body">
-          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">The Statement of Work (SOW) text — paste the full document or relevant sections.</div></div>
-          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-            <div class="prompt-text" id="pt3">Review this Statement of Work (SOW) and extract all logistics requirements.
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc3">
+    <div class="prompt-header" onclick="togglePrompt('pc3')">
+      <div><div class="prompt-title">SOW Logistics Checklist Generator <span style="font-size:10px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px;margin-left:4px;">NEW</span></div><div class="prompt-meta">Input: SOW text · Output: organized logistics checklist</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the full text of the signed SOW. Works best with the scope, timeline, and deliverables sections included.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc3-text">Review this Statement of Work (SOW) and extract all logistics requirements.
 Generate a checklist organized by:
 
 1. Pre-engagement setup (access requests, tool setup, folder creation)
@@ -705,20 +711,22 @@ Flag time-sensitive items (needed before kickoff).
 
 SOW text:
 [PASTE SOW HERE]</div>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt3', this)">Copy Prompt</button>
-          </div>
-        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc3', this)">Copy Prompt</button>
       </div>
-      <div class="prompt-phase-title">Phase 2 — Discovery</div>
-      <div class="prompt-card" id="pc4">
-        <div class="prompt-header" onclick="togglePrompt('pc4')">
-          <div><div class="prompt-title">Workshop Session Synthesis</div><div class="prompt-meta">Phase 2 · <span class="ai-step-badge badge-current">NOW</span></div></div>
-          <div class="prompt-chevron">▾</div>
-        </div>
-        <div class="prompt-body">
-          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Raw notes from a single workshop session — bullet points, transcripts, or typed notes are all fine.</div></div>
-          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-            <div class="prompt-text" id="pt4">You are summarizing notes from a category management assessment discovery workshop.
+    </div>
+  </div>
+
+  <div class="prompt-phase-title">Phase 2 — Discovery</div>
+
+  <div class="prompt-card" id="pc4">
+    <div class="prompt-header" onclick="togglePrompt('pc4')">
+      <div><div class="prompt-title">Workshop Session Synthesis</div><div class="prompt-meta">Input: raw workshop notes · Output: structured synthesis</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Raw notes from a single workshop session — bullet points, free text, or transcription. One session at a time works best.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc4-text">You are summarizing notes from a category management assessment discovery workshop.
 Synthesize the following raw notes into:
 
 1. Current-state process overview (step by step)
@@ -732,19 +740,20 @@ Flag anything contradictory across stakeholders.
 
 Raw workshop notes:
 [PASTE NOTES HERE]</div>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt4', this)">Copy Prompt</button>
-          </div>
-        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc4', this)">Copy Prompt</button>
       </div>
-      <div class="prompt-card" id="pc5">
-        <div class="prompt-header" onclick="togglePrompt('pc5')">
-          <div><div class="prompt-title">Cross-Interview Pattern Detector</div><div class="prompt-meta">Phase 2 · <span class="ai-step-badge badge-current">NOW</span></div></div>
-          <div class="prompt-chevron">▾</div>
-        </div>
-        <div class="prompt-body">
-          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Multiple stakeholder interview summaries — label each by role (e.g. "Category Manager:", "VP Sales:").</div></div>
-          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-            <div class="prompt-text" id="pt5">Analyze the following stakeholder interview summaries. Identify:
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc5">
+    <div class="prompt-header" onclick="togglePrompt('pc5')">
+      <div><div class="prompt-title">Cross-Interview Pattern Detector</div><div class="prompt-meta">Input: multiple interview summaries · Output: themes + contradictions</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste all stakeholder interview summaries together, labeled by role (e.g., "VP of Sales:", "Category Manager:").</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc5-text">Analyze the following stakeholder interview summaries. Identify:
 
 1. Common themes mentioned by 2+ stakeholders (ranked by frequency)
 2. Contradictions or conflicts between stakeholder views
@@ -756,47 +765,50 @@ Reference which stakeholders raised each point.
 
 Interview summaries:
 [PASTE EACH SUMMARY, LABELED BY STAKEHOLDER ROLE]</div>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt5', this)">Copy Prompt</button>
-          </div>
-        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc5', this)">Copy Prompt</button>
       </div>
-      <div class="prompt-card" id="pc6">
-        <div class="prompt-header" onclick="togglePrompt('pc6')">
-          <div><div class="prompt-title">CM Best Practice Benchmark</div><div class="prompt-meta">Phase 2 · <span class="ai-step-badge badge-new">NEW</span></div></div>
-          <div class="prompt-chevron">▾</div>
-        </div>
-        <div class="prompt-body">
-          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">The workshop synthesis output — paste the structured summary from the Workshop Session Synthesis prompt above.</div></div>
-          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-            <div class="prompt-text" id="pt6">You are a category management expert benchmarking a CPG client against industry
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc6">
+    <div class="prompt-header" onclick="togglePrompt('pc6')">
+      <div><div class="prompt-title">CM Best Practice Benchmark <span style="font-size:10px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px;margin-left:4px;">NEW</span></div><div class="prompt-meta">Input: current-state description · Output: benchmark ratings per dimension</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the workshop synthesis from Prompt 4 or the cross-interview output from Prompt 5.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc6-text">You are a category management expert benchmarking a CPG client against industry
 best practices. Based on the current-state description below, assess their maturity in:
 
-1. Category strategy &amp; planning
-2. Data &amp; analytics capabilities
-3. Planogram &amp; space planning process
+1. Category strategy & planning
+2. Data & analytics capabilities
+3. Planogram & space planning process
 4. Supplier collaboration
-5. Technology stack &amp; integration
-6. Performance measurement &amp; reporting
+5. Technology stack & integration
+6. Performance measurement & reporting
 
 For each dimension: rate (Below Standard / At Standard / Above Standard) and
 write 1–2 sentences explaining the rating and gap to close.
 
 Current-state description:
 [PASTE WORKSHOP SYNTHESIS HERE]</div>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt6', this)">Copy Prompt</button>
-          </div>
-        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc6', this)">Copy Prompt</button>
       </div>
-      <div class="prompt-phase-title">Phase 3 — Analysis &amp; Opportunity Log</div>
-      <div class="prompt-card" id="pc7">
-        <div class="prompt-header" onclick="togglePrompt('pc7')">
-          <div><div class="prompt-title">Opportunity Log Entry Generator</div><div class="prompt-meta">Phase 3 · <span class="ai-step-badge badge-current">NOW</span></div></div>
-          <div class="prompt-chevron">▾</div>
-        </div>
-        <div class="prompt-body">
-          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Workshop synthesis and gap analysis from Phase 2 outputs.</div></div>
-          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-            <div class="prompt-text" id="pt7">Using the workshop synthesis and gap analysis below, generate opportunity log
+    </div>
+  </div>
+
+  <div class="prompt-phase-title">Phase 3 — Analysis</div>
+
+  <div class="prompt-card" id="pc7">
+    <div class="prompt-header" onclick="togglePrompt('pc7')">
+      <div><div class="prompt-title">Opportunity Log Entry Generator</div><div class="prompt-meta">Input: synthesis + gaps · Output: formatted opportunity log entries</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the workshop synthesis and gap analysis. Include any benchmark ratings from Prompt 6 if available.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc7-text">Using the workshop synthesis and gap analysis below, generate opportunity log
 entries in this format:
 
 | Opportunity | Description | Impact Area | Effort (Low/Med/High) | Impact (Low/Med/High) | Priority |
@@ -809,19 +821,20 @@ Rules:
 
 Synthesis and gaps:
 [PASTE HERE]</div>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt7', this)">Copy Prompt</button>
-          </div>
-        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc7', this)">Copy Prompt</button>
       </div>
-      <div class="prompt-card" id="pc8">
-        <div class="prompt-header" onclick="togglePrompt('pc8')">
-          <div><div class="prompt-title">Theme Clustering &amp; Prioritization</div><div class="prompt-meta">Phase 3 · <span class="ai-step-badge badge-current">NOW</span></div></div>
-          <div class="prompt-chevron">▾</div>
-        </div>
-        <div class="prompt-body">
-          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">The populated opportunity log table from the previous prompt.</div></div>
-          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-            <div class="prompt-text" id="pt8">Analyze this opportunity log and:
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc8">
+    <div class="prompt-header" onclick="togglePrompt('pc8')">
+      <div><div class="prompt-title">Theme Clustering &amp; Prioritization</div><div class="prompt-meta">Input: opportunity log · Output: 3–5 strategic themes + quick wins</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the full opportunity log from Prompt 7 or the populated Opportunity_Log_Template.xlsx (copy as text).</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc8-text">Analyze this opportunity log and:
 
 1. Cluster into 3–5 strategic themes (e.g. "Data Foundation", "Process Standardization")
 2. Summarize each theme in 1–2 sentences
@@ -831,20 +844,22 @@ Synthesis and gaps:
 
 Opportunity log:
 [PASTE HERE]</div>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt8', this)">Copy Prompt</button>
-          </div>
-        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc8', this)">Copy Prompt</button>
       </div>
-      <div class="prompt-phase-title">Phase 4 — Roadmap &amp; Readout</div>
-      <div class="prompt-card" id="pc9">
-        <div class="prompt-header" onclick="togglePrompt('pc9')">
-          <div><div class="prompt-title">Solution Roadmap Draft</div><div class="prompt-meta">Phase 4 · <span class="ai-step-badge badge-current">NOW</span></div></div>
-          <div class="prompt-chevron">▾</div>
-        </div>
-        <div class="prompt-body">
-          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">The prioritized opportunity log and clustered themes from Phase 3.</div></div>
-          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-            <div class="prompt-text" id="pt9">Using the prioritized opportunity log below, draft a solution roadmap in three horizons:
+    </div>
+  </div>
+
+  <div class="prompt-phase-title">Phase 4 — Roadmap &amp; Readout</div>
+
+  <div class="prompt-card" id="pc9">
+    <div class="prompt-header" onclick="togglePrompt('pc9')">
+      <div><div class="prompt-title">Solution Roadmap Draft</div><div class="prompt-meta">Input: prioritized opportunity log · Output: 3-horizon roadmap</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the prioritized opportunity log and themes from Prompt 8. Include any effort/impact scores.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc9-text">Using the prioritized opportunity log below, draft a solution roadmap in three horizons:
 
 - Horizon 1 (0–3 months): Quick wins and foundation work
 - Horizon 2 (3–9 months): Core capability builds
@@ -857,19 +872,20 @@ Format as a table followed by a brief narrative per horizon.
 
 Opportunity log and themes:
 [PASTE HERE]</div>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt9', this)">Copy Prompt</button>
-          </div>
-        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc9', this)">Copy Prompt</button>
       </div>
-      <div class="prompt-card" id="pc10">
-        <div class="prompt-header" onclick="togglePrompt('pc10')">
-          <div><div class="prompt-title">Executive Summary Generator</div><div class="prompt-meta">Phase 4 · <span class="ai-step-badge badge-current">NOW</span></div></div>
-          <div class="prompt-chevron">▾</div>
-        </div>
-        <div class="prompt-body">
-          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Key findings summary and solution roadmap draft from the previous prompt.</div></div>
-          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-            <div class="prompt-text" id="pt10">Write an executive summary for a category management assessment to be presented
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc10">
+    <div class="prompt-header" onclick="togglePrompt('pc10')">
+      <div><div class="prompt-title">Executive Summary Generator</div><div class="prompt-meta">Input: roadmap draft · Output: exec-ready summary for VP/SVP audience</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the roadmap draft from Prompt 9 along with the top findings from the opportunity log.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc10-text">Write an executive summary for a category management assessment to be presented
 to client leadership (VP/SVP level). Structure:
 
 1. Engagement Overview (2–3 sentences: what we did, who we talked to, scope)
@@ -882,11 +898,12 @@ Tone: executive, confident, actionable. No consulting jargon.
 
 Key findings and roadmap:
 [PASTE ROADMAP DRAFT HERE]</div>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt10', this)">Copy Prompt</button>
-          </div>
-        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc10', this)">Copy Prompt</button>
       </div>
     </div>
+  </div>
+
+</div>
     <div class="page-section" id="page-raci"><p style="padding:20px;color:var(--muted)">RACI Quick Reference — coming soon</p></div>
     <div class="page-section" id="page-gates"><p style="padding:20px;color:var(--muted)">Decision Gates — coming soon</p></div>
   </div>
@@ -998,11 +1015,14 @@ function togglePrompt(id) {
 }
 
 function copyPrompt(id, btn) {
-  const text = document.getElementById(id).textContent;
+  const text = document.getElementById(id + '-text').textContent;
   navigator.clipboard.writeText(text).then(() => {
     btn.textContent = '✓ Copied!';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    btn.textContent = 'Copy failed';
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; }, 2000);
   });
 }
 </script>
