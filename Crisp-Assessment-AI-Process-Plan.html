@@ -66,6 +66,35 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .nav-link.active { background: var(--green-light); border-left-color: var(--green);
                    color: var(--teal-dark); font-weight: 600; }
 .main { flex: 1; overflow-y: auto; padding: 30px 34px; }
+.prompt-phase-title { font-size: 16px; font-weight: 700; color: var(--teal-dark);
+  margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--green-light); }
+.prompt-phase-title:first-child { margin-top: 0; }
+.prompt-card { background: white; border: 1px solid var(--border);
+  border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+.prompt-header { padding: 14px 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; }
+.prompt-header:hover { background: #f9fafb; }
+.prompt-title { font-size: 13px; font-weight: 600; color: var(--teal-dark); }
+.prompt-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.prompt-chevron { color: var(--muted); transition: transform 0.2s; }
+.prompt-card.open .prompt-chevron { transform: rotate(180deg); }
+.prompt-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); }
+.prompt-card.open .prompt-body { display: block; }
+.prompt-section { margin-top: 12px; }
+.prompt-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: #9ab8b4; margin-bottom: 5px; }
+.prompt-text { background: #f8fffe; border: 1px solid var(--green-border); border-radius: 6px;
+  padding: 10px 12px; font-size: 12px; color: #1B4F4F; line-height: 1.6;
+  white-space: pre-wrap; font-family: 'Segoe UI', sans-serif; }
+.copy-btn { margin-top: 8px; padding: 6px 14px; background: var(--green); color: white;
+  border: none; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.copy-btn:hover { background: var(--green-dark); }
+.copy-btn.copied { background: #065f46; }
+.prompt-note { font-size: 11px; color: var(--muted); margin-top: 8px; padding: 8px 10px;
+  background: #fff7ed; border-radius: 5px; border-left: 3px solid #fed7aa; }
+.ai-step-badge { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; display: inline-block; }
+.badge-current { background: #0D3D35; color: white; }
+.badge-new { background: #d97706; color: white; }
 .hidden { display: none !important; }
 .page-section { display: none; }
 .page-section.active { display: block; }
@@ -314,6 +343,552 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         </div>
       </div>
     </div>
+    <div class="page-section" id="page-phase1">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Phase 1 — Intake</div>
+      <div class="page-subtitle">Client completes questionnaire · Stakeholders confirmed · Logistics locked</div>
+    </div>
+    <div class="gate-pill">✓ Gate 1 required before Discovery</div>
+  </div>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-label">Inputs</div>
+      <ul class="item-list">
+        <li>CMS Questionnaire (sent to client)</li>
+        <li>Stakeholder list from sales</li>
+        <li>Signed SOW</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">Key Activities</div>
+      <div class="progress-task" data-phase="1" data-task="0"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(1)"><label>Client completes questionnaire</label></div>
+      <div class="progress-task" data-phase="1" data-task="1"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(1)"><label>Stakeholders &amp; sample files identified</label></div>
+      <div class="progress-task" data-phase="1" data-task="2"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(1)"><label>Logistics confirmed (dates, access, tools)</label></div>
+      <div class="progress-task" data-phase="1" data-task="3"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(1)"><label>Internal kickoff held</label></div>
+      <div class="progress-task" data-phase="1" data-task="4"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(1)"><label>Shared project folder created</label></div>
+    </div>
+    <div class="card ai">
+      <div class="ai-tag">✦ AI Steps</div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Pre-score questionnaire for maturity &amp; gaps</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Flag missing inputs before discovery starts</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Draft stakeholder outreach &amp; logistics comms</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Auto-generate logistics checklist from SOW content</div></div>
+      <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 1 Prompts</a></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-label">Output</div>
+      <div style="font-size:14px;font-weight:600;color:var(--teal-dark);margin-bottom:5px;">Baseline insight on people, process &amp; tech</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Scored questionnaire summary + stakeholder map + confirmed logistics — ready to hand off to discovery team.</div>
+      <div class="sec-label">Templates</div>
+      <div class="templates-wrap">
+        <a class="tpl-link">📄 CMS_Questionnaire.docx</a>
+        <a class="tpl-link">📋 CX.ASSESSMENT.KICKOFF.2025.pptx</a>
+        <a class="tpl-link">🤖 AI Scoring Prompt</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">RACI</div>
+      <div class="raci-wrap">
+        <span class="chip chip-r">R: Project Manager</span>
+        <span class="chip chip-a">A: Dir. Business Solutions</span>
+        <span class="chip chip-c">C: Business Consultant</span>
+        <span class="chip chip-i">I: VP Consulting Services</span>
+      </div>
+      <div class="sec-label">Full Matrix</div>
+      <a class="tpl-link">📊 Assessment_Process_RACI.xlsx</a>
+    </div>
+  </div>
+  <div class="gate-card">
+    <div class="gate-icon">🚦</div>
+    <div>
+      <div class="gate-title">Gate 1 — Kickoff Complete</div>
+      <ul class="gate-items">
+        <li>Questionnaire returned by client</li>
+        <li>Stakeholders confirmed and contacted</li>
+        <li>Logistics locked (dates, access, tools)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+    <div class="page-section" id="page-phase2">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Phase 2 — Discovery</div>
+      <div class="page-subtitle">On-site or remote workshops · Stakeholder interviews · Current-state documentation</div>
+    </div>
+    <div class="gate-pill">✓ Gate 2 required before Analysis</div>
+  </div>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-label">Inputs</div>
+      <ul class="item-list">
+        <li>Completed scored questionnaire</li>
+        <li>Workshop Guide</li>
+        <li>CX Onsite Questions</li>
+        <li>Confirmed stakeholder list</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">Key Activities</div>
+      <div class="progress-task" data-phase="2" data-task="0"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(2)"><label>Run 1–3 day sessions</label></div>
+      <div class="progress-task" data-phase="2" data-task="1"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(2)"><label>Walk through current-state workflows</label></div>
+      <div class="progress-task" data-phase="2" data-task="2"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(2)"><label>Conduct targeted interviews (3–8 stakeholders)</label></div>
+      <div class="progress-task" data-phase="2" data-task="3"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(2)"><label>Surface pain points &amp; friction</label></div>
+      <div class="progress-task" data-phase="2" data-task="4"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(2)"><label>Consolidate notes</label></div>
+    </div>
+    <div class="card ai">
+      <div class="ai-tag">✦ AI Steps</div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Transcribe &amp; synthesize workshop sessions</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Cross-interview pattern &amp; gap detection</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Post-session gap flagging from workshop notes</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Benchmark findings against CM best practices</div></div>
+      <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 2 Prompts</a></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-label">Output</div>
+      <div style="font-size:14px;font-weight:600;color:var(--teal-dark);margin-bottom:5px;">Workshop notes, interview synthesis &amp; current-state view</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Consolidated notes from all sessions with key findings surfaced.</div>
+      <div class="sec-label">Templates</div>
+      <div class="templates-wrap">
+        <a class="tpl-link">📄 Assessment_Workshop_Guide.pptx</a>
+        <a class="tpl-link">📋 CX.ASSESSMENT.WORKSHOPS.2025.pptx</a>
+        <a class="tpl-link">📋 CX.ASSESSMENT.ONSITE.QUESTIONS.xlsx</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">RACI</div>
+      <div class="raci-wrap">
+        <span class="chip chip-r">R: Business Consultant</span>
+        <span class="chip chip-a">A: Dir. Business Solutions</span>
+        <span class="chip chip-c">C: Technical Architect</span>
+        <span class="chip chip-i">I: Project Manager</span>
+      </div>
+      <div class="sec-label">Full Matrix</div>
+      <a class="tpl-link">📊 Assessment_Process_RACI.xlsx</a>
+    </div>
+  </div>
+  <div class="gate-card">
+    <div class="gate-icon">🚦</div>
+    <div>
+      <div class="gate-title">Gate 2 — Discovery Complete</div>
+      <ul class="gate-items">
+        <li>All workshops completed</li>
+        <li>All interviews done</li>
+        <li>Notes consolidated</li>
+        <li>Crisp team agrees current state fully captured</li>
+      </ul>
+    </div>
+  </div>
+</div>
+    <div class="page-section" id="page-phase3">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Phase 3 — Analysis &amp; Opportunity Log</div>
+      <div class="page-subtitle">Benchmark findings · Build opportunity log · Cluster themes</div>
+    </div>
+    <div class="gate-pill">✓ Gate 3 required before Roadmap</div>
+  </div>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-label">Inputs</div>
+      <ul class="item-list">
+        <li>Workshop synthesis &amp; notes</li>
+        <li>Scored questionnaire</li>
+        <li>Interview summaries</li>
+        <li>Opportunity Log Template</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">Key Activities</div>
+      <div class="progress-task" data-phase="3" data-task="0"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(3)"><label>Benchmark against CM best practices</label></div>
+      <div class="progress-task" data-phase="3" data-task="1"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(3)"><label>Quantify gaps &amp; potential impact</label></div>
+      <div class="progress-task" data-phase="3" data-task="2"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(3)"><label>Build and populate opportunity log</label></div>
+      <div class="progress-task" data-phase="3" data-task="3"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(3)"><label>Cluster into top 3–5 strategic themes</label></div>
+      <div class="progress-task" data-phase="3" data-task="4"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(3)"><label>Internal review of findings</label></div>
+    </div>
+    <div class="card ai">
+      <div class="ai-tag">✦ AI Steps</div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Draft &amp; rank opportunity log entries</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Cluster findings into top 3–5 themes</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Quantify gap impact ranges</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Suggest prioritization logic (effort vs. impact)</div></div>
+      <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 3 Prompts</a></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-label">Output</div>
+      <div style="font-size:14px;font-weight:600;color:var(--teal-dark);margin-bottom:5px;">Opportunity log with prioritized findings</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Fully populated log with ranked entries and impact estimates.</div>
+      <div class="sec-label">Templates</div>
+      <div class="templates-wrap">
+        <a class="tpl-link">📊 Opportunity_Log_Template.xlsx</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">RACI</div>
+      <div class="raci-wrap">
+        <span class="chip chip-r">R: Business Consultant</span>
+        <span class="chip chip-a">A: Dir. Business Solutions</span>
+        <span class="chip chip-c">C: Solutions Consultant</span>
+        <span class="chip chip-i">I: VP Consulting Services</span>
+      </div>
+      <div class="sec-label">Full Matrix</div>
+      <a class="tpl-link">📊 Assessment_Process_RACI.xlsx</a>
+    </div>
+  </div>
+  <div class="gate-card">
+    <div class="gate-icon">🚦</div>
+    <div>
+      <div class="gate-title">Gate 3 — Findings Reviewed</div>
+      <ul class="gate-items">
+        <li>Opportunity log reviewed internally</li>
+        <li>Top 3–5 themes identified and agreed</li>
+        <li>Optional client checkpoint completed</li>
+      </ul>
+    </div>
+  </div>
+</div>
+    <div class="page-section" id="page-phase4">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Phase 4 — Roadmap &amp; Readout</div>
+      <div class="page-subtitle">Build solution roadmap · Estimate timelines &amp; costs · Present to client leadership</div>
+    </div>
+    <div class="gate-pill">🏁 Gate 4 closes the engagement</div>
+  </div>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-label">Inputs</div>
+      <ul class="item-list">
+        <li>Finalized opportunity log</li>
+        <li>Solution Roadmap template</li>
+        <li>Exec Summary template</li>
+        <li>Cost benchmarks</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">Key Activities</div>
+      <div class="progress-task" data-phase="4" data-task="0"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(4)"><label>Build short &amp; long-term solution roadmap</label></div>
+      <div class="progress-task" data-phase="4" data-task="1"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(4)"><label>Estimate timelines &amp; costs per solution</label></div>
+      <div class="progress-task" data-phase="4" data-task="2"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(4)"><label>Schedule stakeholder touchbase meetings</label></div>
+      <div class="progress-task" data-phase="4" data-task="3"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(4)"><label>Present roadmap to client leadership</label></div>
+      <div class="progress-task" data-phase="4" data-task="4"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(4)"><label>Capture follow-ups &amp; next steps</label></div>
+    </div>
+    <div class="card ai">
+      <div class="ai-tag">✦ AI Steps</div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Draft roadmap from opportunity log output</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Generate executive summary shell</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Auto-populate timelines &amp; sequencing logic</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Generate cost estimate ranges from solution components</div></div>
+      <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 4 Prompts</a></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-label">Output</div>
+      <div style="font-size:14px;font-weight:600;color:var(--teal-dark);margin-bottom:5px;">Solution Roadmap &amp; executive readout</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Phased roadmap with timelines, cost ranges, and exec summary for client sponsor.</div>
+      <div class="sec-label">Templates</div>
+      <div class="templates-wrap">
+        <a class="tpl-link">📄 Assessment_Solution_Roadmap_Template.pptx</a>
+        <a class="tpl-link">📄 Assessment_Executive_Summary.pptx</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">RACI</div>
+      <div class="raci-wrap">
+        <span class="chip chip-r">R: Dir. Business Solutions</span>
+        <span class="chip chip-a">A: Client Sponsor</span>
+        <span class="chip chip-c">C: Business Consultant</span>
+        <span class="chip chip-i">I: VP Consulting Services</span>
+      </div>
+      <div class="sec-label">Full Matrix</div>
+      <a class="tpl-link">📊 Assessment_Process_RACI.xlsx</a>
+    </div>
+  </div>
+  <div class="gate-card">
+    <div class="gate-icon">🏁</div>
+    <div>
+      <div class="gate-title">Gate 4 — Roadmap Readout Complete</div>
+      <ul class="gate-items">
+        <li>Solution roadmap delivered to client</li>
+        <li>Executive summary presented to leadership</li>
+        <li>Client sponsor signs off on prioritization</li>
+        <li>Follow-ups and next steps captured</li>
+        <li>SOW for solutions routed for signatures</li>
+      </ul>
+    </div>
+  </div>
+</div>
+    <div class="page-section" id="page-prompts">
+      <div style="margin-bottom:24px">
+        <div style="font-size:22px;font-weight:700;color:var(--teal-dark)">🤖 AI Prompt Library</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px">All Claude prompts organized by phase. Click any card to expand, then copy the prompt directly to your clipboard.</div>
+      </div>
+      <div class="prompt-phase-title">Phase 1 — Intake</div>
+      <div class="prompt-card" id="pc1">
+        <div class="prompt-header" onclick="togglePrompt('pc1')">
+          <div><div class="prompt-title">Questionnaire Maturity Scorer</div><div class="prompt-meta">Phase 1 · <span class="ai-step-badge badge-current">NOW</span></div></div>
+          <div class="prompt-chevron">▾</div>
+        </div>
+        <div class="prompt-body">
+          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Completed CMS Questionnaire responses — paste cells as plain text if copying from Excel.</div></div>
+          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+            <div class="prompt-text" id="pt1">You are a category management maturity assessor for a CPG consulting firm. Review the
+following completed assessment questionnaire and:
+
+1. Score the client's maturity across these dimensions: Data &amp; Analytics, Process
+   Maturity, Technology, Collaboration, Strategy. Use a 1–5 scale (1=basic, 5=best-in-class).
+2. Flag any dimensions scoring 2 or below as priority gaps.
+3. Identify the top 3 areas of strength.
+4. Note any questions left blank or answered vaguely — flag as "incomplete inputs."
+
+Format: Maturity Scores (table) / Priority Gaps (bullets) / Strengths (bullets) /
+Incomplete Inputs (if any)
+
+Questionnaire responses:
+[PASTE QUESTIONNAIRE HERE]</div>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt1', this)">Copy Prompt</button>
+          </div>
+          <div class="prompt-note">If the questionnaire is in Excel, paste cells as plain text.</div>
+        </div>
+      </div>
+      <div class="prompt-card" id="pc2">
+        <div class="prompt-header" onclick="togglePrompt('pc2')">
+          <div><div class="prompt-title">Stakeholder Outreach Email Draft</div><div class="prompt-meta">Phase 1 · <span class="ai-step-badge badge-current">NOW</span></div></div>
+          <div class="prompt-chevron">▾</div>
+        </div>
+        <div class="prompt-body">
+          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Stakeholder names and titles, workshop dates, format (on-site/remote), and questionnaire due date.</div></div>
+          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+            <div class="prompt-text" id="pt2">Draft a professional stakeholder outreach email from the Crisp consulting team to
+[CLIENT NAME] preparing for a category management assessment. The email should:
+
+- Introduce the assessment process at a high level (4 phases)
+- Confirm the workshop dates and format
+- Request the stakeholders listed below to participate in discovery workshops
+- Ask them to complete the attached CMS questionnaire by [DATE]
+- Be warm but professional in tone
+
+Stakeholders: [LIST NAMES AND TITLES]
+Workshop dates: [DATES]
+Format: [ON-SITE / REMOTE]
+Questionnaire due date: [DATE]</div>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt2', this)">Copy Prompt</button>
+          </div>
+        </div>
+      </div>
+      <div class="prompt-card" id="pc3">
+        <div class="prompt-header" onclick="togglePrompt('pc3')">
+          <div><div class="prompt-title">SOW Logistics Checklist Generator</div><div class="prompt-meta">Phase 1 · <span class="ai-step-badge badge-new">NEW</span></div></div>
+          <div class="prompt-chevron">▾</div>
+        </div>
+        <div class="prompt-body">
+          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">The Statement of Work (SOW) text — paste the full document or relevant sections.</div></div>
+          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+            <div class="prompt-text" id="pt3">Review this Statement of Work (SOW) and extract all logistics requirements.
+Generate a checklist organized by:
+
+1. Pre-engagement setup (access requests, tool setup, folder creation)
+2. Scheduling (meetings, workshops, interviews)
+3. Client deliverables needed from client
+4. Crisp deliverables and deadlines
+5. Travel or on-site requirements (if applicable)
+
+Flag time-sensitive items (needed before kickoff).
+
+SOW text:
+[PASTE SOW HERE]</div>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt3', this)">Copy Prompt</button>
+          </div>
+        </div>
+      </div>
+      <div class="prompt-phase-title">Phase 2 — Discovery</div>
+      <div class="prompt-card" id="pc4">
+        <div class="prompt-header" onclick="togglePrompt('pc4')">
+          <div><div class="prompt-title">Workshop Session Synthesis</div><div class="prompt-meta">Phase 2 · <span class="ai-step-badge badge-current">NOW</span></div></div>
+          <div class="prompt-chevron">▾</div>
+        </div>
+        <div class="prompt-body">
+          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Raw notes from a single workshop session — bullet points, transcripts, or typed notes are all fine.</div></div>
+          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+            <div class="prompt-text" id="pt4">You are summarizing notes from a category management assessment discovery workshop.
+Synthesize the following raw notes into:
+
+1. Current-state process overview (step by step)
+2. Key pain points raised (direct quotes where available)
+3. Technology and data gaps mentioned
+4. Stakeholder concerns or priorities
+5. Quick wins identified
+6. Open questions needing follow-up
+
+Flag anything contradictory across stakeholders.
+
+Raw workshop notes:
+[PASTE NOTES HERE]</div>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt4', this)">Copy Prompt</button>
+          </div>
+        </div>
+      </div>
+      <div class="prompt-card" id="pc5">
+        <div class="prompt-header" onclick="togglePrompt('pc5')">
+          <div><div class="prompt-title">Cross-Interview Pattern Detector</div><div class="prompt-meta">Phase 2 · <span class="ai-step-badge badge-current">NOW</span></div></div>
+          <div class="prompt-chevron">▾</div>
+        </div>
+        <div class="prompt-body">
+          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Multiple stakeholder interview summaries — label each by role (e.g. "Category Manager:", "VP Sales:").</div></div>
+          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+            <div class="prompt-text" id="pt5">Analyze the following stakeholder interview summaries. Identify:
+
+1. Common themes mentioned by 2+ stakeholders (ranked by frequency)
+2. Contradictions or conflicts between stakeholder views
+3. Gaps mentioned by most stakeholders (likely high-priority)
+4. Unique insights from individual stakeholders
+5. Overall sentiment toward current tools and processes
+
+Reference which stakeholders raised each point.
+
+Interview summaries:
+[PASTE EACH SUMMARY, LABELED BY STAKEHOLDER ROLE]</div>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt5', this)">Copy Prompt</button>
+          </div>
+        </div>
+      </div>
+      <div class="prompt-card" id="pc6">
+        <div class="prompt-header" onclick="togglePrompt('pc6')">
+          <div><div class="prompt-title">CM Best Practice Benchmark</div><div class="prompt-meta">Phase 2 · <span class="ai-step-badge badge-new">NEW</span></div></div>
+          <div class="prompt-chevron">▾</div>
+        </div>
+        <div class="prompt-body">
+          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">The workshop synthesis output — paste the structured summary from the Workshop Session Synthesis prompt above.</div></div>
+          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+            <div class="prompt-text" id="pt6">You are a category management expert benchmarking a CPG client against industry
+best practices. Based on the current-state description below, assess their maturity in:
+
+1. Category strategy &amp; planning
+2. Data &amp; analytics capabilities
+3. Planogram &amp; space planning process
+4. Supplier collaboration
+5. Technology stack &amp; integration
+6. Performance measurement &amp; reporting
+
+For each dimension: rate (Below Standard / At Standard / Above Standard) and
+write 1–2 sentences explaining the rating and gap to close.
+
+Current-state description:
+[PASTE WORKSHOP SYNTHESIS HERE]</div>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt6', this)">Copy Prompt</button>
+          </div>
+        </div>
+      </div>
+      <div class="prompt-phase-title">Phase 3 — Analysis &amp; Opportunity Log</div>
+      <div class="prompt-card" id="pc7">
+        <div class="prompt-header" onclick="togglePrompt('pc7')">
+          <div><div class="prompt-title">Opportunity Log Entry Generator</div><div class="prompt-meta">Phase 3 · <span class="ai-step-badge badge-current">NOW</span></div></div>
+          <div class="prompt-chevron">▾</div>
+        </div>
+        <div class="prompt-body">
+          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Workshop synthesis and gap analysis from Phase 2 outputs.</div></div>
+          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+            <div class="prompt-text" id="pt7">Using the workshop synthesis and gap analysis below, generate opportunity log
+entries in this format:
+
+| Opportunity | Description | Impact Area | Effort (Low/Med/High) | Impact (Low/Med/High) | Priority |
+
+Rules:
+- Write each opportunity as an action: "Implement X to achieve Y"
+- Impact areas: Data Quality, Process Efficiency, Collaboration, Technology, Revenue/Margin
+- Rank priority: High (quick win or high strategic value), Medium, Low
+- Aim for 10–20 entries
+
+Synthesis and gaps:
+[PASTE HERE]</div>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt7', this)">Copy Prompt</button>
+          </div>
+        </div>
+      </div>
+      <div class="prompt-card" id="pc8">
+        <div class="prompt-header" onclick="togglePrompt('pc8')">
+          <div><div class="prompt-title">Theme Clustering &amp; Prioritization</div><div class="prompt-meta">Phase 3 · <span class="ai-step-badge badge-current">NOW</span></div></div>
+          <div class="prompt-chevron">▾</div>
+        </div>
+        <div class="prompt-body">
+          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">The populated opportunity log table from the previous prompt.</div></div>
+          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+            <div class="prompt-text" id="pt8">Analyze this opportunity log and:
+
+1. Cluster into 3–5 strategic themes (e.g. "Data Foundation", "Process Standardization")
+2. Summarize each theme in 1–2 sentences
+3. Rank themes by overall business impact
+4. Identify top 3 "quick wins" — high impact, low effort
+5. Identify top 1–2 "strategic investments" — high impact, high effort
+
+Opportunity log:
+[PASTE HERE]</div>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt8', this)">Copy Prompt</button>
+          </div>
+        </div>
+      </div>
+      <div class="prompt-phase-title">Phase 4 — Roadmap &amp; Readout</div>
+      <div class="prompt-card" id="pc9">
+        <div class="prompt-header" onclick="togglePrompt('pc9')">
+          <div><div class="prompt-title">Solution Roadmap Draft</div><div class="prompt-meta">Phase 4 · <span class="ai-step-badge badge-current">NOW</span></div></div>
+          <div class="prompt-chevron">▾</div>
+        </div>
+        <div class="prompt-body">
+          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">The prioritized opportunity log and clustered themes from Phase 3.</div></div>
+          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+            <div class="prompt-text" id="pt9">Using the prioritized opportunity log below, draft a solution roadmap in three horizons:
+
+- Horizon 1 (0–3 months): Quick wins and foundation work
+- Horizon 2 (3–9 months): Core capability builds
+- Horizon 3 (9–18 months): Strategic and transformational investments
+
+For each initiative include: name, 1-sentence description, horizon placement,
+dependencies, effort level, expected outcome.
+
+Format as a table followed by a brief narrative per horizon.
+
+Opportunity log and themes:
+[PASTE HERE]</div>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt9', this)">Copy Prompt</button>
+          </div>
+        </div>
+      </div>
+      <div class="prompt-card" id="pc10">
+        <div class="prompt-header" onclick="togglePrompt('pc10')">
+          <div><div class="prompt-title">Executive Summary Generator</div><div class="prompt-meta">Phase 4 · <span class="ai-step-badge badge-current">NOW</span></div></div>
+          <div class="prompt-chevron">▾</div>
+        </div>
+        <div class="prompt-body">
+          <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:13px;color:var(--muted)">Key findings summary and solution roadmap draft from the previous prompt.</div></div>
+          <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+            <div class="prompt-text" id="pt10">Write an executive summary for a category management assessment to be presented
+to client leadership (VP/SVP level). Structure:
+
+1. Engagement Overview (2–3 sentences: what we did, who we talked to, scope)
+2. What We Found — Top 3 findings as business insights, not technical observations
+3. Strategic Themes — 3–5 themes, 1 sentence each
+4. Recommended Path Forward — 3-horizon roadmap narrative, 1 paragraph
+5. Immediate Next Steps — 3 bullets the client can act on now
+
+Tone: executive, confident, actionable. No consulting jargon.
+
+Key findings and roadmap:
+[PASTE ROADMAP DRAFT HERE]</div>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyPrompt('pt10', this)">Copy Prompt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page-section" id="page-raci"><p style="padding:20px;color:var(--muted)">RACI Quick Reference — coming soon</p></div>
+    <div class="page-section" id="page-gates"><p style="padding:20px;color:var(--muted)">Decision Gates — coming soon</p></div>
   </div>
 </div>
 <script>
@@ -402,7 +977,34 @@ function nav(page) {
   document.getElementById('mainContent').scrollTop = 0;
 }
 
-function updateProgress(phase) { /* placeholder — implemented in Task 5 */ }
+function updateProgress(phase) {
+  const tasks = document.querySelectorAll(`[data-phase="${phase}"] .progress-check`);
+  let done = 0;
+  tasks.forEach((cb, i) => {
+    const task = cb.closest('.progress-task');
+    if (cb.checked) { task.classList.add('done'); done++; }
+    else task.classList.remove('done');
+    if (!projectData.progress) projectData.progress = {1:{},2:{},3:{},4:{}};
+    projectData.progress[phase][i] = cb.checked;
+  });
+  const el = document.getElementById(`prog${phase}`);
+  if (el) el.textContent = `${done}/${tasks.length}`;
+  try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
+  catch { /* storage unavailable */ }
+}
+
+function togglePrompt(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function copyPrompt(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 2000);
+  });
+}
 </script>
 </body>
 </html>
