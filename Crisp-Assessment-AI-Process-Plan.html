@@ -7,7 +7,7 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-       background: #eef3f2; color: #1a1a1a; font-size: 14px; line-height: 1.5; }
+       background: var(--bg); color: #1a1a1a; font-size: 14px; line-height: 1.5; }
 :root {
   --green:       #00C49A;
   --green-dark:  #009E7C;
@@ -23,7 +23,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   background: var(--teal-dark); color: white;
   padding: 0 24px; height: 52px;
   display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 100; overflow: hidden;
+  position: sticky; top: 0; z-index: 100;
 }
 .topbar::before {
   content: ''; position: absolute; right: 180px; top: 0; bottom: 0; width: 200px;
