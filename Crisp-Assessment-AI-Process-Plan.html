@@ -41,6 +41,34 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
                    font-size: 11px; font-weight: 600; padding: 5px 11px;
                    border-radius: 5px; cursor: pointer; }
 .btn-new-project:hover { background: var(--green-dark); }
+.shell { display: flex; height: calc(100vh - 52px); }
+.sidebar { width: 220px; background: white; border-right: 1px solid var(--border);
+           overflow-y: auto; flex-shrink: 0; }
+.sidebar-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+                          color: #9ab8b4; padding: 20px 18px 8px; }
+.nav-list { list-style: none; }
+.nav-item { padding: 9px 16px; font-size: 13px; cursor: pointer;
+            display: flex; align-items: center; gap: 9px;
+            border-left: 3px solid transparent; color: var(--muted); transition: all 0.12s; }
+.nav-item.active { background: var(--green-light); border-left-color: var(--green);
+                   color: var(--teal-dark); font-weight: 600; }
+.nav-item:hover:not(.active) { background: #f5faf9; }
+.nav-badge { width: 20px; height: 20px; border-radius: 50%; background: #daeee9;
+             display: flex; align-items: center; justify-content: center;
+             font-size: 10px; font-weight: 700; flex-shrink: 0; color: var(--muted); }
+.nav-item.active .nav-badge { background: var(--green); color: white; }
+.nav-progress { margin-left: auto; font-size: 10px; color: var(--green); font-weight: 700; }
+.sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+.nav-link { padding: 7px 16px; font-size: 12px; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; color: #9ab8b4;
+            transition: all 0.12s; border-left: 3px solid transparent; }
+.nav-link:hover { background: #f5faf9; color: var(--muted); }
+.nav-link.active { background: var(--green-light); border-left-color: var(--green);
+                   color: var(--teal-dark); font-weight: 600; }
+.main { flex: 1; overflow-y: auto; padding: 30px 34px; }
+.hidden { display: none !important; }
+.page-section { display: none; }
+.page-section.active { display: block; }
 </style>
 </head>
 <body>
@@ -54,7 +82,54 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <button class="btn-new-project" onclick="newProject()">+ New Project</button>
   </div>
 </div>
+<div class="shell">
+  <div class="sidebar">
+    <div class="sidebar-section-label">Phases</div>
+    <ul class="nav-list">
+      <li class="nav-item active" onclick="nav('overview')"><span>🏠</span> Overview</li>
+      <li class="nav-item" onclick="nav('phase1')" id="nav-phase1">
+        <div class="nav-badge">1</div> Intake
+        <span class="nav-progress hidden" id="prog1"></span>
+      </li>
+      <li class="nav-item" onclick="nav('phase2')" id="nav-phase2">
+        <div class="nav-badge">2</div> Discovery
+        <span class="nav-progress hidden" id="prog2"></span>
+      </li>
+      <li class="nav-item" onclick="nav('phase3')" id="nav-phase3">
+        <div class="nav-badge">3</div> Analysis
+        <span class="nav-progress hidden" id="prog3"></span>
+      </li>
+      <li class="nav-item" onclick="nav('phase4')" id="nav-phase4">
+        <div class="nav-badge">4</div> Roadmap &amp; Readout
+        <span class="nav-progress hidden" id="prog4"></span>
+      </li>
+    </ul>
+    <hr class="sidebar-divider">
+    <div class="nav-link" onclick="nav('prompts')">🤖 AI Prompt Library</div>
+    <div class="nav-link" onclick="nav('raci')">📋 RACI Quick Reference</div>
+    <div class="nav-link" onclick="nav('gates')">🚦 Decision Gates</div>
+  </div>
+  <div class="main" id="mainContent">
+    <p>Main content here</p>
+  </div>
+</div>
 <script>
+function nav(page) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item, .nav-link').forEach(i => i.classList.remove('active'));
+  const section = document.getElementById('page-' + page);
+  if (section) section.classList.add('active');
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => {
+    if ((page === 'prompts' && l.textContent.includes('Prompt')) ||
+        (page === 'raci'    && l.textContent.includes('RACI'))    ||
+        (page === 'gates'   && l.textContent.includes('Gates')))   {
+      l.classList.add('active');
+    }
+  });
+  document.getElementById('mainContent').scrollTop = 0;
+}
 function newProject() { /* placeholder — implemented in Task 3 */ }
 </script>
 </body>
