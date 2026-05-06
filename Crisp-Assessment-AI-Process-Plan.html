@@ -105,9 +105,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       </li>
     </ul>
     <hr class="sidebar-divider">
-    <div class="nav-link" onclick="nav('prompts')">🤖 AI Prompt Library</div>
-    <div class="nav-link" onclick="nav('raci')">📋 RACI Quick Reference</div>
-    <div class="nav-link" onclick="nav('gates')">🚦 Decision Gates</div>
+    <div class="nav-link" id="nav-prompts" onclick="nav('prompts')">🤖 AI Prompt Library</div>
+    <div class="nav-link" id="nav-raci" onclick="nav('raci')">📋 RACI Quick Reference</div>
+    <div class="nav-link" id="nav-gates" onclick="nav('gates')">🚦 Decision Gates</div>
   </div>
   <div class="main" id="mainContent">
     <p>Main content here</p>
@@ -121,13 +121,6 @@ function nav(page) {
   if (section) section.classList.add('active');
   const navEl = document.getElementById('nav-' + page);
   if (navEl) navEl.classList.add('active');
-  document.querySelectorAll('.nav-link').forEach(l => {
-    if ((page === 'prompts' && l.textContent.includes('Prompt')) ||
-        (page === 'raci'    && l.textContent.includes('RACI'))    ||
-        (page === 'gates'   && l.textContent.includes('Gates')))   {
-      l.classList.add('active');
-    }
-  });
   document.getElementById('mainContent').scrollTop = 0;
 }
 function newProject() { /* placeholder — implemented in Task 3 */ }
