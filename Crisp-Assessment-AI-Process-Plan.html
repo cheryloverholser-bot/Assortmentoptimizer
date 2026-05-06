@@ -192,6 +192,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .progress-check { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
 .progress-task.done label { text-decoration: line-through; color: #9ab8b4; }
 .progress-task label { font-size: 13px; color: #374151; cursor: pointer; }
+.raci-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.raci-table th { background: var(--teal-dark); color: white; padding: 8px 12px;
+  text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+.raci-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.raci-table tr:hover td { background: #f5faf9; }
+.phase-tag { font-size: 10px; font-weight: 700; color: #009E7C;
+  background: var(--green-light); padding: 2px 7px; border-radius: 10px; }
+.gates-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.gate-full-card { background: white; border: 1px solid var(--border);
+  border-top: 4px solid var(--green); border-radius: 10px; padding: 20px; }
+.gate-num { font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted); margin-bottom: 6px; }
+.gate-full-title { font-size: 16px; font-weight: 700; color: var(--teal-dark); margin-bottom: 12px; }
+.gate-criteria { list-style: none; }
+.gate-criteria li { font-size: 13px; color: #374151; padding: 4px 0;
+  display: flex; align-items: flex-start; gap: 8px; }
+.gate-criteria li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
+.gate-next { margin-top: 12px; font-size: 11px; color: var(--muted);
+  padding-top: 10px; border-top: 1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -904,8 +923,97 @@ Key findings and roadmap:
   </div>
 
 </div>
-    <div class="page-section" id="page-raci"><p style="padding:20px;color:var(--muted)">RACI Quick Reference — coming soon</p></div>
-    <div class="page-section" id="page-gates"><p style="padding:20px;color:var(--muted)">Decision Gates — coming soon</p></div>
+<div class="page-section" id="page-raci">
+  <div class="page-header">
+    <div>
+      <div class="page-title">RACI Quick Reference</div>
+      <div class="page-subtitle">R=Responsible · A=Accountable · C=Consulted · I=Informed</div>
+    </div>
+    <a class="tpl-link">📊 Full RACI Matrix (Excel)</a>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="raci-table">
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Activity</th>
+          <th>Responsible (R)</th>
+          <th>Accountable (A)</th>
+          <th>Consulted (C)</th>
+          <th>Informed (I)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="phase-tag">Phase 1</span></td><td>Questionnaire &amp; intake</td><td>Project Manager</td><td>Dir. Business Solutions</td><td>Business Consultant</td><td>VP Consulting Services</td></tr>
+        <tr><td><span class="phase-tag">Phase 1</span></td><td>Kickoff meeting</td><td>Dir. Business Solutions</td><td>Dir. Business Solutions</td><td>Business Consultant</td><td>VP Sales &amp; Marketing</td></tr>
+        <tr><td><span class="phase-tag">Phase 1</span></td><td>SOW for assessment</td><td>Business Development</td><td>VP Consulting Services</td><td>Dir. Business Solutions</td><td>Project Manager</td></tr>
+        <tr><td><span class="phase-tag">Phase 2</span></td><td>Run workshop sessions</td><td>Business Consultant</td><td>Dir. Business Solutions</td><td>Technical Architect</td><td>Project Manager</td></tr>
+        <tr><td><span class="phase-tag">Phase 2</span></td><td>Capture opportunity log</td><td>Business Consultant</td><td>Dir. Business Solutions</td><td>—</td><td>Engagement lead</td></tr>
+        <tr><td><span class="phase-tag">Phase 2</span></td><td>Workshop deck creation</td><td>Business Consultant</td><td>Dir. Business Solutions</td><td>Technical Architect</td><td>Project Manager</td></tr>
+        <tr><td><span class="phase-tag">Phase 3</span></td><td>Build recommended solutions</td><td>Business Consultant</td><td>Dir. Business Solutions</td><td>Solutions Consultant</td><td>VP Consulting Services</td></tr>
+        <tr><td><span class="phase-tag">Phase 3</span></td><td>Finalize opportunity log</td><td>Solutions Consultant</td><td>Dir. Business Solutions</td><td>—</td><td>Project Manager</td></tr>
+        <tr><td><span class="phase-tag">Phase 3</span></td><td>Estimate costs</td><td>Dir. Business Solutions</td><td>VP Consulting Services</td><td>Solutions Consultant</td><td>Business Consultant</td></tr>
+        <tr><td><span class="phase-tag">Phase 4</span></td><td>Solution Roadmap build</td><td>Dir. Business Solutions</td><td>Dir. Business Solutions</td><td>Business Consultant</td><td>VP Consulting Services</td></tr>
+        <tr><td><span class="phase-tag">Phase 4</span></td><td>Roadmap readout meeting</td><td>Dir. Business Solutions</td><td>Client Sponsor</td><td>Business Consultant</td><td>VP Sales &amp; Marketing</td></tr>
+        <tr><td><span class="phase-tag">Phase 4</span></td><td>SOW for solutions</td><td>Business Development</td><td>VP Consulting Services</td><td>Dir. Business Solutions</td><td>Project Manager</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="page-section" id="page-gates">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Decision Gates</div>
+      <div class="page-subtitle">All 4 gates must be cleared before advancing to the next phase</div>
+    </div>
+  </div>
+  <div class="gates-grid">
+    <div class="gate-full-card">
+      <div class="gate-num">Gate 1 · Before Discovery</div>
+      <div class="gate-full-title">Kickoff Complete</div>
+      <ul class="gate-criteria">
+        <li>Questionnaire returned by client</li>
+        <li>Stakeholders confirmed and contacted</li>
+        <li>Logistics locked (dates, access, tools)</li>
+        <li>Internal kickoff meeting held</li>
+      </ul>
+      <div class="gate-next">→ Unlocks: Phase 2 Discovery</div>
+    </div>
+    <div class="gate-full-card">
+      <div class="gate-num">Gate 2 · Before Analysis</div>
+      <div class="gate-full-title">Discovery Complete</div>
+      <ul class="gate-criteria">
+        <li>All workshops completed</li>
+        <li>All stakeholder interviews done</li>
+        <li>Notes consolidated in shared folder</li>
+        <li>Crisp team agrees current state is fully captured</li>
+      </ul>
+      <div class="gate-next">→ Unlocks: Phase 3 Analysis</div>
+    </div>
+    <div class="gate-full-card">
+      <div class="gate-num">Gate 3 · Before Roadmap</div>
+      <div class="gate-full-title">Findings Reviewed</div>
+      <ul class="gate-criteria">
+        <li>Opportunity log reviewed internally</li>
+        <li>Top 3–5 themes identified and agreed</li>
+        <li>Optional client checkpoint completed</li>
+      </ul>
+      <div class="gate-next">→ Unlocks: Phase 4 Roadmap &amp; Readout</div>
+    </div>
+    <div class="gate-full-card">
+      <div class="gate-num">Gate 4 · Engagement Close</div>
+      <div class="gate-full-title">Roadmap Readout Complete</div>
+      <ul class="gate-criteria">
+        <li>Solution roadmap delivered to client</li>
+        <li>Executive summary presented to leadership</li>
+        <li>Client sponsor signs off on prioritization</li>
+        <li>Follow-ups and next steps captured</li>
+        <li>SOW for solutions routed for signatures</li>
+      </ul>
+      <div class="gate-next">→ Engagement complete · SOW opens next phase</div>
+    </div>
+  </div>
+</div>
   </div>
 </div>
 <script>
