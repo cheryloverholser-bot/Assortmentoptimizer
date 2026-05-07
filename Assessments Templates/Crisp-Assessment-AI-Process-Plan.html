@@ -1094,8 +1094,11 @@ function isPhaseComplete(phase) {
 let _toastTimer = null;
 function showToast(msg) {
   const t = document.getElementById('toast');
-  if (!t) return;
-  document.getElementById('toastMsg').textContent = msg;
+  const msgEl = document.getElementById('toastMsg');
+  if (!t || !msgEl) return;
+  msgEl.textContent = msg;
+  t.classList.add('hidden');
+  void t.offsetHeight;
   t.classList.remove('hidden');
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(hideToast, 3000);
