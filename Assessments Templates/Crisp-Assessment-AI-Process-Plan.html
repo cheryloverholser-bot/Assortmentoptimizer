@@ -227,7 +227,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   border-radius: 3px; padding: 1px 5px; margin-left: 6px; }
 mark { background: #fef9c3; color: inherit; border-radius: 2px; }
 @media print {
-  .topbar, .sidebar, .setup-overlay { display: none !important; }
+  .topbar, .sidebar, .setup-overlay, .toast { display: none !important; }
   .shell { display: block; height: auto; }
   .main { padding: 0; overflow: visible; }
   .page-section { display: block !important; break-inside: avoid; margin-bottom: 32px; }
@@ -360,7 +360,7 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     <div id="searchResults" class="hidden"></div>
     <div id="toast" class="toast hidden">
       <span id="toastMsg"></span>
-      <button class="toast-close" onclick="hideToast()">×</button>
+      <button class="toast-close" onclick="hideToast()" aria-label="Dismiss notification">×</button>
     </div>
 
     <div class="page-section active" id="page-overview">
@@ -1085,6 +1085,10 @@ window.onload = function() {
   const saved = localStorage.getItem('crispAssessment');
   if (saved) document.getElementById('resumeLink').classList.remove('hidden');
 };
+
+function hideToast() {
+  document.getElementById('toast')?.classList.add('hidden');
+}
 
 function toggleFeature(el, feature) {
   el.classList.toggle('on');
