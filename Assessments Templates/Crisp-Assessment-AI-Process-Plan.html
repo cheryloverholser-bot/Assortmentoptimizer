@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>crisp. — Assessment Process (AI-Enhanced)</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+       background: var(--bg); color: #1a1a1a; font-size: 14px; line-height: 1.5; }
+:root {
+  --green:       #00C49A;
+  --green-dark:  #009E7C;
+  --green-light: #e6f9f4;
+  --green-border:#a8e6d9;
+  --teal-dark:   #0D3D35;
+  --bg:          #eef3f2;
+  --card:        #ffffff;
+  --border:      #d4e4e1;
+  --muted:       #5a7a74;
+}
+.topbar {
+  background: var(--teal-dark); color: white;
+  padding: 0 24px; height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar::before {
+  content: ''; position: absolute; right: 180px; top: 0; bottom: 0; width: 200px;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px);
+  background-size: 10px 10px; pointer-events: none;
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.logo-pill { background: var(--green); color: white; font-weight: 700;
+             font-size: 15px; padding: 3px 11px; border-radius: 3px; }
+.topbar-title { font-size: 12px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.8px; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.topbar-client { font-size: 12px; opacity: 0.5; }
+.topbar-client span { opacity: 1; font-weight: 600; color: var(--green); }
+.btn-new-project { background: var(--green); color: white; border: none;
+                   font-size: 11px; font-weight: 600; padding: 5px 11px;
+                   border-radius: 5px; cursor: pointer; }
+.btn-new-project:hover { background: var(--green-dark); }
+.shell { display: flex; height: calc(100vh - 52px); }
+.sidebar { width: 220px; background: white; border-right: 1px solid var(--border);
+           overflow-y: auto; flex-shrink: 0; }
+.sidebar-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+                          color: #9ab8b4; padding: 20px 18px 8px; }
+.nav-list { list-style: none; }
+.nav-item { padding: 9px 16px; font-size: 13px; cursor: pointer;
+            display: flex; align-items: center; gap: 9px;
+            border-left: 3px solid transparent; color: var(--muted); transition: all 0.12s; }
+.nav-item.active { background: var(--green-light); border-left-color: var(--green);
+                   color: var(--teal-dark); font-weight: 600; }
+.nav-item:hover:not(.active) { background: #f5faf9; }
+.nav-badge { width: 20px; height: 20px; border-radius: 50%; background: #daeee9;
+             display: flex; align-items: center; justify-content: center;
+             font-size: 10px; font-weight: 700; flex-shrink: 0; color: var(--muted); }
+.nav-item.active .nav-badge { background: var(--green); color: white; }
+.nav-progress { margin-left: auto; font-size: 10px; color: var(--green); font-weight: 700; }
+.sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+.nav-link { padding: 7px 16px; font-size: 12px; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; color: #9ab8b4;
+            transition: all 0.12s; border-left: 3px solid transparent; }
+.nav-link:hover { background: #f5faf9; color: var(--muted); }
+.nav-link.active { background: var(--green-light); border-left-color: var(--green);
+                   color: var(--teal-dark); font-weight: 600; }
+.main { flex: 1; overflow-y: auto; padding: 30px 34px; }
+.prompt-phase-title { font-size: 16px; font-weight: 700; color: var(--teal-dark);
+  margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--green-light); }
+.prompt-phase-title:first-child { margin-top: 0; }
+.prompt-card { background: white; border: 1px solid var(--border);
+  border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+.prompt-header { padding: 14px 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; }
+.prompt-header:hover { background: #f9fafb; }
+.prompt-title { font-size: 13px; font-weight: 600; color: var(--teal-dark); }
+.prompt-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.prompt-chevron { color: var(--muted); transition: transform 0.2s; }
+.prompt-card.open .prompt-chevron { transform: rotate(180deg); }
+.prompt-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); }
+.prompt-card.open .prompt-body { display: block; }
+.prompt-section { margin-top: 12px; }
+.prompt-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: #9ab8b4; margin-bottom: 5px; }
+.prompt-text { background: #f8fffe; border: 1px solid var(--green-border); border-radius: 6px;
+  padding: 10px 12px; font-size: 12px; color: #1B4F4F; line-height: 1.6;
+  white-space: pre-wrap; font-family: 'Segoe UI', sans-serif; }
+.copy-btn { margin-top: 8px; padding: 6px 14px; background: var(--green); color: white;
+  border: none; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.copy-btn:hover { background: var(--green-dark); }
+.copy-btn.copied { background: #065f46; }
+.prompt-note { font-size: 11px; color: var(--muted); margin-top: 8px; padding: 8px 10px;
+  background: #fff7ed; border-radius: 5px; border-left: 3px solid #fed7aa; }
+.hidden { display: none !important; }
+.page-section { display: none; }
+.page-section.active { display: block; }
+.setup-overlay { position: fixed; inset: 0; background: rgba(13,61,53,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; backdrop-filter: blur(4px); }
+.setup-overlay.hidden { display: none; }
+.setup-card { background: white; border-radius: 14px; padding: 36px;
+  width: 100%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.setup-logo { font-weight: 700; font-size: 20px; color: white; background: var(--green);
+  display: inline-block; padding: 4px 12px; border-radius: 4px; margin-bottom: 18px; }
+.setup-title { font-size: 22px; font-weight: 700; color: var(--teal-dark); margin-bottom: 6px; }
+.setup-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+.form-field { margin-bottom: 18px; }
+.form-field label { display: block; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 6px; }
+.form-field input { width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+  border-radius: 7px; font-size: 14px; background: #f9fafb; }
+.form-field input:focus { outline: none; border-color: var(--green); background: white; }
+.toggle-section-label { font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--muted); margin-bottom: 12px; }
+.toggle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+.toggle-item { display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: all 0.15s; }
+.toggle-item.on { border-color: var(--green-border); background: var(--green-light); }
+.toggle-item-left { display: flex; flex-direction: column; gap: 1px; }
+.toggle-item-name { font-size: 13px; font-weight: 600; color: var(--teal-dark); }
+.toggle-item-desc { font-size: 11px; color: var(--muted); }
+.toggle-switch { width: 34px; height: 18px; border-radius: 9px; background: #d1d5db;
+  position: relative; flex-shrink: 0; transition: background 0.2s; }
+.toggle-item.on .toggle-switch { background: var(--green); }
+.toggle-switch::after { content: ''; position: absolute; width: 12px; height: 12px;
+  border-radius: 50%; background: white; top: 3px; left: 3px; transition: left 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle-item.on .toggle-switch::after { left: 19px; }
+.btn-primary { width: 100%; padding: 13px; background: var(--green); color: white;
+  font-size: 15px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; }
+.btn-primary:hover { background: var(--green-dark); }
+.setup-resume { text-align: center; font-size: 12px; color: #9ab8b4;
+  margin-top: 12px; cursor: pointer; }
+.setup-resume:hover { color: var(--muted); }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 26px; }
+.page-title { font-size: 22px; font-weight: 700; color: var(--teal-dark); }
+.page-subtitle { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.gate-pill { background: var(--green-light); color: #009E7C; font-size: 11px;
+  font-weight: 600; padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--green-border); white-space: nowrap; margin-top: 4px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.two-col   { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.card.ai { border-color: var(--green-border); background: var(--green-light); }
+.card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: #9ab8b4; margin-bottom: 10px; }
+.card.ai .card-label { color: #009E7C; }
+.ai-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 10px;
+  font-weight: 700; color: #009E7C; background: white; border: 1px solid var(--green-border);
+  border-radius: 3px; padding: 2px 7px; margin-bottom: 8px; }
+.item-list { list-style: none; }
+.item-list li { font-size: 13px; padding: 3px 0; color: #374151;
+  display: flex; align-items: flex-start; gap: 6px; }
+.item-list li::before { content: "›"; color: #a8c8c2; flex-shrink: 0; }
+.card.ai .item-list li::before { color: var(--green); }
+.ai-step { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0;
+  border-bottom: 1px solid rgba(0,196,154,0.15); }
+.ai-step:last-child { border-bottom: none; }
+.ai-step-badge { font-size: 9px; font-weight: 700; padding: 2px 5px;
+  border-radius: 3px; flex-shrink: 0; margin-top: 2px; }
+.badge-current { background: #d1fae5; color: #065f46; }
+.badge-new     { background: #fef3c7; color: #92400e; }
+.ai-step-text  { font-size: 12px; color: #1B4F4F; }
+.sec-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: #9ab8b4; margin: 14px 0 8px; }
+.tpl-link { display: inline-flex; align-items: center; gap: 5px; font-size: 11px;
+  color: #009E7C; background: var(--green-light); border: 1px solid var(--green-border);
+  border-radius: 5px; padding: 3px 9px; cursor: pointer; text-decoration: none; }
+.tpl-link:hover { background: #d0f2ea; }
+.templates-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.raci-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.chip { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
+.chip-r { background: var(--green-light); color: #009E7C; border: 1px solid var(--green-border); }
+.chip-a { background: #e8f4f8; color: #1B6B8A; border: 1px solid #b8d8e8; }
+.chip-c { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+.chip-i { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.gate-card { background: white; border: 1px solid var(--green-border);
+  border-left: 4px solid var(--green); border-radius: 10px; padding: 14px 18px;
+  display: flex; align-items: flex-start; gap: 12px; }
+.gate-icon { font-size: 18px; margin-top: 1px; }
+.gate-title { font-size: 13px; font-weight: 700; color: var(--teal-dark); margin-bottom: 4px; }
+.gate-items { list-style: none; }
+.gate-items li { font-size: 12px; color: var(--muted); padding: 2px 0;
+  display: flex; align-items: center; gap: 6px; }
+.gate-items li::before { content: "✓"; color: var(--green); font-weight: 700; }
+.progress-task { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.progress-check { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
+.progress-task.done label { text-decoration: line-through; color: #9ab8b4; }
+.progress-task label { font-size: 13px; color: #374151; cursor: pointer; }
+.raci-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.raci-table th { background: var(--teal-dark); color: white; padding: 8px 12px;
+  text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+.raci-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.raci-table tr:hover td { background: #f5faf9; }
+.phase-tag { font-size: 10px; font-weight: 700; color: #009E7C;
+  background: var(--green-light); padding: 2px 7px; border-radius: 10px; }
+.gates-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.gate-full-card { background: white; border: 1px solid var(--border);
+  border-top: 4px solid var(--green); border-radius: 10px; padding: 20px; }
+.gate-num { font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted); margin-bottom: 6px; }
+.gate-full-title { font-size: 16px; font-weight: 700; color: var(--teal-dark); margin-bottom: 12px; }
+.gate-criteria { list-style: none; }
+.gate-criteria li { font-size: 13px; color: #374151; padding: 4px 0;
+  display: flex; align-items: flex-start; gap: 8px; }
+.gate-criteria li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
+.gate-next { margin-top: 12px; font-size: 11px; color: var(--muted);
+  padding-top: 10px; border-top: 1px solid var(--border); }
+.btn-print { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  color: white; font-size: 11px; padding: 4px 10px; border-radius: 5px; cursor: pointer; }
+.btn-print:hover { background: rgba(255,255,255,0.2); }
+.search-input-wrap { position: relative; }
+.search-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px; color: white; font-size: 12px; padding: 5px 10px 5px 28px; width: 180px; outline: none; }
+.search-input::placeholder { color: rgba(255,255,255,0.4); }
+.search-input:focus { background: rgba(255,255,255,0.15); border-color: var(--green); }
+.search-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+  opacity: 0.5; font-size: 12px; }
+.search-result { padding: 8px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+.search-result:last-child { border-bottom: none; }
+.search-result:hover { background: #f5faf9; margin: 0 -8px; padding: 8px; border-radius: 5px; }
+.search-result-title { font-size: 13px; font-weight: 600; color: var(--teal-dark); }
+.search-result-context { font-size: 12px; color: var(--muted); }
+.search-result-tag { font-size: 10px; color: #009E7C; background: var(--green-light);
+  border-radius: 3px; padding: 1px 5px; margin-left: 6px; }
+mark { background: #fef9c3; color: inherit; border-radius: 2px; }
+@media print {
+  .topbar, .sidebar, .setup-overlay { display: none !important; }
+  .shell { display: block; height: auto; }
+  .main { padding: 0; overflow: visible; }
+  .page-section { display: block !important; break-inside: avoid; margin-bottom: 32px; }
+  .three-col, .two-col { display: block; }
+  .card { break-inside: avoid; margin-bottom: 12px; border: 1px solid #ccc; }
+  .page-title { font-size: 18px; }
+  body { background: white; }
+}
+.toast {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: #d97706;
+  color: white;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  animation: toastSlideIn 0.2s ease;
+}
+.toast.hidden { display: none !important; }
+.toast-close {
+  cursor: pointer; font-size: 18px; line-height: 1;
+  background: none; border: none; color: white; padding: 0;
+}
+@keyframes toastSlideIn {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+</style>
+</head>
+<body>
+<div class="setup-overlay" id="setupModal">
+  <div class="setup-card">
+    <div class="setup-logo">crisp.</div>
+    <div class="setup-title">Start a New Assessment</div>
+    <div class="setup-sub">Set up this engagement so the process plan is ready to use.</div>
+    <div class="form-field">
+      <label>Client Name</label>
+      <input type="text" id="clientName" placeholder="e.g. Walmart, Kroger, Target…" />
+    </div>
+    <div class="form-field">
+      <label>Engagement Lead</label>
+      <input type="text" id="engagementLead" placeholder="Your name" />
+    </div>
+    <div class="toggle-section-label">Enable for this project</div>
+    <div class="toggle-grid">
+      <div class="toggle-item on" onclick="toggleFeature(this,'progress')" data-feature="progress">
+        <div class="toggle-item-left">
+          <div class="toggle-item-name">Progress Tracker</div>
+          <div class="toggle-item-desc">Check off tasks as you go</div>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-item on" onclick="toggleFeature(this,'print')" data-feature="print">
+        <div class="toggle-item-left">
+          <div class="toggle-item-name">Print View</div>
+          <div class="toggle-item-desc">Clean printable layout</div>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-item" onclick="toggleFeature(this,'search')" data-feature="search">
+        <div class="toggle-item-left">
+          <div class="toggle-item-name">Search</div>
+          <div class="toggle-item-desc">Search all content</div>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>
+      <div class="toggle-item" onclick="toggleFeature(this,'changelog')" data-feature="changelog">
+        <div class="toggle-item-left">
+          <div class="toggle-item-name">Changelog</div>
+          <div class="toggle-item-desc">What's new in v2.0</div>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="launchProject()">Launch Assessment Process →</button>
+    <div class="setup-resume hidden" id="resumeLink" onclick="resumeProject()">Resume existing project →</div>
+  </div>
+</div>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-pill">crisp.</div>
+    <div class="topbar-title">Assessment Process — AI-Enhanced v2.0</div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-client">Project: <span id="clientDisplay">—</span></div>
+    <div class="search-input-wrap hidden" id="searchWrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" placeholder="Search…"
+             id="searchInput" oninput="doSearch(this.value)" />
+    </div>
+    <button class="btn-print hidden" id="printBtn" onclick="window.print()">🖨 Print</button>
+    <button class="btn-new-project" onclick="newProject()">+ New Project</button>
+  </div>
+</div>
+<div class="shell">
+  <div class="sidebar">
+    <div class="sidebar-section-label">Phases</div>
+    <ul class="nav-list">
+      <li class="nav-item active" id="nav-overview" onclick="nav('overview')"><span>🏠</span> Overview</li>
+      <li class="nav-item" onclick="nav('phase1')" id="nav-phase1">
+        <div class="nav-badge">1</div> Intake
+        <span class="nav-progress hidden" id="prog1"></span>
+      </li>
+      <li class="nav-item" onclick="nav('phase2')" id="nav-phase2">
+        <div class="nav-badge">2</div> Discovery
+        <span class="nav-progress hidden" id="prog2"></span>
+      </li>
+      <li class="nav-item" onclick="nav('phase3')" id="nav-phase3">
+        <div class="nav-badge">3</div> Analysis
+        <span class="nav-progress hidden" id="prog3"></span>
+      </li>
+      <li class="nav-item" onclick="nav('phase4')" id="nav-phase4">
+        <div class="nav-badge">4</div> Roadmap &amp; Readout
+        <span class="nav-progress hidden" id="prog4"></span>
+      </li>
+    </ul>
+    <hr class="sidebar-divider">
+    <div class="nav-link" id="nav-prompts" onclick="nav('prompts')">🤖 AI Prompt Library</div>
+    <div class="nav-link" id="nav-raci" onclick="nav('raci')">📋 RACI Quick Reference</div>
+    <div class="nav-link" id="nav-gates" onclick="nav('gates')">🚦 Decision Gates</div>
+  </div>
+  <div class="main" id="mainContent">
+    <div id="searchResults" class="hidden"></div>
+    <div id="toast" class="toast hidden">
+      <span id="toastMsg"></span>
+      <button class="toast-close" onclick="hideToast()">×</button>
+    </div>
+
+    <div class="page-section active" id="page-overview">
+      <div style="background:var(--teal-dark);color:white;border-radius:12px;padding:28px;
+                  margin-bottom:20px;position:relative;overflow:hidden;">
+        <div style="position:absolute;right:30px;top:0;bottom:0;width:200px;
+                    background-image:radial-gradient(circle,rgba(255,255,255,0.08) 1px,transparent 1px);
+                    background-size:10px 10px;pointer-events:none;"></div>
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:8px;">Crisp Assessment Process — AI-Enhanced</h2>
+        <p style="font-size:13px;opacity:0.75;max-width:500px;line-height:1.6;">
+          A living reference for running AI-assisted category management assessments.
+          Each phase documents what the team does, where Claude helps, and what must
+          be complete before moving forward.
+        </p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        <div class="card" style="border-top:3px solid var(--green);cursor:pointer;" onclick="nav('phase1')">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Phase 1</div>
+          <div style="font-size:14px;font-weight:700;color:var(--teal-dark);margin-bottom:6px;">Intake</div>
+          <div style="font-size:11px;color:var(--muted);">Output: Baseline insight on people, process &amp; tech</div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--green);cursor:pointer;" onclick="nav('phase2')">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Phase 2</div>
+          <div style="font-size:14px;font-weight:700;color:var(--teal-dark);margin-bottom:6px;">Discovery</div>
+          <div style="font-size:11px;color:var(--muted);">Output: Workshop notes &amp; current-state view</div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--green);cursor:pointer;" onclick="nav('phase3')">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Phase 3</div>
+          <div style="font-size:14px;font-weight:700;color:var(--teal-dark);margin-bottom:6px;">Analysis</div>
+          <div style="font-size:11px;color:var(--muted);">Output: Prioritized opportunity log</div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--green);cursor:pointer;" onclick="nav('phase4')">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Phase 4</div>
+          <div style="font-size:14px;font-weight:700;color:var(--teal-dark);margin-bottom:6px;">Roadmap &amp; Readout</div>
+          <div style="font-size:11px;color:var(--muted);">Output: Solution roadmap &amp; exec readout</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:20px;">
+        <h3 style="font-size:14px;font-weight:700;color:var(--teal-dark);margin-bottom:12px;">How to use this site</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+          <div style="font-size:12px;color:var(--muted);"><strong style="display:block;color:var(--teal-dark);margin-bottom:3px;">Navigate by phase</strong>Use the sidebar to move through the 4 phases in order. Don't skip a phase until its gate is cleared.</div>
+          <div style="font-size:12px;color:var(--muted);"><strong style="display:block;color:var(--teal-dark);margin-bottom:3px;">Use the AI steps</strong>Each phase has AI steps — current (NOW) and new (NEW). Full prompts are in the AI Prompt Library.</div>
+          <div style="font-size:12px;color:var(--muted);"><strong style="display:block;color:var(--teal-dark);margin-bottom:3px;">Check the gates</strong>Each phase ends with a gate. All criteria must be met before the next phase begins.</div>
+        </div>
+      </div>
+      <div class="hidden" id="changelogSection">
+        <div style="background:white;border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+          <div style="padding:14px 18px;cursor:pointer;background:#f9fafb;display:flex;align-items:center;justify-content:space-between;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+            <strong style="font-size:14px;color:var(--teal-dark);">📝 What changed in v2.0</strong><span>▾</span>
+          </div>
+          <div style="display:none;padding:16px 18px;">
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Added ✦ AI Steps to all 4 phases — both existing and new AI-powered workflows</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Added AI Prompt Library with 10 copy-ready Claude prompts</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Added per-project setup with toggleable features (progress, print, search, changelog)</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Updated Discovery: post-session gap flagging + CM benchmarking</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Updated Analysis: impact quantification + prioritization logic</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Updated Roadmap: auto-populated timelines + cost estimate ranges</div>
+            <div style="padding:6px 0;font-size:13px;color:#374151;display:flex;gap:8px;"><span style="color:var(--green);">▸</span>Replaces static PPTX process map with interactive web reference</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page-section" id="page-phase1">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Phase 1 — Intake</div>
+      <div class="page-subtitle">Client completes questionnaire · Stakeholders confirmed · Logistics locked</div>
+    </div>
+    <div class="gate-pill">✓ Gate 1 required before Discovery</div>
+  </div>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-label">Inputs</div>
+      <ul class="item-list">
+        <li>CMS Questionnaire (sent to client)</li>
+        <li>Stakeholder list from sales</li>
+        <li>Signed SOW</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">Key Activities</div>
+      <div class="progress-task" data-phase="1" data-task="0"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(1)"><label>Client completes questionnaire</label></div>
+      <div class="progress-task" data-phase="1" data-task="1"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(1)"><label>Stakeholders &amp; sample files identified</label></div>
+      <div class="progress-task" data-phase="1" data-task="2"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(1)"><label>Logistics confirmed (dates, access, tools)</label></div>
+      <div class="progress-task" data-phase="1" data-task="3"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(1)"><label>Internal kickoff held</label></div>
+      <div class="progress-task" data-phase="1" data-task="4"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(1)"><label>Shared project folder created</label></div>
+    </div>
+    <div class="card ai">
+      <div class="ai-tag">✦ AI Steps</div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Pre-score questionnaire for maturity &amp; gaps</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Flag missing inputs before discovery starts</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Draft stakeholder outreach &amp; logistics comms</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Auto-generate logistics checklist from SOW content</div></div>
+      <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 1 Prompts</a></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-label">Output</div>
+      <div style="font-size:14px;font-weight:600;color:var(--teal-dark);margin-bottom:5px;">Baseline insight on people, process &amp; tech</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Scored questionnaire summary + stakeholder map + confirmed logistics — ready to hand off to discovery team.</div>
+      <div class="sec-label">Templates</div>
+      <div class="templates-wrap">
+        <a class="tpl-link">📄 CMS_Questionnaire.docx</a>
+        <a class="tpl-link">📋 CX.ASSESSMENT.KICKOFF.2025.pptx</a>
+        <a class="tpl-link">🤖 AI Scoring Prompt</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">RACI</div>
+      <div class="raci-wrap">
+        <span class="chip chip-r">R: Project Manager</span>
+        <span class="chip chip-a">A: Dir. Business Solutions</span>
+        <span class="chip chip-c">C: Business Consultant</span>
+        <span class="chip chip-i">I: VP Consulting Services</span>
+      </div>
+      <div class="sec-label">Full Matrix</div>
+      <a class="tpl-link">📊 Assessment_Process_RACI.xlsx</a>
+    </div>
+  </div>
+  <div class="gate-card">
+    <div class="gate-icon">🚦</div>
+    <div>
+      <div class="gate-title">Gate 1 — Kickoff Complete</div>
+      <ul class="gate-items">
+        <li>Questionnaire returned by client</li>
+        <li>Stakeholders confirmed and contacted</li>
+        <li>Logistics locked (dates, access, tools)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+    <div class="page-section" id="page-phase2">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Phase 2 — Discovery</div>
+      <div class="page-subtitle">On-site or remote workshops · Stakeholder interviews · Current-state documentation</div>
+    </div>
+    <div class="gate-pill">✓ Gate 2 required before Analysis</div>
+  </div>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-label">Inputs</div>
+      <ul class="item-list">
+        <li>Completed scored questionnaire</li>
+        <li>Workshop Guide</li>
+        <li>CX Onsite Questions</li>
+        <li>Confirmed stakeholder list</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">Key Activities</div>
+      <div class="progress-task" data-phase="2" data-task="0"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(2)"><label>Run 1–3 day sessions</label></div>
+      <div class="progress-task" data-phase="2" data-task="1"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(2)"><label>Walk through current-state workflows</label></div>
+      <div class="progress-task" data-phase="2" data-task="2"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(2)"><label>Conduct targeted interviews (3–8 stakeholders)</label></div>
+      <div class="progress-task" data-phase="2" data-task="3"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(2)"><label>Surface pain points &amp; friction</label></div>
+      <div class="progress-task" data-phase="2" data-task="4"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(2)"><label>Consolidate notes</label></div>
+    </div>
+    <div class="card ai">
+      <div class="ai-tag">✦ AI Steps</div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Transcribe &amp; synthesize workshop sessions</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Cross-interview pattern &amp; gap detection</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Post-session gap flagging from workshop notes</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Benchmark findings against CM best practices</div></div>
+      <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 2 Prompts</a></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-label">Output</div>
+      <div style="font-size:14px;font-weight:600;color:var(--teal-dark);margin-bottom:5px;">Workshop notes, interview synthesis &amp; current-state view</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Consolidated notes from all sessions with key findings surfaced.</div>
+      <div class="sec-label">Templates</div>
+      <div class="templates-wrap">
+        <a class="tpl-link">📄 Assessment_Workshop_Guide.pptx</a>
+        <a class="tpl-link">📋 CX.ASSESSMENT.WORKSHOPS.2025.pptx</a>
+        <a class="tpl-link">📋 CX.ASSESSMENT.ONSITE.QUESTIONS.xlsx</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">RACI</div>
+      <div class="raci-wrap">
+        <span class="chip chip-r">R: Business Consultant</span>
+        <span class="chip chip-a">A: Dir. Business Solutions</span>
+        <span class="chip chip-c">C: Technical Architect</span>
+        <span class="chip chip-i">I: Project Manager</span>
+      </div>
+      <div class="sec-label">Full Matrix</div>
+      <a class="tpl-link">📊 Assessment_Process_RACI.xlsx</a>
+    </div>
+  </div>
+  <div class="gate-card">
+    <div class="gate-icon">🚦</div>
+    <div>
+      <div class="gate-title">Gate 2 — Discovery Complete</div>
+      <ul class="gate-items">
+        <li>All workshops completed</li>
+        <li>All interviews done</li>
+        <li>Notes consolidated</li>
+        <li>Crisp team agrees current state fully captured</li>
+      </ul>
+    </div>
+  </div>
+</div>
+    <div class="page-section" id="page-phase3">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Phase 3 — Analysis &amp; Opportunity Log</div>
+      <div class="page-subtitle">Benchmark findings · Build opportunity log · Cluster themes</div>
+    </div>
+    <div class="gate-pill">✓ Gate 3 required before Roadmap</div>
+  </div>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-label">Inputs</div>
+      <ul class="item-list">
+        <li>Workshop synthesis &amp; notes</li>
+        <li>Scored questionnaire</li>
+        <li>Interview summaries</li>
+        <li>Opportunity Log Template</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">Key Activities</div>
+      <div class="progress-task" data-phase="3" data-task="0"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(3)"><label>Benchmark against CM best practices</label></div>
+      <div class="progress-task" data-phase="3" data-task="1"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(3)"><label>Quantify gaps &amp; potential impact</label></div>
+      <div class="progress-task" data-phase="3" data-task="2"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(3)"><label>Build and populate opportunity log</label></div>
+      <div class="progress-task" data-phase="3" data-task="3"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(3)"><label>Cluster into top 3–5 strategic themes</label></div>
+      <div class="progress-task" data-phase="3" data-task="4"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(3)"><label>Internal review of findings</label></div>
+    </div>
+    <div class="card ai">
+      <div class="ai-tag">✦ AI Steps</div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Draft &amp; rank opportunity log entries</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Cluster findings into top 3–5 themes</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Quantify gap impact ranges</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Suggest prioritization logic (effort vs. impact)</div></div>
+      <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 3 Prompts</a></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-label">Output</div>
+      <div style="font-size:14px;font-weight:600;color:var(--teal-dark);margin-bottom:5px;">Opportunity log with prioritized findings</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Fully populated log with ranked entries and impact estimates.</div>
+      <div class="sec-label">Templates</div>
+      <div class="templates-wrap">
+        <a class="tpl-link">📊 Opportunity_Log_Template.xlsx</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">RACI</div>
+      <div class="raci-wrap">
+        <span class="chip chip-r">R: Business Consultant</span>
+        <span class="chip chip-a">A: Dir. Business Solutions</span>
+        <span class="chip chip-c">C: Solutions Consultant</span>
+        <span class="chip chip-i">I: VP Consulting Services</span>
+      </div>
+      <div class="sec-label">Full Matrix</div>
+      <a class="tpl-link">📊 Assessment_Process_RACI.xlsx</a>
+    </div>
+  </div>
+  <div class="gate-card">
+    <div class="gate-icon">🚦</div>
+    <div>
+      <div class="gate-title">Gate 3 — Findings Reviewed</div>
+      <ul class="gate-items">
+        <li>Opportunity log reviewed internally</li>
+        <li>Top 3–5 themes identified and agreed</li>
+        <li>Optional client checkpoint completed</li>
+      </ul>
+    </div>
+  </div>
+</div>
+    <div class="page-section" id="page-phase4">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Phase 4 — Roadmap &amp; Readout</div>
+      <div class="page-subtitle">Build solution roadmap · Estimate timelines &amp; costs · Present to client leadership</div>
+    </div>
+    <div class="gate-pill">🏁 Gate 4 closes the engagement</div>
+  </div>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-label">Inputs</div>
+      <ul class="item-list">
+        <li>Finalized opportunity log</li>
+        <li>Solution Roadmap template</li>
+        <li>Exec Summary template</li>
+        <li>Cost benchmarks</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">Key Activities</div>
+      <div class="progress-task" data-phase="4" data-task="0"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(4)"><label>Build short &amp; long-term solution roadmap</label></div>
+      <div class="progress-task" data-phase="4" data-task="1"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(4)"><label>Estimate timelines &amp; costs per solution</label></div>
+      <div class="progress-task" data-phase="4" data-task="2"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(4)"><label>Schedule stakeholder touchbase meetings</label></div>
+      <div class="progress-task" data-phase="4" data-task="3"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(4)"><label>Present roadmap to client leadership</label></div>
+      <div class="progress-task" data-phase="4" data-task="4"><input type="checkbox" class="progress-check hidden" onchange="updateProgress(4)"><label>Capture follow-ups &amp; next steps</label></div>
+    </div>
+    <div class="card ai">
+      <div class="ai-tag">✦ AI Steps</div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Draft roadmap from opportunity log output</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Generate executive summary shell</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Auto-populate timelines &amp; sequencing logic</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Generate cost estimate ranges from solution components</div></div>
+      <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 4 Prompts</a></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-label">Output</div>
+      <div style="font-size:14px;font-weight:600;color:var(--teal-dark);margin-bottom:5px;">Solution Roadmap &amp; executive readout</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Phased roadmap with timelines, cost ranges, and exec summary for client sponsor.</div>
+      <div class="sec-label">Templates</div>
+      <div class="templates-wrap">
+        <a class="tpl-link">📄 Assessment_Solution_Roadmap_Template.pptx</a>
+        <a class="tpl-link">📄 Assessment_Executive_Summary.pptx</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">RACI</div>
+      <div class="raci-wrap">
+        <span class="chip chip-r">R: Dir. Business Solutions</span>
+        <span class="chip chip-a">A: Client Sponsor</span>
+        <span class="chip chip-c">C: Business Consultant</span>
+        <span class="chip chip-i">I: VP Consulting Services</span>
+      </div>
+      <div class="sec-label">Full Matrix</div>
+      <a class="tpl-link">📊 Assessment_Process_RACI.xlsx</a>
+    </div>
+  </div>
+  <div class="gate-card">
+    <div class="gate-icon">🏁</div>
+    <div>
+      <div class="gate-title">Gate 4 — Roadmap Readout Complete</div>
+      <ul class="gate-items">
+        <li>Solution roadmap delivered to client</li>
+        <li>Executive summary presented to leadership</li>
+        <li>Client sponsor signs off on prioritization</li>
+        <li>Follow-ups and next steps captured</li>
+        <li>SOW for solutions routed for signatures</li>
+      </ul>
+    </div>
+  </div>
+</div>
+    <div class="page-section" id="page-prompts">
+  <div class="page-header">
+    <div>
+      <div class="page-title">AI Prompt Library</div>
+      <div class="page-subtitle">10 copy-ready prompts for Claude — organized by phase</div>
+    </div>
+  </div>
+
+  <div class="prompt-phase-title">Phase 1 — Intake</div>
+
+  <div class="prompt-card" id="pc1">
+    <div class="prompt-header" onclick="togglePrompt('pc1')">
+      <div><div class="prompt-title">Questionnaire Maturity Scorer</div><div class="prompt-meta">Input: completed questionnaire · Output: maturity scores + priority gaps</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">The completed CMS questionnaire responses — paste as plain text. If responses are in Excel, copy cells.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc1-text">You are a category management maturity assessor for a CPG consulting firm. Review the
+following completed assessment questionnaire and:
+
+1. Score the client's maturity across these dimensions: Data & Analytics, Process
+   Maturity, Technology, Collaboration, Strategy. Use a 1–5 scale (1=basic, 5=best-in-class).
+2. Flag any dimensions scoring 2 or below as priority gaps.
+3. Identify the top 3 areas of strength.
+4. Note any questions left blank or answered vaguely — flag as "incomplete inputs."
+
+Format: Maturity Scores (table) / Priority Gaps (bullets) / Strengths (bullets) /
+Incomplete Inputs (if any)
+
+Questionnaire responses:
+[PASTE QUESTIONNAIRE HERE]</div>
+        <button class="copy-btn" onclick="copyPrompt('pc1', this)">Copy Prompt</button>
+      </div>
+      <div class="prompt-note">If the questionnaire is in Excel, paste cells as plain text before using this prompt.</div>
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc2">
+    <div class="prompt-header" onclick="togglePrompt('pc2')">
+      <div><div class="prompt-title">Stakeholder Outreach Email Draft</div><div class="prompt-meta">Input: stakeholder list + dates · Output: professional outreach email</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Fill in the bracketed fields in the prompt: client name, stakeholder names/titles, workshop dates, format, and questionnaire due date.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc2-text">Draft a professional stakeholder outreach email from the Crisp consulting team to
+[CLIENT NAME] preparing for a category management assessment. The email should:
+
+- Introduce the assessment process at a high level (4 phases)
+- Confirm the workshop dates and format
+- Request the stakeholders listed below to participate in discovery workshops
+- Ask them to complete the attached CMS questionnaire by [DATE]
+- Be warm but professional in tone
+
+Stakeholders: [LIST NAMES AND TITLES]
+Workshop dates: [DATES]
+Format: [ON-SITE / REMOTE]
+Questionnaire due date: [DATE]</div>
+        <button class="copy-btn" onclick="copyPrompt('pc2', this)">Copy Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc3">
+    <div class="prompt-header" onclick="togglePrompt('pc3')">
+      <div><div class="prompt-title">SOW Logistics Checklist Generator <span style="font-size:10px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px;margin-left:4px;">NEW</span></div><div class="prompt-meta">Input: SOW text · Output: organized logistics checklist</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the full text of the signed SOW. Works best with the scope, timeline, and deliverables sections included.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc3-text">Review this Statement of Work (SOW) and extract all logistics requirements.
+Generate a checklist organized by:
+
+1. Pre-engagement setup (access requests, tool setup, folder creation)
+2. Scheduling (meetings, workshops, interviews)
+3. Client deliverables needed from client
+4. Crisp deliverables and deadlines
+5. Travel or on-site requirements (if applicable)
+
+Flag time-sensitive items (needed before kickoff).
+
+SOW text:
+[PASTE SOW HERE]</div>
+        <button class="copy-btn" onclick="copyPrompt('pc3', this)">Copy Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-phase-title">Phase 2 — Discovery</div>
+
+  <div class="prompt-card" id="pc4">
+    <div class="prompt-header" onclick="togglePrompt('pc4')">
+      <div><div class="prompt-title">Workshop Session Synthesis</div><div class="prompt-meta">Input: raw workshop notes · Output: structured synthesis</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Raw notes from a single workshop session — bullet points, free text, or transcription. One session at a time works best.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc4-text">You are summarizing notes from a category management assessment discovery workshop.
+Synthesize the following raw notes into:
+
+1. Current-state process overview (step by step)
+2. Key pain points raised (direct quotes where available)
+3. Technology and data gaps mentioned
+4. Stakeholder concerns or priorities
+5. Quick wins identified
+6. Open questions needing follow-up
+
+Flag anything contradictory across stakeholders.
+
+Raw workshop notes:
+[PASTE NOTES HERE]</div>
+        <button class="copy-btn" onclick="copyPrompt('pc4', this)">Copy Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc5">
+    <div class="prompt-header" onclick="togglePrompt('pc5')">
+      <div><div class="prompt-title">Cross-Interview Pattern Detector</div><div class="prompt-meta">Input: multiple interview summaries · Output: themes + contradictions</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste all stakeholder interview summaries together, labeled by role (e.g., "VP of Sales:", "Category Manager:").</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc5-text">Analyze the following stakeholder interview summaries. Identify:
+
+1. Common themes mentioned by 2+ stakeholders (ranked by frequency)
+2. Contradictions or conflicts between stakeholder views
+3. Gaps mentioned by most stakeholders (likely high-priority)
+4. Unique insights from individual stakeholders
+5. Overall sentiment toward current tools and processes
+
+Reference which stakeholders raised each point.
+
+Interview summaries:
+[PASTE EACH SUMMARY, LABELED BY STAKEHOLDER ROLE]</div>
+        <button class="copy-btn" onclick="copyPrompt('pc5', this)">Copy Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc6">
+    <div class="prompt-header" onclick="togglePrompt('pc6')">
+      <div><div class="prompt-title">CM Best Practice Benchmark <span style="font-size:10px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px;margin-left:4px;">NEW</span></div><div class="prompt-meta">Input: current-state description · Output: benchmark ratings per dimension</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the workshop synthesis from Prompt 4 or the cross-interview output from Prompt 5.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc6-text">You are a category management expert benchmarking a CPG client against industry
+best practices. Based on the current-state description below, assess their maturity in:
+
+1. Category strategy & planning
+2. Data & analytics capabilities
+3. Planogram & space planning process
+4. Supplier collaboration
+5. Technology stack & integration
+6. Performance measurement & reporting
+
+For each dimension: rate (Below Standard / At Standard / Above Standard) and
+write 1–2 sentences explaining the rating and gap to close.
+
+Current-state description:
+[PASTE WORKSHOP SYNTHESIS HERE]</div>
+        <button class="copy-btn" onclick="copyPrompt('pc6', this)">Copy Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-phase-title">Phase 3 — Analysis</div>
+
+  <div class="prompt-card" id="pc7">
+    <div class="prompt-header" onclick="togglePrompt('pc7')">
+      <div><div class="prompt-title">Opportunity Log Entry Generator</div><div class="prompt-meta">Input: synthesis + gaps · Output: formatted opportunity log entries</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the workshop synthesis and gap analysis. Include any benchmark ratings from Prompt 6 if available.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc7-text">Using the workshop synthesis and gap analysis below, generate opportunity log
+entries in this format:
+
+| Opportunity | Description | Impact Area | Effort (Low/Med/High) | Impact (Low/Med/High) | Priority |
+
+Rules:
+- Write each opportunity as an action: "Implement X to achieve Y"
+- Impact areas: Data Quality, Process Efficiency, Collaboration, Technology, Revenue/Margin
+- Rank priority: High (quick win or high strategic value), Medium, Low
+- Aim for 10–20 entries
+
+Synthesis and gaps:
+[PASTE HERE]</div>
+        <button class="copy-btn" onclick="copyPrompt('pc7', this)">Copy Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc8">
+    <div class="prompt-header" onclick="togglePrompt('pc8')">
+      <div><div class="prompt-title">Theme Clustering &amp; Prioritization</div><div class="prompt-meta">Input: opportunity log · Output: 3–5 strategic themes + quick wins</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the full opportunity log from Prompt 7 or the populated Opportunity_Log_Template.xlsx (copy as text).</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc8-text">Analyze this opportunity log and:
+
+1. Cluster into 3–5 strategic themes (e.g. "Data Foundation", "Process Standardization")
+2. Summarize each theme in 1–2 sentences
+3. Rank themes by overall business impact
+4. Identify top 3 "quick wins" — high impact, low effort
+5. Identify top 1–2 "strategic investments" — high impact, high effort
+
+Opportunity log:
+[PASTE HERE]</div>
+        <button class="copy-btn" onclick="copyPrompt('pc8', this)">Copy Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-phase-title">Phase 4 — Roadmap &amp; Readout</div>
+
+  <div class="prompt-card" id="pc9">
+    <div class="prompt-header" onclick="togglePrompt('pc9')">
+      <div><div class="prompt-title">Solution Roadmap Draft</div><div class="prompt-meta">Input: prioritized opportunity log · Output: 3-horizon roadmap</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the prioritized opportunity log and themes from Prompt 8. Include any effort/impact scores.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc9-text">Using the prioritized opportunity log below, draft a solution roadmap in three horizons:
+
+- Horizon 1 (0–3 months): Quick wins and foundation work
+- Horizon 2 (3–9 months): Core capability builds
+- Horizon 3 (9–18 months): Strategic and transformational investments
+
+For each initiative include: name, 1-sentence description, horizon placement,
+dependencies, effort level, expected outcome.
+
+Format as a table followed by a brief narrative per horizon.
+
+Opportunity log and themes:
+[PASTE HERE]</div>
+        <button class="copy-btn" onclick="copyPrompt('pc9', this)">Copy Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc10">
+    <div class="prompt-header" onclick="togglePrompt('pc10')">
+      <div><div class="prompt-title">Executive Summary Generator</div><div class="prompt-meta">Input: roadmap draft · Output: exec-ready summary for VP/SVP audience</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the roadmap draft from Prompt 9 along with the top findings from the opportunity log.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc10-text">Write an executive summary for a category management assessment to be presented
+to client leadership (VP/SVP level). Structure:
+
+1. Engagement Overview (2–3 sentences: what we did, who we talked to, scope)
+2. What We Found — Top 3 findings as business insights, not technical observations
+3. Strategic Themes — 3–5 themes, 1 sentence each
+4. Recommended Path Forward — 3-horizon roadmap narrative, 1 paragraph
+5. Immediate Next Steps — 3 bullets the client can act on now
+
+Tone: executive, confident, actionable. No consulting jargon.
+
+Key findings and roadmap:
+[PASTE ROADMAP DRAFT HERE]</div>
+        <button class="copy-btn" onclick="copyPrompt('pc10', this)">Copy Prompt</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="page-section" id="page-raci">
+  <div class="page-header">
+    <div>
+      <div class="page-title">RACI Quick Reference</div>
+      <div class="page-subtitle">R=Responsible · A=Accountable · C=Consulted · I=Informed</div>
+    </div>
+    <a class="tpl-link">📊 Full RACI Matrix (Excel)</a>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="raci-table">
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Activity</th>
+          <th>Responsible (R)</th>
+          <th>Accountable (A)</th>
+          <th>Consulted (C)</th>
+          <th>Informed (I)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="phase-tag">Phase 1</span></td><td>Questionnaire &amp; intake</td><td>Project Manager</td><td>Dir. Business Solutions</td><td>Business Consultant</td><td>VP Consulting Services</td></tr>
+        <tr><td><span class="phase-tag">Phase 1</span></td><td>Kickoff meeting</td><td>Dir. Business Solutions</td><td>Dir. Business Solutions</td><td>Business Consultant</td><td>VP Sales &amp; Marketing</td></tr>
+        <tr><td><span class="phase-tag">Phase 1</span></td><td>SOW for assessment</td><td>Business Development</td><td>VP Consulting Services</td><td>Dir. Business Solutions</td><td>Project Manager</td></tr>
+        <tr><td><span class="phase-tag">Phase 2</span></td><td>Run workshop sessions</td><td>Business Consultant</td><td>Dir. Business Solutions</td><td>Technical Architect</td><td>Project Manager</td></tr>
+        <tr><td><span class="phase-tag">Phase 2</span></td><td>Capture opportunity log</td><td>Business Consultant</td><td>Dir. Business Solutions</td><td>—</td><td>Engagement lead</td></tr>
+        <tr><td><span class="phase-tag">Phase 2</span></td><td>Workshop deck creation</td><td>Business Consultant</td><td>Dir. Business Solutions</td><td>Technical Architect</td><td>Project Manager</td></tr>
+        <tr><td><span class="phase-tag">Phase 3</span></td><td>Build recommended solutions</td><td>Business Consultant</td><td>Dir. Business Solutions</td><td>Solutions Consultant</td><td>VP Consulting Services</td></tr>
+        <tr><td><span class="phase-tag">Phase 3</span></td><td>Finalize opportunity log</td><td>Solutions Consultant</td><td>Dir. Business Solutions</td><td>—</td><td>Project Manager</td></tr>
+        <tr><td><span class="phase-tag">Phase 3</span></td><td>Estimate costs</td><td>Dir. Business Solutions</td><td>VP Consulting Services</td><td>Solutions Consultant</td><td>Business Consultant</td></tr>
+        <tr><td><span class="phase-tag">Phase 4</span></td><td>Solution Roadmap build</td><td>Dir. Business Solutions</td><td>Dir. Business Solutions</td><td>Business Consultant</td><td>VP Consulting Services</td></tr>
+        <tr><td><span class="phase-tag">Phase 4</span></td><td>Roadmap readout meeting</td><td>Dir. Business Solutions</td><td>Client Sponsor</td><td>Business Consultant</td><td>VP Sales &amp; Marketing</td></tr>
+        <tr><td><span class="phase-tag">Phase 4</span></td><td>SOW for solutions</td><td>Business Development</td><td>VP Consulting Services</td><td>Dir. Business Solutions</td><td>Project Manager</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="page-section" id="page-gates">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Decision Gates</div>
+      <div class="page-subtitle">All 4 gates must be cleared before advancing to the next phase</div>
+    </div>
+  </div>
+  <div class="gates-grid">
+    <div class="gate-full-card">
+      <div class="gate-num">Gate 1 · Before Discovery</div>
+      <div class="gate-full-title">Kickoff Complete</div>
+      <ul class="gate-criteria">
+        <li>Questionnaire returned by client</li>
+        <li>Stakeholders confirmed and contacted</li>
+        <li>Logistics locked (dates, access, tools)</li>
+        <li>Internal kickoff meeting held</li>
+      </ul>
+      <div class="gate-next">→ Unlocks: Phase 2 Discovery</div>
+    </div>
+    <div class="gate-full-card">
+      <div class="gate-num">Gate 2 · Before Analysis</div>
+      <div class="gate-full-title">Discovery Complete</div>
+      <ul class="gate-criteria">
+        <li>All workshops completed</li>
+        <li>All stakeholder interviews done</li>
+        <li>Notes consolidated in shared folder</li>
+        <li>Crisp team agrees current state is fully captured</li>
+      </ul>
+      <div class="gate-next">→ Unlocks: Phase 3 Analysis</div>
+    </div>
+    <div class="gate-full-card">
+      <div class="gate-num">Gate 3 · Before Roadmap</div>
+      <div class="gate-full-title">Findings Reviewed</div>
+      <ul class="gate-criteria">
+        <li>Opportunity log reviewed internally</li>
+        <li>Top 3–5 themes identified and agreed</li>
+        <li>Optional client checkpoint completed</li>
+      </ul>
+      <div class="gate-next">→ Unlocks: Phase 4 Roadmap &amp; Readout</div>
+    </div>
+    <div class="gate-full-card">
+      <div class="gate-num">Gate 4 · Engagement Close</div>
+      <div class="gate-full-title">Roadmap Readout Complete</div>
+      <ul class="gate-criteria">
+        <li>Solution roadmap delivered to client</li>
+        <li>Executive summary presented to leadership</li>
+        <li>Client sponsor signs off on prioritization</li>
+        <li>Follow-ups and next steps captured</li>
+        <li>SOW for solutions routed for signatures</li>
+      </ul>
+      <div class="gate-next">→ Engagement complete · SOW opens next phase</div>
+    </div>
+  </div>
+</div>
+  </div>
+</div>
+<script>
+let features = { progress: true, print: true, search: false, changelog: false };
+let projectData = {};
+
+window.onload = function() {
+  const saved = localStorage.getItem('crispAssessment');
+  if (saved) document.getElementById('resumeLink').classList.remove('hidden');
+};
+
+function toggleFeature(el, feature) {
+  el.classList.toggle('on');
+  features[feature] = el.classList.contains('on');
+}
+
+function launchProject() {
+  const client = document.getElementById('clientName').value.trim();
+  if (!client) { document.getElementById('clientName').focus(); return; }
+  const lead = document.getElementById('engagementLead').value.trim();
+  if (!lead) { document.getElementById('engagementLead').focus(); return; }
+  projectData = { client, lead, features: {...features}, progress: {1:{},2:{},3:{},4:{}} };
+  try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
+  catch { console.warn('localStorage unavailable; project state will not persist.'); }
+  applyFeatures();
+  document.getElementById('clientDisplay').textContent = client;
+  document.getElementById('setupModal').classList.add('hidden');
+  nav('overview');
+}
+
+function resumeProject() {
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem('crispAssessment') || ''); }
+  catch { localStorage.removeItem('crispAssessment'); return; }
+  if (!saved) return;
+  projectData = saved;
+  features = saved.features || features;
+  applyFeatures();
+  document.getElementById('clientDisplay').textContent = saved.client || '—';
+  document.getElementById('setupModal').classList.add('hidden');
+  if (saved.progress) {
+    [1,2,3,4].forEach(p => {
+      Object.keys(saved.progress[p] || {}).forEach(t => {
+        if (saved.progress[p][t]) {
+          const cb = document.querySelector(`[data-phase="${p}"][data-task="${t}"] .progress-check`);
+          if (cb) { cb.checked = true; cb.closest('.progress-task').classList.add('done'); }
+        }
+      });
+      updateProgress(p);
+    });
+  }
+  nav('overview');
+}
+
+function newProject() {
+  document.getElementById('clientName').value = '';
+  document.getElementById('engagementLead').value = '';
+  features = { progress: true, print: true, search: false, changelog: false };
+  document.querySelectorAll('.toggle-item').forEach(el => {
+    const feat = el.dataset.feature;
+    if (features[feat]) el.classList.add('on');
+    else el.classList.remove('on');
+  });
+  document.querySelectorAll('.progress-check').forEach(cb => { cb.checked = false; });
+  document.querySelectorAll('.progress-task').forEach(t => t.classList.remove('done'));
+  [1,2,3,4].forEach(p => { const el = document.getElementById(`prog${p}`); if (el) el.textContent = ''; });
+  document.getElementById('setupModal').classList.remove('hidden');
+}
+
+function applyFeatures() {
+  document.querySelectorAll('.progress-check').forEach(cb =>
+    cb.classList.toggle('hidden', !features.progress));
+  [1,2,3,4].forEach(p => {
+    const el = document.getElementById(`prog${p}`);
+    if (el) el.classList.toggle('hidden', !features.progress);
+  });
+  document.getElementById('printBtn')?.classList.toggle('hidden', !features.print);
+  document.getElementById('searchWrap')?.classList.toggle('hidden', !features.search);
+  document.getElementById('changelogSection')?.classList.toggle('hidden', !features.changelog);
+}
+
+function nav(page) {
+  document.getElementById('searchResults')?.classList.add('hidden');
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item, .nav-link').forEach(i => i.classList.remove('active'));
+  const section = document.getElementById('page-' + page);
+  if (section) section.classList.add('active');
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+  document.getElementById('mainContent').scrollTop = 0;
+}
+
+function updateProgress(phase) {
+  const tasks = document.querySelectorAll(`[data-phase="${phase}"] .progress-check`);
+  let done = 0;
+  tasks.forEach((cb, i) => {
+    const task = cb.closest('.progress-task');
+    if (cb.checked) { task.classList.add('done'); done++; }
+    else task.classList.remove('done');
+    if (!projectData.progress) projectData.progress = {1:{},2:{},3:{},4:{}};
+    projectData.progress[phase][i] = cb.checked;
+  });
+  const el = document.getElementById(`prog${phase}`);
+  if (el) el.textContent = `${done}/${tasks.length}`;
+  try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
+  catch { /* storage unavailable */ }
+}
+
+function togglePrompt(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function copyPrompt(id, btn) {
+  const text = document.getElementById(id + '-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    btn.textContent = 'Copy failed';
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; }, 2000);
+  });
+}
+
+function doSearch(query) {
+  const sr = document.getElementById('searchResults');
+  if (!query || query.length < 2) { sr.classList.add('hidden'); return; }
+  const q = query.toLowerCase();
+  const pages = [
+    { id: 'phase1', label: 'Phase 1: Intake' },
+    { id: 'phase2', label: 'Phase 2: Discovery' },
+    { id: 'phase3', label: 'Phase 3: Analysis' },
+    { id: 'phase4', label: 'Phase 4: Roadmap' },
+    { id: 'prompts', label: 'AI Prompt Library' },
+    { id: 'raci', label: 'RACI' },
+    { id: 'gates', label: 'Decision Gates' },
+  ];
+  const results = [];
+  pages.forEach(p => {
+    const el = document.getElementById('page-' + p.id);
+    if (!el) return;
+    const text = el.textContent.toLowerCase();
+    if (text.includes(q)) {
+      const idx = text.indexOf(q);
+      const snippet = el.textContent.substring(Math.max(0, idx - 40), idx + 80).trim();
+      results.push({ page: p.id, label: p.label, snippet });
+    }
+  });
+  sr.innerHTML = results.length
+    ? `<div style="background:white;border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;">
+        <h3 style="font-size:14px;font-weight:600;color:var(--teal-dark);margin-bottom:12px;">${results.length} result${results.length > 1 ? 's' : ''} for "${query}"</h3>` +
+        results.map(r => `<div class="search-result" onclick="nav('${r.page}')">
+          <div class="search-result-title">${r.label}<span class="search-result-tag">${r.page}</span></div>
+          <div class="search-result-context">…${r.snippet.replace(new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),'gi'), m => `<mark>${m}</mark>`)}…</div>
+        </div>`).join('') + '</div>'
+    : `<div style="background:white;border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;"><p style="color:var(--muted);">No results for "${query}"</p></div>`;
+  sr.classList.remove('hidden');
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+}
+</script>
+</body>
+</html>
