@@ -1096,6 +1096,7 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   const msgEl = document.getElementById('toastMsg');
   if (!t || !msgEl) return;
+  document.getElementById('mainContent').scrollTop = 0;
   msgEl.textContent = msg;
   t.classList.add('hidden');
   void t.offsetHeight;
