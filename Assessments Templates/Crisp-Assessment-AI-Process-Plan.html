@@ -1086,6 +1086,20 @@ window.onload = function() {
   if (saved) document.getElementById('resumeLink').classList.remove('hidden');
 };
 
+function isPhaseComplete(phase) {
+  const checks = document.querySelectorAll(`[data-phase="${phase}"] .progress-check`);
+  return checks.length > 0 && Array.from(checks).every(cb => cb.checked);
+}
+
+let _toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.remove('hidden');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(hideToast, 3000);
+}
 function hideToast() {
   document.getElementById('toast')?.classList.add('hidden');
 }
@@ -1159,6 +1173,11 @@ function applyFeatures() {
 }
 
 function nav(page) {
+  const phaseGates = { phase2: 1, phase3: 2, phase4: 3 };
+  if (phaseGates[page] !== undefined && !isPhaseComplete(phaseGates[page])) {
+    showToast('Complete all key activities in this phase before moving on.');
+    return;
+  }
   document.getElementById('searchResults')?.classList.add('hidden');
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item, .nav-link').forEach(i => i.classList.remove('active'));
