@@ -1302,6 +1302,158 @@ function updateProgress(phase) {
   catch { /* storage unavailable */ }
 }
 
+function ensureAssetsModel() {
+  if (!projectData) projectData = {};
+  if (!projectData.assets) projectData.assets = { 1: {}, 2: {}, 3: {}, 4: {} };
+  for (const p of [1, 2, 3, 4]) {
+    if (!projectData.assets[p]) projectData.assets[p] = {};
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function saveProjectData() {
+  try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
+  catch { console.warn('localStorage unavailable; state will not persist.'); }
+}
+
+function getAssets(phase, task) {
+  ensureAssetsModel();
+  if (!projectData.assets[phase][task]) projectData.assets[phase][task] = [];
+  return projectData.assets[phase][task];
+}
+
+function injectAssetLists() {
+  document.querySelectorAll('.progress-task').forEach(row => {
+    if (row.nextElementSibling && row.nextElementSibling.classList.contains('asset-list')) return;
+    const phase = row.dataset.phase;
+    const task = row.dataset.task;
+    if (phase == null || task == null) return;
+    const list = document.createElement('div');
+    list.className = 'asset-list';
+    list.dataset.assetPhase = phase;
+    list.dataset.assetTask = task;
+    row.parentNode.insertBefore(list, row.nextSibling);
+  });
+}
+
+function renderAssetList(phase, task) {
+  const list = document.querySelector(`.asset-list[data-asset-phase="${phase}"][data-asset-task="${task}"]`);
+  if (!list) return;
+  const assets = getAssets(phase, task);
+  const chips = assets.map((a, i) => {
+    const safeName = escapeHtml(a.name);
+    const safeUrl = a.url ? escapeHtml(a.url) : '';
+    const nameHtml = safeUrl
+      ? `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeName}</a>`
+      : safeName;
+    return `<div class="asset-chip"><span>📄 ${nameHtml}</span>` +
+           `<button class="asset-delete" onclick="deleteAsset(${phase}, ${task}, ${i})" aria-label="Remove asset">✕</button></div>`;
+  }).join('');
+  list.innerHTML = chips +
+    `<a class="asset-add" onclick="openAssetForm(${phase}, ${task})">+ Add asset</a>`;
+}
+
+function refreshAllAssetLists() {
+  ensureAssetsModel();
+  injectAssetLists();
+  document.querySelectorAll('.progress-task').forEach(row => {
+    const phase = Number(row.dataset.phase);
+    const task = Number(row.dataset.task);
+    if (Number.isInteger(phase) && Number.isInteger(task)) renderAssetList(phase, task);
+  });
+  refreshProgressCheckboxes();
+}
+
+function refreshProgressCheckboxes() {
+  ensureAssetsModel();
+  document.querySelectorAll('.progress-task').forEach(row => {
+    const phase = Number(row.dataset.phase);
+    const task = Number(row.dataset.task);
+    const checkbox = row.querySelector('.progress-check');
+    if (!checkbox) return;
+    const assets = getAssets(phase, task);
+    const isChecked = checkbox.checked;
+    if (assets.length === 0 && !isChecked) {
+      checkbox.disabled = true;
+      row.classList.add('locked');
+      row.title = 'Add an asset first';
+    } else {
+      checkbox.disabled = false;
+      row.classList.remove('locked');
+      row.removeAttribute('title');
+    }
+  });
+}
+
+function openAssetForm(phase, task) {
+  const list = document.querySelector(`.asset-list[data-asset-phase="${phase}"][data-asset-task="${task}"]`);
+  if (!list) return;
+  const addLink = list.querySelector('.asset-add');
+  if (!addLink) return;
+  const form = document.createElement('div');
+  form.className = 'asset-form';
+  form.innerHTML =
+    `<input type="text" placeholder="File name (e.g., questionnaire.docx)" data-asset-name>` +
+    `<input type="url" placeholder="https:// (optional)" data-asset-url>` +
+    `<button onclick="saveAsset(${phase}, ${task})">Save</button>` +
+    `<button class="cancel" onclick="cancelAssetForm(${phase}, ${task})">Cancel</button>`;
+  list.replaceChild(form, addLink);
+  form.querySelector('[data-asset-name]').focus();
+}
+
+function cancelAssetForm(phase, task) {
+  renderAssetList(phase, task);
+}
+
+function saveAsset(phase, task) {
+  const list = document.querySelector(`.asset-list[data-asset-phase="${phase}"][data-asset-task="${task}"]`);
+  if (!list) return;
+  const form = list.querySelector('.asset-form');
+  if (!form) return;
+  const name = form.querySelector('[data-asset-name]').value.trim();
+  const url = form.querySelector('[data-asset-url]').value.trim();
+  if (!name) {
+    alert('File name is required.');
+    form.querySelector('[data-asset-name]').focus();
+    return;
+  }
+  if (url && !isValidHttpUrl(url)) {
+    alert('URL must be a valid https:// link, or leave it blank.');
+    form.querySelector('[data-asset-url]').focus();
+    return;
+  }
+  const assets = getAssets(phase, task);
+  assets.push({ name, url });
+  saveProjectData();
+  renderAssetList(phase, task);
+  refreshProgressCheckboxes();
+}
+
+function deleteAsset(phase, task, index) {
+  const assets = getAssets(phase, task);
+  if (index < 0 || index >= assets.length) return;
+  assets.splice(index, 1);
+  saveProjectData();
+  if (assets.length === 0) {
+    const row = document.querySelector(`.progress-task[data-phase="${phase}"][data-task="${task}"]`);
+    const checkbox = row && row.querySelector('.progress-check');
+    if (checkbox && checkbox.checked) {
+      checkbox.checked = false;
+      row.classList.remove('done');
+      if (!projectData.progress) projectData.progress = { 1: {}, 2: {}, 3: {}, 4: {} };
+      projectData.progress[phase][task] = false;
+      updateProgress(phase);
+    }
+  }
+  renderAssetList(phase, task);
+  refreshProgressCheckboxes();
+}
+
 function isValidHttpUrl(value) {
   try {
     const parsed = new URL(value);
