@@ -656,30 +656,33 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     </div>
   </div>
   <div class="three-col">
-    <div class="card">
-      <div class="card-label">Inputs</div>
-      <ul class="item-list">
-        <li>Completed scored questionnaire</li>
-        <li>Workshop Guide</li>
-        <li>CX Onsite Questions</li>
-        <li>Confirmed stakeholder list</li>
-      </ul>
+    <div class="col-stack">
+      <div class="card compact">
+        <div class="card-label">Inputs</div>
+        <ul class="item-list">
+          <li>Completed scored questionnaire</li>
+          <li>Workshop Guide</li>
+          <li>CX Onsite Questions</li>
+          <li>Confirmed stakeholder list</li>
+        </ul>
+      </div>
+      <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
+        <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
+      </button>
     </div>
-    <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
-      <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
-    </button>
     <div class="card">
       <div class="card-label">Key Activities</div>
-      <div class="progress-task" data-phase="2" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(2)"><label>Run 1–3 day sessions</label></div>
-      <div class="progress-task" data-phase="2" data-task="1"><input type="checkbox" class="progress-check" onchange="updateProgress(2)"><label>Walk through current-state workflows</label></div>
-      <div class="progress-task" data-phase="2" data-task="2"><input type="checkbox" class="progress-check" onchange="updateProgress(2)"><label>Conduct targeted interviews (3–8 stakeholders)</label></div>
-      <div class="progress-task" data-phase="2" data-task="3"><input type="checkbox" class="progress-check" onchange="updateProgress(2)"><label>Surface pain points &amp; friction</label></div>
-      <div class="progress-task" data-phase="2" data-task="4"><input type="checkbox" class="progress-check" onchange="updateProgress(2)"><label>Consolidate notes</label></div>
+      <div class="progress-task" data-phase="2" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(2)"><label>Run Discovery Session &amp; upload transcripts and/or recordings</label></div>
+      <div class="progress-task" data-phase="2" data-task="1" data-asset-optional="true"><input type="checkbox" class="progress-check" onchange="updateProgress(2)"><label>Conduct Targeted Interviews (3–5 stakeholders)</label></div>
+      <div class="progress-task" data-phase="2" data-task="2"><input type="checkbox" class="progress-check" onchange="updateProgress(2)"><label>Create current-state workflow &amp; upload workflow</label></div>
+      <div class="progress-task" data-phase="2" data-task="3"><input type="checkbox" class="progress-check" onchange="updateProgress(2)"><label>Collect any additional notes/documentation from Crisp attendees</label></div>
+      <div class="progress-task" data-phase="2" data-task="4" data-asset-optional="true"><input type="checkbox" class="progress-check" onchange="updateProgress(2)"><label>Implement Knowledge Tests</label></div>
     </div>
     <div class="card ai">
       <div class="ai-tag">✦ AI Steps</div>
       <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Transcribe &amp; synthesize workshop sessions</div></div>
       <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Cross-interview pattern &amp; gap detection</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Surface pain points &amp; friction from session transcripts &amp; interviews</div></div>
       <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Post-session gap flagging from workshop notes</div></div>
       <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Benchmark findings against CM best practices</div></div>
       <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 2 Prompts</a></div>
