@@ -1167,6 +1167,8 @@ let projectData = {};
 window.onload = function() {
   const saved = localStorage.getItem('crispAssessment');
   if (saved) document.getElementById('resumeLink').classList.remove('hidden');
+  injectAssetLists();
+  refreshProgressCheckboxes();
 };
 
 function isPhaseComplete(phase) {
@@ -1207,13 +1209,14 @@ function launchProject() {
     document.getElementById('driveLink').focus();
     return;
   }
-  projectData = { client, lead, driveLink, features: {...features}, progress: {1:{},2:{},3:{},4:{}} };
+  projectData = { client, lead, driveLink, features: {...features}, progress: {1:{},2:{},3:{},4:{}}, assets: {1:{},2:{},3:{},4:{}} };
   try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
   catch { console.warn('localStorage unavailable; project state will not persist.'); }
   applyFeatures();
   document.getElementById('clientDisplay').textContent = client;
   document.getElementById('setupModal').classList.add('hidden');
   refreshDriveButtons();
+  refreshAllAssetLists();
   nav('overview');
 }
 
@@ -1239,6 +1242,7 @@ function resumeProject() {
     });
   }
   refreshDriveButtons();
+  refreshAllAssetLists();
   nav('overview');
 }
 
@@ -1258,6 +1262,7 @@ function newProject() {
   document.getElementById('setupModal').classList.remove('hidden');
   projectData = {};
   refreshDriveButtons();
+  refreshAllAssetLists();
 }
 
 function applyFeatures() {
