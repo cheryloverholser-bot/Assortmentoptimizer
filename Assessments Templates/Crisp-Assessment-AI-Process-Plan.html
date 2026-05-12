@@ -750,13 +750,6 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     <div class="callout-prompts">
       <div class="callout-prompt-row">
         <div>
-          <div class="callout-prompt-title">CM Best Practice Benchmark</div>
-          <div class="callout-prompt-meta">Input: current-state description · Output: benchmark ratings per dimension</div>
-        </div>
-        <button class="copy-btn" onclick="copyPrompt('pc6', this)">Copy Prompt</button>
-      </div>
-      <div class="callout-prompt-row">
-        <div>
           <div class="callout-prompt-title">Create Opportunity Log</div>
           <div class="callout-prompt-meta">Input: Opportunity Log Template + Discovery Session data files · Output: populated Excel opportunity log</div>
         </div>
@@ -772,22 +765,24 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     </div>
   </div>
   <div class="three-col">
-    <div class="card">
-      <div class="card-label">Inputs</div>
-      <ul class="item-list">
-        <li>Workshop synthesis &amp; notes</li>
-        <li>Scored questionnaire</li>
-        <li>Interview summaries</li>
-        <li>Opportunity Log Template</li>
-      </ul>
+    <div class="col-stack">
+      <div class="card compact">
+        <div class="card-label">Inputs</div>
+        <ul class="item-list">
+          <li>Workshop synthesis &amp; notes</li>
+          <li>Scored questionnaire</li>
+          <li>Interview summaries</li>
+          <li>Opportunity Log Template</li>
+        </ul>
+      </div>
+      <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
+        <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
+      </button>
     </div>
-    <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
-      <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
-    </button>
     <div class="card">
       <div class="card-label">Key Activities</div>
       <div class="progress-task" data-phase="3" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Benchmark Knowledge Test results against CM Peer set</label></div>
-      <div class="progress-task" data-phase="3" data-task="1"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Build and populate opportunity log &amp; upload Opportunity Log Template</label></div>
+      <div class="progress-task" data-phase="3" data-task="1"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Upload Opportunity Log Template</label></div>
       <div class="progress-task" data-phase="3" data-task="2" data-asset-optional="true"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Cluster into top 3–5 strategic themes</label></div>
       <div class="progress-task" data-phase="3" data-task="3" data-asset-optional="true"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Internal review of findings</label></div>
     </div>
@@ -1120,34 +1115,6 @@ Inputs:
         <button class="copy-btn" onclick="copyPrompt('pc11', this)">Copy Prompt</button>
       </div>
       <div class="prompt-note">Combine all three input types in one paste for cross-source validation. The more sources, the more reliable the cross-validation.</div>
-    </div>
-  </div>
-
-  <div class="prompt-card" id="pc6">
-    <div class="prompt-header" onclick="togglePrompt('pc6')">
-      <div><div class="prompt-title">CM Best Practice Benchmark <span style="font-size:10px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px;margin-left:4px;">NEW</span></div><div class="prompt-meta">Input: current-state description · Output: benchmark ratings per dimension</div></div>
-      <span class="prompt-chevron">▾</span>
-    </div>
-    <div class="prompt-body">
-      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the workshop synthesis from Prompt 4 or the cross-interview output from Prompt 5.</div></div>
-      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-        <div class="prompt-text" id="pc6-text">You are a category management expert benchmarking a CPG client against industry
-best practices. Based on the current-state description below, assess their maturity in:
-
-1. Category strategy & planning
-2. Data & analytics capabilities
-3. Planogram & space planning process
-4. Supplier collaboration
-5. Technology stack & integration
-6. Performance measurement & reporting
-
-For each dimension: rate (Below Standard / At Standard / Above Standard) and
-write 1–2 sentences explaining the rating and gap to close.
-
-Current-state description:
-[PASTE WORKSHOP SYNTHESIS HERE]</div>
-        <button class="copy-btn" onclick="copyPrompt('pc6', this)">Copy Prompt</button>
-      </div>
     </div>
   </div>
 
