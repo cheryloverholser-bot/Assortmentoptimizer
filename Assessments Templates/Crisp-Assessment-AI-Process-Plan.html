@@ -521,9 +521,9 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     </div>
     <div class="card">
       <div class="card-label">Key Activities</div>
-      <div class="progress-task" data-phase="1" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Client completes questionnaire</label></div>
-      <div class="progress-task" data-phase="1" data-task="1"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Stakeholders &amp; sample files identified</label></div>
-      <div class="progress-task" data-phase="1" data-task="2"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Logistics confirmed (dates, access, tools)</label></div>
+      <div class="progress-task" data-phase="1" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Client completed questionnaire</label></div>
+      <div class="progress-task" data-phase="1" data-task="1" data-asset-optional="true"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Stakeholders identified &amp; Sample Files received</label></div>
+      <div class="progress-task" data-phase="1" data-task="2"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Discovery Meetings Scheduled (input Zoom links)</label></div>
       <div class="progress-task" data-phase="1" data-task="3"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Internal kickoff held</label></div>
     </div>
     <div class="card ai">
@@ -1385,9 +1385,10 @@ function refreshProgressCheckboxes() {
     const task = Number(row.dataset.task);
     const checkbox = row.querySelector('.progress-check');
     if (!checkbox) return;
+    const assetOptional = row.dataset.assetOptional === 'true';
     const assets = getAssets(phase, task);
     const isChecked = checkbox.checked;
-    if (assets.length === 0 && !isChecked) {
+    if (!assetOptional && assets.length === 0 && !isChecked) {
       checkbox.disabled = true;
       row.classList.add('locked');
       row.title = 'Add an asset first';
@@ -1450,8 +1451,9 @@ function deleteAsset(phase, task, index) {
   saveProjectData();
   if (assets.length === 0) {
     const row = document.querySelector(`.progress-task[data-phase="${phase}"][data-task="${task}"]`);
+    const assetOptional = row && row.dataset.assetOptional === 'true';
     const checkbox = row && row.querySelector('.progress-check');
-    if (checkbox && checkbox.checked) {
+    if (!assetOptional && checkbox && checkbox.checked) {
       checkbox.checked = false;
       row.classList.remove('done');
       if (!projectData.progress) projectData.progress = { 1: {}, 2: {}, 3: {}, 4: {} };
