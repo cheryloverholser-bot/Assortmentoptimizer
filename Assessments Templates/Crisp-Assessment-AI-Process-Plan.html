@@ -1150,13 +1150,12 @@ function launchProject() {
   if (!client) { document.getElementById('clientName').focus(); return; }
   const lead = document.getElementById('engagementLead').value.trim();
   if (!lead) { document.getElementById('engagementLead').focus(); return; }
-  const driveLinkRaw = document.getElementById('driveLink').value.trim();
-  if (driveLinkRaw && !isValidHttpUrl(driveLinkRaw)) {
+  const driveLink = document.getElementById('driveLink').value.trim();
+  if (driveLink && !isValidHttpUrl(driveLink)) {
     alert('Drive folder link must be a valid https:// URL. Leave it blank to skip.');
     document.getElementById('driveLink').focus();
     return;
   }
-  const driveLink = driveLinkRaw;
   projectData = { client, lead, driveLink, features: {...features}, progress: {1:{},2:{},3:{},4:{}} };
   try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
   catch { console.warn('localStorage unavailable; project state will not persist.'); }
@@ -1206,6 +1205,7 @@ function newProject() {
   document.querySelectorAll('.progress-task').forEach(t => t.classList.remove('done'));
   [1,2,3,4].forEach(p => { const el = document.getElementById(`prog${p}`); if (el) el.textContent = ''; });
   document.getElementById('setupModal').classList.remove('hidden');
+  projectData = {};
   refreshDriveButtons();
 }
 
@@ -1254,7 +1254,7 @@ function updateProgress(phase) {
 function isValidHttpUrl(value) {
   try {
     const parsed = new URL(value);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    return parsed.protocol === 'https:';
   } catch {
     return false;
   }
@@ -1271,7 +1271,7 @@ function refreshDriveButtons() {
 
 function openOrSetDriveLink() {
   if (projectData && projectData.driveLink) {
-    window.open(projectData.driveLink, '_blank', 'noopener');
+    window.open(projectData.driveLink, '_blank', 'noopener,noreferrer');
     return;
   }
   const url = window.prompt('Paste the Google Drive folder URL:');
