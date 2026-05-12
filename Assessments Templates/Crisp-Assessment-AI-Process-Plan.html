@@ -185,6 +185,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .gate-items li { font-size: 12px; color: var(--muted); padding: 2px 0;
   display: flex; align-items: center; gap: 6px; }
 .gate-items li::before { content: "✓"; color: var(--green); font-weight: 700; }
+.drive-link-btn {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--card); color: var(--teal-dark);
+  border: 1px solid var(--green-border); border-left: 4px solid var(--green);
+  border-radius: 10px; padding: 10px 14px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; width: 100%;
+  margin-bottom: 14px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.drive-link-btn:hover { background: var(--green-light); }
+.drive-link-btn.unset {
+  border-left-style: dashed; color: var(--muted); font-weight: 500;
+}
+.drive-link-btn .drive-icon { font-size: 16px; }
 .progress-task { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
 .progress-check { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
 .progress-task.done label { text-decoration: line-through; color: #9ab8b4; }
@@ -444,6 +460,9 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
         <li>Signed SOW</li>
       </ul>
     </div>
+    <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
+      <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
+    </button>
     <div class="card">
       <div class="card-label">Key Activities</div>
       <div class="progress-task" data-phase="1" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Client completes questionnaire</label></div>
@@ -515,6 +534,9 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
         <li>Confirmed stakeholder list</li>
       </ul>
     </div>
+    <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
+      <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
+    </button>
     <div class="card">
       <div class="card-label">Key Activities</div>
       <div class="progress-task" data-phase="2" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(2)"><label>Run 1–3 day sessions</label></div>
@@ -587,6 +609,9 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
         <li>Opportunity Log Template</li>
       </ul>
     </div>
+    <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
+      <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
+    </button>
     <div class="card">
       <div class="card-label">Key Activities</div>
       <div class="progress-task" data-phase="3" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Benchmark against CM best practices</label></div>
@@ -656,6 +681,9 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
         <li>Cost benchmarks</li>
       </ul>
     </div>
+    <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
+      <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
+    </button>
     <div class="card">
       <div class="card-label">Key Activities</div>
       <div class="progress-task" data-phase="4" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(4)"><label>Build short &amp; long-term solution roadmap</label></div>
@@ -1154,6 +1182,7 @@ function resumeProject() {
       updateProgress(p);
     });
   }
+  refreshDriveButtons();
   nav('overview');
 }
 
@@ -1171,6 +1200,7 @@ function newProject() {
   document.querySelectorAll('.progress-task').forEach(t => t.classList.remove('done'));
   [1,2,3,4].forEach(p => { const el = document.getElementById(`prog${p}`); if (el) el.textContent = ''; });
   document.getElementById('setupModal').classList.remove('hidden');
+  refreshDriveButtons();
 }
 
 function applyFeatures() {
@@ -1213,6 +1243,31 @@ function updateProgress(phase) {
   if (el) el.textContent = `${done}/${tasks.length}`;
   try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
   catch { /* storage unavailable */ }
+}
+
+function refreshDriveButtons() {
+  const hasLink = !!(projectData && projectData.driveLink);
+  document.querySelectorAll('[data-drive-btn]').forEach(btn => {
+    btn.classList.toggle('unset', !hasLink);
+    const label = btn.querySelector('[data-drive-label]');
+    if (label) label.textContent = hasLink ? 'Open Project Folder' : 'Set Project Folder Link';
+  });
+}
+
+function openOrSetDriveLink() {
+  if (projectData && projectData.driveLink) {
+    window.open(projectData.driveLink, '_blank', 'noopener');
+    return;
+  }
+  const url = window.prompt('Paste the Google Drive folder URL:');
+  if (!url) return;
+  const trimmed = url.trim();
+  if (!trimmed) return;
+  if (!projectData) projectData = {};
+  projectData.driveLink = trimmed;
+  try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
+  catch { console.warn('localStorage unavailable; drive link will not persist.'); }
+  refreshDriveButtons();
 }
 
 function togglePrompt(id) {
