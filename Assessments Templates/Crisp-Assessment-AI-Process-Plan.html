@@ -1347,7 +1347,7 @@ function renderAssetList(phase, task) {
   const assets = getAssets(phase, task);
   const chips = assets.map((a, i) => {
     const safeName = escapeHtml(a.name);
-    const safeUrl = a.url ? escapeHtml(a.url) : '';
+    const safeUrl = (a.url && isValidHttpUrl(a.url)) ? escapeHtml(a.url) : '';
     const nameHtml = safeUrl
       ? `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeName}</a>`
       : safeName;
