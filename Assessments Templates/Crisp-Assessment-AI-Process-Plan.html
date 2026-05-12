@@ -141,6 +141,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   font-weight: 600; padding: 4px 10px; border-radius: 20px;
   border: 1px solid var(--green-border); white-space: nowrap; margin-top: 4px; }
 .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.col-stack { display: flex; flex-direction: column; gap: 10px; }
+.card.compact { padding: 10px 14px; font-size: 13px; }
+.card.compact .item-list li { padding: 3px 0; font-size: 12px; }
 .two-col   { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 16px; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
 .card.ai { border-color: var(--green-border); background: var(--green-light); }
@@ -503,24 +506,25 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     <div class="gate-pill">✓ Gate 1 required before Discovery</div>
   </div>
   <div class="three-col">
-    <div class="card">
-      <div class="card-label">Inputs</div>
-      <ul class="item-list">
-        <li>CMS Questionnaire (sent to client)</li>
-        <li>Stakeholder list from sales</li>
-        <li>Signed SOW</li>
-      </ul>
+    <div class="col-stack">
+      <div class="card compact">
+        <div class="card-label">Inputs</div>
+        <ul class="item-list">
+          <li>CMS Questionnaire (sent to client)</li>
+          <li>Stakeholder list from sales</li>
+          <li>Signed SOW</li>
+        </ul>
+      </div>
+      <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
+        <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
+      </button>
     </div>
-    <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
-      <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
-    </button>
     <div class="card">
       <div class="card-label">Key Activities</div>
       <div class="progress-task" data-phase="1" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Client completes questionnaire</label></div>
       <div class="progress-task" data-phase="1" data-task="1"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Stakeholders &amp; sample files identified</label></div>
       <div class="progress-task" data-phase="1" data-task="2"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Logistics confirmed (dates, access, tools)</label></div>
       <div class="progress-task" data-phase="1" data-task="3"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Internal kickoff held</label></div>
-      <div class="progress-task" data-phase="1" data-task="4"><input type="checkbox" class="progress-check" onchange="updateProgress(1)"><label>Shared project folder created</label></div>
     </div>
     <div class="card ai">
       <div class="ai-tag">✦ AI Steps</div>
