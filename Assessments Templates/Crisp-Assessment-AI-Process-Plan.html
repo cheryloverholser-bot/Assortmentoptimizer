@@ -653,6 +653,13 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
         </div>
         <button class="copy-btn" onclick="copyPrompt('pc5', this)">Copy Prompt</button>
       </div>
+      <div class="callout-prompt-row">
+        <div>
+          <div class="callout-prompt-title">Pain Point &amp; Friction Identifier</div>
+          <div class="callout-prompt-meta">Input: workshop sessions, attendee notes, interviews · Output: ranked pain points + friction themes</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc11', this)">Copy Prompt</button>
+      </div>
     </div>
   </div>
   <div class="three-col">
@@ -682,9 +689,8 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
       <div class="ai-tag">✦ AI Steps</div>
       <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Transcribe &amp; synthesize workshop sessions</div></div>
       <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Cross-interview pattern &amp; gap detection</div></div>
-      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Surface pain points &amp; friction from session transcripts &amp; interviews</div></div>
-      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Post-session gap flagging from workshop notes</div></div>
-      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Benchmark findings against CM best practices</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Surface pain points &amp; friction from session transcripts &amp; interviews</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Score &amp; Benchmark Knowledge Skill Test findings against CM best practices</div></div>
       <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 2 Prompts</a></div>
     </div>
   </div>
@@ -1070,6 +1076,51 @@ Interview summaries:
 [PASTE EACH SUMMARY, LABELED BY STAKEHOLDER ROLE]</div>
         <button class="copy-btn" onclick="copyPrompt('pc5', this)">Copy Prompt</button>
       </div>
+    </div>
+  </div>
+
+  <div class="prompt-card" id="pc11">
+    <div class="prompt-header" onclick="togglePrompt('pc11')">
+      <div><div class="prompt-title">Pain Point &amp; Friction Identifier</div><div class="prompt-meta">Input: workshop sessions, attendee notes, interviews · Output: ranked pain points + friction themes</div></div>
+      <span class="prompt-chevron">▾</span>
+    </div>
+    <div class="prompt-body">
+      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste all workshop session transcripts/notes, additional notes from Crisp attendees, and stakeholder interview summaries — clearly label each source (e.g., "Workshop Day 1 transcript:", "Sarah's notes:", "Category Manager interview:").</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
+        <div class="prompt-text" id="pc11-text">You are analyzing discovery research from a category management assessment to surface
+the client's pain points and friction in their current category management process.
+
+You will receive three types of input, each clearly labeled:
+- Workshop session transcripts or notes
+- Additional notes captured by Crisp attendees
+- Stakeholder interview summaries or transcripts
+
+For EACH pain point you identify, return:
+1. Pain Point — concise one-sentence statement
+2. Severity — High / Medium / Low based on stated frequency or impact
+3. Affected Roles — who experiences this (Category Manager, Space Planner, Analyst, etc.)
+4. Current Workaround — how they cope today (if mentioned)
+5. Quote / Evidence — direct quote or paraphrased statement from the source
+6. Source(s) — which labeled inputs surfaced this (workshop, notes, interview, multiple)
+7. Related Theme — overarching theme (e.g., data quality, tool gaps, process inconsistency, skills, governance)
+
+Then produce a summary section at the top:
+- Top 5 pain points ranked by severity x frequency across sources
+- Most common friction themes (3–5 themes)
+- Cross-validated pain points — those raised in 2+ different sources (these are highest confidence)
+- Quick wins — pain points that could be addressed with minimal effort
+
+Rules:
+- Be specific. Always cite the source and quote when possible.
+- Do not invent pain points that were not actually mentioned.
+- If a topic appears in multiple sources, count it as cross-validated and flag it.
+- If sentiment is unclear, label it "ambiguous" rather than guessing.
+
+Inputs:
+[PASTE WORKSHOP SESSIONS, ATTENDEE NOTES, AND INTERVIEW CONTENT BELOW, EACH LABELED BY SOURCE]</div>
+        <button class="copy-btn" onclick="copyPrompt('pc11', this)">Copy Prompt</button>
+      </div>
+      <div class="prompt-note">Combine all three input types in one paste for cross-source validation. The more sources, the more reliable the cross-validation.</div>
     </div>
   </div>
 
