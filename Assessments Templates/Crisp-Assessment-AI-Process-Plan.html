@@ -278,6 +278,10 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
       <label>Engagement Lead</label>
       <input type="text" id="engagementLead" placeholder="Your name" />
     </div>
+    <div class="form-field">
+      <label>Google Drive Folder Link <span style="opacity:0.6; font-weight:400;">(optional)</span></label>
+      <input type="url" id="driveLink" placeholder="https://drive.google.com/drive/folders/..." />
+    </div>
     <div class="toggle-section-label">Enable for this project</div>
     <div class="toggle-grid">
       <div class="toggle-item on" onclick="toggleFeature(this,'progress')" data-feature="progress">
@@ -1118,12 +1122,14 @@ function launchProject() {
   if (!client) { document.getElementById('clientName').focus(); return; }
   const lead = document.getElementById('engagementLead').value.trim();
   if (!lead) { document.getElementById('engagementLead').focus(); return; }
-  projectData = { client, lead, features: {...features}, progress: {1:{},2:{},3:{},4:{}} };
+  const driveLink = document.getElementById('driveLink').value.trim();
+  projectData = { client, lead, driveLink, features: {...features}, progress: {1:{},2:{},3:{},4:{}} };
   try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
   catch { console.warn('localStorage unavailable; project state will not persist.'); }
   applyFeatures();
   document.getElementById('clientDisplay').textContent = client;
   document.getElementById('setupModal').classList.add('hidden');
+  refreshDriveButtons();
   nav('overview');
 }
 
@@ -1154,6 +1160,7 @@ function resumeProject() {
 function newProject() {
   document.getElementById('clientName').value = '';
   document.getElementById('engagementLead').value = '';
+  document.getElementById('driveLink').value = '';
   features = { progress: true, print: true, search: false, changelog: false };
   document.querySelectorAll('.toggle-item').forEach(el => {
     const feat = el.dataset.feature;
