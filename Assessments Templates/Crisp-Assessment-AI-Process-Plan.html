@@ -144,6 +144,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .col-stack { display: flex; flex-direction: column; gap: 10px; }
 .card.compact { padding: 10px 14px; font-size: 13px; }
 .card.compact .item-list li { padding: 3px 0; font-size: 12px; }
+.phase-complete-callout {
+  background: linear-gradient(135deg, var(--green-light), white);
+  border: 2px solid var(--green); border-radius: 12px;
+  padding: 16px 20px; margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 196, 154, 0.18);
+}
+.callout-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.callout-icon { font-size: 26px; line-height: 1; }
+.callout-title { font-size: 15px; font-weight: 700; color: var(--teal-dark); }
+.callout-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.callout-prompts { display: flex; flex-direction: column; gap: 8px; }
+.callout-prompt-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: white; border: 1px solid var(--green-border);
+  border-radius: 8px; padding: 10px 14px; gap: 12px;
+}
+.callout-prompt-title { font-size: 13px; font-weight: 600; color: var(--teal-dark); }
+.callout-prompt-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.callout-prompt-row .copy-btn { white-space: nowrap; }
 .two-col   { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 16px; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
 .card.ai { border-color: var(--green-border); background: var(--green-light); }
@@ -505,6 +524,38 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     </div>
     <div class="gate-pill">✓ Gate 1 required before Discovery</div>
   </div>
+  <div class="phase-complete-callout hidden" id="callout-phase1">
+    <div class="callout-header">
+      <div class="callout-icon">🚀</div>
+      <div>
+        <div class="callout-title">Gate 1 complete — Run Phase 1 AI prompts</div>
+        <div class="callout-sub">All key activities are checked. Copy each prompt below and paste into Claude/ChatGPT with your uploaded assets to prepare for Discovery.</div>
+      </div>
+    </div>
+    <div class="callout-prompts">
+      <div class="callout-prompt-row">
+        <div>
+          <div class="callout-prompt-title">Questionnaire Maturity Scorer</div>
+          <div class="callout-prompt-meta">Input: completed questionnaire · Output: maturity scores + priority gaps</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc1', this)">Copy Prompt</button>
+      </div>
+      <div class="callout-prompt-row">
+        <div>
+          <div class="callout-prompt-title">Stakeholder Outreach Email Draft</div>
+          <div class="callout-prompt-meta">Input: stakeholder list + dates · Output: professional outreach email</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc2', this)">Copy Prompt</button>
+      </div>
+      <div class="callout-prompt-row">
+        <div>
+          <div class="callout-prompt-title">SOW Logistics Checklist Generator</div>
+          <div class="callout-prompt-meta">Input: SOW text · Output: organized logistics checklist</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc3', this)">Copy Prompt</button>
+      </div>
+    </div>
+  </div>
   <div class="three-col">
     <div class="col-stack">
       <div class="card compact">
@@ -578,6 +629,31 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
       <div class="page-subtitle">On-site or remote workshops · Stakeholder interviews · Current-state documentation</div>
     </div>
     <div class="gate-pill">✓ Gate 2 required before Analysis</div>
+  </div>
+  <div class="phase-complete-callout hidden" id="callout-phase2">
+    <div class="callout-header">
+      <div class="callout-icon">🚀</div>
+      <div>
+        <div class="callout-title">Gate 2 complete — Run Phase 2 AI prompts</div>
+        <div class="callout-sub">Discovery done. Copy each prompt below and paste into Claude/ChatGPT with your workshop notes and interview summaries to synthesize findings.</div>
+      </div>
+    </div>
+    <div class="callout-prompts">
+      <div class="callout-prompt-row">
+        <div>
+          <div class="callout-prompt-title">Workshop Session Synthesis</div>
+          <div class="callout-prompt-meta">Input: raw workshop notes · Output: structured synthesis</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc4', this)">Copy Prompt</button>
+      </div>
+      <div class="callout-prompt-row">
+        <div>
+          <div class="callout-prompt-title">Cross-Interview Pattern Detector</div>
+          <div class="callout-prompt-meta">Input: multiple interview summaries · Output: themes + contradictions</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc5', this)">Copy Prompt</button>
+      </div>
+    </div>
   </div>
   <div class="three-col">
     <div class="card">
@@ -654,6 +730,38 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     </div>
     <div class="gate-pill">✓ Gate 3 required before Roadmap</div>
   </div>
+  <div class="phase-complete-callout hidden" id="callout-phase3">
+    <div class="callout-header">
+      <div class="callout-icon">🚀</div>
+      <div>
+        <div class="callout-title">Gate 3 complete — Run Phase 3 AI prompts</div>
+        <div class="callout-sub">Analysis done. Copy each prompt below and paste into Claude/ChatGPT with your benchmarking notes and opportunity log to prepare for Roadmap.</div>
+      </div>
+    </div>
+    <div class="callout-prompts">
+      <div class="callout-prompt-row">
+        <div>
+          <div class="callout-prompt-title">CM Best Practice Benchmark</div>
+          <div class="callout-prompt-meta">Input: current-state description · Output: benchmark ratings per dimension</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc6', this)">Copy Prompt</button>
+      </div>
+      <div class="callout-prompt-row">
+        <div>
+          <div class="callout-prompt-title">Opportunity Log Entry Generator</div>
+          <div class="callout-prompt-meta">Input: synthesis + gaps · Output: formatted opportunity log entries</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc7', this)">Copy Prompt</button>
+      </div>
+      <div class="callout-prompt-row">
+        <div>
+          <div class="callout-prompt-title">Theme Clustering &amp; Prioritization</div>
+          <div class="callout-prompt-meta">Input: opportunity log · Output: 3–5 strategic themes + quick wins</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc8', this)">Copy Prompt</button>
+      </div>
+    </div>
+  </div>
   <div class="three-col">
     <div class="card">
       <div class="card-label">Inputs</div>
@@ -725,6 +833,31 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
       <div class="page-subtitle">Build solution roadmap · Estimate timelines &amp; costs · Present to client leadership</div>
     </div>
     <div class="gate-pill">🏁 Gate 4 closes the engagement</div>
+  </div>
+  <div class="phase-complete-callout hidden" id="callout-phase4">
+    <div class="callout-header">
+      <div class="callout-icon">🚀</div>
+      <div>
+        <div class="callout-title">Gate 4 complete — Run Phase 4 AI prompts</div>
+        <div class="callout-sub">Roadmap done. Copy each prompt below and paste into Claude/ChatGPT with your prioritized opportunity log to finalize the client readout.</div>
+      </div>
+    </div>
+    <div class="callout-prompts">
+      <div class="callout-prompt-row">
+        <div>
+          <div class="callout-prompt-title">Solution Roadmap Draft</div>
+          <div class="callout-prompt-meta">Input: prioritized opportunity log · Output: 3-horizon roadmap</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc9', this)">Copy Prompt</button>
+      </div>
+      <div class="callout-prompt-row">
+        <div>
+          <div class="callout-prompt-title">Executive Summary Generator</div>
+          <div class="callout-prompt-meta">Input: roadmap draft · Output: exec-ready summary for VP/SVP audience</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('pc10', this)">Copy Prompt</button>
+      </div>
+    </div>
   </div>
   <div class="three-col">
     <div class="card">
@@ -1221,6 +1354,7 @@ function launchProject() {
   document.getElementById('setupModal').classList.add('hidden');
   refreshDriveButtons();
   refreshAllAssetLists();
+  refreshPhaseCallouts();
   nav('overview');
 }
 
@@ -1247,6 +1381,7 @@ function resumeProject() {
   }
   refreshDriveButtons();
   refreshAllAssetLists();
+  refreshPhaseCallouts();
   nav('overview');
 }
 
@@ -1267,6 +1402,7 @@ function newProject() {
   projectData = {};
   refreshDriveButtons();
   refreshAllAssetLists();
+  refreshPhaseCallouts();
 }
 
 function applyFeatures() {
@@ -1309,6 +1445,16 @@ function updateProgress(phase) {
   if (el) el.textContent = `${done}/${tasks.length}`;
   try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
   catch { /* storage unavailable */ }
+  refreshPhaseCallouts();
+}
+
+function refreshPhaseCallouts() {
+  [1, 2, 3, 4].forEach(phase => {
+    const callout = document.getElementById(`callout-phase${phase}`);
+    if (!callout) return;
+    if (isPhaseComplete(phase)) callout.classList.remove('hidden');
+    else callout.classList.add('hidden');
+  });
 }
 
 function ensureAssetsModel() {
