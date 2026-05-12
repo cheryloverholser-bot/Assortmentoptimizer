@@ -1061,6 +1061,8 @@ function toggleFeature(el, feature) {
   features[feature] = el.classList.contains('on');
 }
 
+function refreshDriveButtons() { /* implemented in next task */ }
+
 function launchProject() {
   const client = document.getElementById('clientName').value.trim();
   if (!client) { document.getElementById('clientName').focus(); return; }
