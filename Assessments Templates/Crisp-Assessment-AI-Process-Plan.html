@@ -1150,7 +1150,13 @@ function launchProject() {
   if (!client) { document.getElementById('clientName').focus(); return; }
   const lead = document.getElementById('engagementLead').value.trim();
   if (!lead) { document.getElementById('engagementLead').focus(); return; }
-  const driveLink = document.getElementById('driveLink').value.trim();
+  const driveLinkRaw = document.getElementById('driveLink').value.trim();
+  if (driveLinkRaw && !isValidHttpUrl(driveLinkRaw)) {
+    alert('Drive folder link must be a valid https:// URL. Leave it blank to skip.');
+    document.getElementById('driveLink').focus();
+    return;
+  }
+  const driveLink = driveLinkRaw;
   projectData = { client, lead, driveLink, features: {...features}, progress: {1:{},2:{},3:{},4:{}} };
   try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
   catch { console.warn('localStorage unavailable; project state will not persist.'); }
@@ -1245,6 +1251,15 @@ function updateProgress(phase) {
   catch { /* storage unavailable */ }
 }
 
+function isValidHttpUrl(value) {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 function refreshDriveButtons() {
   const hasLink = !!(projectData && projectData.driveLink);
   document.querySelectorAll('[data-drive-btn]').forEach(btn => {
@@ -1263,6 +1278,10 @@ function openOrSetDriveLink() {
   if (!url) return;
   const trimmed = url.trim();
   if (!trimmed) return;
+  if (!isValidHttpUrl(trimmed)) {
+    alert('Please enter a valid https:// URL.');
+    return;
+  }
   if (!projectData) projectData = {};
   projectData.driveLink = trimmed;
   try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
