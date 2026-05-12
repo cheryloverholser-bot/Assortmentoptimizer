@@ -646,7 +646,7 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
         </div>
         <button class="copy-btn" onclick="copyPrompt('pc4', this)">Copy Prompt</button>
       </div>
-      <div class="callout-prompt-row">
+      <div class="callout-prompt-row" data-requires-asset="2:1">
         <div>
           <div class="callout-prompt-title">Cross-Interview Pattern Detector</div>
           <div class="callout-prompt-meta">Input: multiple interview summaries · Output: themes + contradictions</div>
@@ -688,7 +688,7 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     <div class="card ai">
       <div class="ai-tag">✦ AI Steps</div>
       <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Transcribe &amp; synthesize workshop sessions</div></div>
-      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Cross-interview pattern &amp; gap detection</div></div>
+      <div class="ai-step" data-requires-asset="2:1"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Cross-interview pattern &amp; gap detection</div></div>
       <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Surface pain points &amp; friction from session transcripts &amp; interviews</div></div>
       <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Score &amp; Benchmark Knowledge Skill Test findings against CM best practices</div></div>
       <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 2 Prompts</a></div>
@@ -1576,6 +1576,19 @@ function refreshAllAssetLists() {
     if (Number.isInteger(phase) && Number.isInteger(task)) renderAssetList(phase, task);
   });
   refreshProgressCheckboxes();
+  refreshConditionalAISteps();
+}
+
+function refreshConditionalAISteps() {
+  ensureAssetsModel();
+  document.querySelectorAll('[data-requires-asset]').forEach(el => {
+    const parts = el.dataset.requiresAsset.split(':').map(Number);
+    if (parts.length !== 2) return;
+    const [phase, task] = parts;
+    const assets = (projectData.assets && projectData.assets[phase] && projectData.assets[phase][task]) || [];
+    if (assets.length === 0) el.classList.add('hidden');
+    else el.classList.remove('hidden');
+  });
 }
 
 function refreshProgressCheckboxes() {
@@ -1642,6 +1655,7 @@ function saveAsset(phase, task) {
   saveProjectData();
   renderAssetList(phase, task);
   refreshProgressCheckboxes();
+  refreshConditionalAISteps();
 }
 
 function deleteAsset(phase, task, index) {
@@ -1663,6 +1677,7 @@ function deleteAsset(phase, task, index) {
   }
   renderAssetList(phase, task);
   refreshProgressCheckboxes();
+  refreshConditionalAISteps();
 }
 
 function isValidHttpUrl(value) {
