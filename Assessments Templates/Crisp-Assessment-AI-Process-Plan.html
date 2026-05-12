@@ -757,8 +757,8 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
       </div>
       <div class="callout-prompt-row">
         <div>
-          <div class="callout-prompt-title">Opportunity Log Entry Generator</div>
-          <div class="callout-prompt-meta">Input: synthesis + gaps · Output: formatted opportunity log entries</div>
+          <div class="callout-prompt-title">Create Opportunity Log</div>
+          <div class="callout-prompt-meta">Input: Opportunity Log Template + Discovery Session data files · Output: populated Excel opportunity log</div>
         </div>
         <button class="copy-btn" onclick="copyPrompt('pc7', this)">Copy Prompt</button>
       </div>
@@ -786,15 +786,14 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     </button>
     <div class="card">
       <div class="card-label">Key Activities</div>
-      <div class="progress-task" data-phase="3" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Benchmark against CM best practices</label></div>
-      <div class="progress-task" data-phase="3" data-task="1"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Quantify gaps &amp; potential impact</label></div>
-      <div class="progress-task" data-phase="3" data-task="2"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Build and populate opportunity log</label></div>
-      <div class="progress-task" data-phase="3" data-task="3"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Cluster into top 3–5 strategic themes</label></div>
-      <div class="progress-task" data-phase="3" data-task="4"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Internal review of findings</label></div>
+      <div class="progress-task" data-phase="3" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Benchmark Knowledge Test results against CM Peer set</label></div>
+      <div class="progress-task" data-phase="3" data-task="1"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Build and populate opportunity log &amp; upload Opportunity Log Template</label></div>
+      <div class="progress-task" data-phase="3" data-task="2" data-asset-optional="true"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Cluster into top 3–5 strategic themes</label></div>
+      <div class="progress-task" data-phase="3" data-task="3" data-asset-optional="true"><input type="checkbox" class="progress-check" onchange="updateProgress(3)"><label>Internal review of findings</label></div>
     </div>
     <div class="card ai">
       <div class="ai-tag">✦ AI Steps</div>
-      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Draft &amp; rank opportunity log entries</div></div>
+      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Create opportunity log</div></div>
       <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Cluster findings into top 3–5 themes</div></div>
       <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Quantify gap impact ranges</div></div>
       <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Suggest prioritization logic (effort vs. impact)</div></div>
@@ -1156,27 +1155,28 @@ Current-state description:
 
   <div class="prompt-card" id="pc7">
     <div class="prompt-header" onclick="togglePrompt('pc7')">
-      <div><div class="prompt-title">Opportunity Log Entry Generator</div><div class="prompt-meta">Input: synthesis + gaps · Output: formatted opportunity log entries</div></div>
+      <div><div class="prompt-title">Create Opportunity Log</div><div class="prompt-meta">Input: Opportunity Log Template + Discovery Session data files · Output: populated Excel opportunity log</div></div>
       <span class="prompt-chevron">▾</span>
     </div>
     <div class="prompt-body">
-      <div class="prompt-section"><div class="prompt-section-label">What to paste in</div><div style="font-size:12px;color:var(--muted);">Paste the workshop synthesis and gap analysis. Include any benchmark ratings from Prompt 6 if available.</div></div>
+      <div class="prompt-section"><div class="prompt-section-label">What to attach</div><div style="font-size:12px;color:var(--muted);">Attach the Opportunity Log Template (Excel) and all Discovery Session data files (workshop transcripts, interview summaries, attendee notes, pain point analysis, current-state workflows, benchmarking results).</div></div>
       <div class="prompt-section"><div class="prompt-section-label">Prompt — click to copy</div>
-        <div class="prompt-text" id="pc7-text">Using the workshop synthesis and gap analysis below, generate opportunity log
-entries in this format:
+        <div class="prompt-text" id="pc7-text">Read the attached Excel Opportunity Log template. Use the sheet named Template as the
+required output structure. Use Instructions and Sample Output sheets as rules and examples.
 
-| Opportunity | Description | Impact Area | Effort (Low/Med/High) | Impact (Low/Med/High) | Priority |
+Review all attached Discovery Session data files and summarize only the information needed
+to populate the Template sheet.
 
-Rules:
-- Write each opportunity as an action: "Implement X to achieve Y"
-- Impact areas: Data Quality, Process Efficiency, Collaboration, Technology, Revenue/Margin
-- Rank priority: High (quick win or high strategic value), Medium, Low
-- Aim for 10–20 entries
+Create a mapping table: Template field → source file/field → transformation rules.
 
-Synthesis and gaps:
-[PASTE HERE]</div>
+Then generate a new Excel file based on the template, populated with the derived values,
+preserving formatting/validations, and include a Notes/Assumptions sheet documenting
+decisions and any missing data.
+
+Place the output file in the folder identified at the project start.</div>
         <button class="copy-btn" onclick="copyPrompt('pc7', this)">Copy Prompt</button>
       </div>
+      <div class="prompt-note">Attach the Opportunity Log Template and all Discovery Session data files to Claude/ChatGPT before running this prompt. The model needs to read the template structure and source files to map fields correctly.</div>
     </div>
   </div>
 
