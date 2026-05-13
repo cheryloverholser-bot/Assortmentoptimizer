@@ -404,7 +404,7 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     </div>
     <button class="btn-primary" onclick="launchProject()">Launch Assessment Process →</button>
     <div class="setup-resume hidden" id="resumeLink" onclick="resumeProject()">Resume existing project →</div>
-    <div class="setup-resume" onclick="openLoadFromFile()">Load project from file →</div>
+    <div class="setup-resume" onclick="document.getElementById('loadFileInput').click()">Load project from file →</div>
   </div>
 </div>
 <div class="topbar">
@@ -1503,29 +1503,6 @@ function saveProjectToFile() {
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-function openLoadFromFile() {
-  let savedDriveLink = '';
-  try {
-    const saved = localStorage.getItem('crispAssessment');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed && typeof parsed.driveLink === 'string' && isValidHttpUrl(parsed.driveLink)) {
-        savedDriveLink = parsed.driveLink;
-      }
-    }
-  } catch { /* ignore */ }
-  if (savedDriveLink) {
-    const goToDrive = confirm(
-      'Open your Google Drive folder to download the saved project file?\n\n' +
-      'Click OK to open Drive in a new tab — download the .crispproject.json file there, ' +
-      'then return here and choose it from your Downloads.\n\n' +
-      'Click Cancel to skip Drive and pick a file directly from this computer.'
-    );
-    if (goToDrive) window.open(savedDriveLink, '_blank', 'noopener,noreferrer');
-  }
-  document.getElementById('loadFileInput').click();
 }
 
 function loadProjectFromFile(event) {
