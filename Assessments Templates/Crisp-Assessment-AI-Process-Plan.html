@@ -403,7 +403,6 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
       </div>
     </div>
     <button class="btn-primary" onclick="launchProject()">Launch Assessment Process →</button>
-    <div class="setup-resume hidden" id="resumeLink" onclick="resumeProject()">Resume existing project →</div>
     <div class="setup-resume" onclick="document.getElementById('loadFileInput').click()">Load project from file →</div>
   </div>
 </div>
@@ -1316,8 +1315,6 @@ let features = { progress: true, print: true, search: false, changelog: false };
 let projectData = {};
 
 window.onload = function() {
-  const saved = localStorage.getItem('crispAssessment');
-  if (saved) document.getElementById('resumeLink').classList.remove('hidden');
   injectAssetLists();
   refreshProgressCheckboxes();
 };
