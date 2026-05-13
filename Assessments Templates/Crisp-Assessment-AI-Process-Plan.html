@@ -404,6 +404,7 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     </div>
     <button class="btn-primary" onclick="launchProject()">Launch Assessment Process →</button>
     <div class="setup-resume hidden" id="resumeLink" onclick="resumeProject()">Resume existing project →</div>
+    <div class="setup-resume" onclick="document.getElementById('loadFileInput').click()">Load project from file →</div>
   </div>
 </div>
 <div class="topbar">
@@ -419,7 +420,9 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
              id="searchInput" oninput="doSearch(this.value)" />
     </div>
     <button class="btn-print hidden" id="printBtn" onclick="window.print()">🖨 Print</button>
+    <button class="btn-new-project hidden" id="saveProjectBtn" onclick="saveProjectToFile()">💾 Save Project</button>
     <button class="btn-new-project" onclick="newProject()">+ New Project</button>
+    <input type="file" id="loadFileInput" accept=".json,application/json" class="hidden" onchange="loadProjectFromFile(event)">
   </div>
 </div>
 <div class="shell">
@@ -1371,6 +1374,7 @@ function launchProject() {
   refreshDriveButtons();
   refreshAllAssetLists();
   refreshPhaseCallouts();
+  showSaveButton();
   nav('overview');
 }
 
@@ -1398,6 +1402,7 @@ function resumeProject() {
   refreshDriveButtons();
   refreshAllAssetLists();
   refreshPhaseCallouts();
+  showSaveButton();
   nav('overview');
 }
 
@@ -1419,6 +1424,7 @@ function newProject() {
   refreshDriveButtons();
   refreshAllAssetLists();
   refreshPhaseCallouts();
+  hideSaveButton();
 }
 
 function applyFeatures() {
@@ -1471,6 +1477,75 @@ function refreshPhaseCallouts() {
     if (isPhaseComplete(phase)) callout.classList.remove('hidden');
     else callout.classList.add('hidden');
   });
+}
+
+function showSaveButton() {
+  document.getElementById('saveProjectBtn')?.classList.remove('hidden');
+}
+function hideSaveButton() {
+  document.getElementById('saveProjectBtn')?.classList.add('hidden');
+}
+
+function saveProjectToFile() {
+  if (!projectData || !projectData.client) {
+    alert('No project to save. Launch a project first.');
+    return;
+  }
+  const exportData = { version: 1, savedAt: new Date().toISOString(), data: projectData };
+  const json = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safeName = String(projectData.client).replace(/[^a-z0-9_\-]+/gi, '_') || 'project';
+  a.href = url;
+  a.download = `${safeName}_assessment.crispproject.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function loadProjectFromFile(event) {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let parsed;
+    try { parsed = JSON.parse(e.target.result); }
+    catch { alert('Could not read project file. The file is not valid JSON.'); return; }
+    const data = parsed && parsed.data ? parsed.data : parsed;
+    if (!data || typeof data !== 'object' || !data.client) {
+      alert('Invalid project file. Missing required project data.');
+      return;
+    }
+    projectData = data;
+    features = data.features || features;
+    try { localStorage.setItem('crispAssessment', JSON.stringify(projectData)); }
+    catch { console.warn('localStorage unavailable; project state will not persist beyond this session.'); }
+    applyFeatures();
+    document.getElementById('clientDisplay').textContent = data.client || '—';
+    document.getElementById('setupModal').classList.add('hidden');
+    document.querySelectorAll('.progress-check').forEach(cb => { cb.checked = false; });
+    document.querySelectorAll('.progress-task').forEach(t => t.classList.remove('done'));
+    if (data.progress) {
+      [1,2,3,4].forEach(p => {
+        Object.keys(data.progress[p] || {}).forEach(t => {
+          if (data.progress[p][t]) {
+            const cb = document.querySelector(`[data-phase="${p}"][data-task="${t}"] .progress-check`);
+            if (cb) { cb.checked = true; cb.closest('.progress-task').classList.add('done'); }
+          }
+        });
+        updateProgress(p);
+      });
+    }
+    refreshDriveButtons();
+    refreshAllAssetLists();
+    refreshPhaseCallouts();
+    showSaveButton();
+    nav('overview');
+  };
+  reader.readAsText(file);
 }
 
 function ensureAssetsModel() {
