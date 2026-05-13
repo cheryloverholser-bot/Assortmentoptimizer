@@ -369,7 +369,7 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
     </div>
     <div class="form-field">
       <label>Google Drive Folder Link</label>
-      <input type="url" id="driveLink" placeholder="https://drive.google.com/drive/folders/..." value="https://drive.google.com/drive/folders/1QUw2glONPgxCUtQoCJ2g6zBm8aWWlZzK" />
+      <input type="url" id="driveLink" placeholder="https://drive.google.com/drive/folders/..." />
     </div>
     <div class="toggle-section-label">Enable for this project</div>
     <div class="toggle-grid">
@@ -1406,7 +1406,7 @@ function resumeProject() {
 function newProject() {
   document.getElementById('clientName').value = '';
   document.getElementById('engagementLead').value = '';
-  document.getElementById('driveLink').value = 'https://drive.google.com/drive/folders/1QUw2glONPgxCUtQoCJ2g6zBm8aWWlZzK';
+  document.getElementById('driveLink').value = '';
   features = { progress: true, print: true, search: false, changelog: false };
   document.querySelectorAll('.toggle-item').forEach(el => {
     const feat = el.dataset.feature;
