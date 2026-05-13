@@ -853,40 +853,33 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
         </div>
         <button class="copy-btn" onclick="copyPrompt('pc9', this)">Copy Prompt</button>
       </div>
-      <div class="callout-prompt-row">
-        <div>
-          <div class="callout-prompt-title">Executive Summary Generator</div>
-          <div class="callout-prompt-meta">Input: roadmap draft · Output: exec-ready summary for VP/SVP audience</div>
-        </div>
-        <button class="copy-btn" onclick="copyPrompt('pc10', this)">Copy Prompt</button>
-      </div>
     </div>
   </div>
   <div class="three-col">
-    <div class="card">
-      <div class="card-label">Inputs</div>
-      <ul class="item-list">
-        <li>Finalized opportunity log</li>
-        <li>Solution Roadmap template</li>
-        <li>Exec Summary template</li>
-        <li>Cost benchmarks</li>
-      </ul>
+    <div class="col-stack">
+      <div class="card compact">
+        <div class="card-label">Inputs</div>
+        <ul class="item-list">
+          <li>Finalized opportunity log</li>
+          <li><a href="https://docs.google.com/presentation/d/1jLTbK_eKLCFQm1VKXuQMmHKzI4a76SgF/edit?usp=drive_link&amp;ouid=105971840068273946156&amp;rtpof=true&amp;sd=true" target="_blank" rel="noopener noreferrer">Solution Roadmap Template</a></li>
+          <li>Cost benchmarks</li>
+        </ul>
+      </div>
+      <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
+        <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
+      </button>
     </div>
-    <button class="drive-link-btn" data-drive-btn onclick="openOrSetDriveLink()">
-      <span class="drive-icon">📁</span><span data-drive-label>Set Project Folder Link</span>
-    </button>
     <div class="card">
       <div class="card-label">Key Activities</div>
-      <div class="progress-task" data-phase="4" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(4)"><label>Build short &amp; long-term solution roadmap</label></div>
+      <div class="progress-task" data-phase="4" data-task="0"><input type="checkbox" class="progress-check" onchange="updateProgress(4)"><label>Build solution roadmap for client</label></div>
       <div class="progress-task" data-phase="4" data-task="1"><input type="checkbox" class="progress-check" onchange="updateProgress(4)"><label>Estimate timelines &amp; costs per solution</label></div>
-      <div class="progress-task" data-phase="4" data-task="2"><input type="checkbox" class="progress-check" onchange="updateProgress(4)"><label>Schedule stakeholder touchbase meetings</label></div>
-      <div class="progress-task" data-phase="4" data-task="3"><input type="checkbox" class="progress-check" onchange="updateProgress(4)"><label>Present roadmap to client leadership</label></div>
+      <div class="progress-task" data-phase="4" data-task="2"><input type="checkbox" class="progress-check" onchange="updateProgress(4)"><label>Schedule internal review of solution roadmap</label></div>
+      <div class="progress-task" data-phase="4" data-task="3"><input type="checkbox" class="progress-check" onchange="updateProgress(4)"><label>Present Solution Roadmap to client</label></div>
       <div class="progress-task" data-phase="4" data-task="4"><input type="checkbox" class="progress-check" onchange="updateProgress(4)"><label>Capture follow-ups &amp; next steps</label></div>
     </div>
     <div class="card ai">
       <div class="ai-tag">✦ AI Steps</div>
       <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Draft roadmap from opportunity log output</div></div>
-      <div class="ai-step"><span class="ai-step-badge badge-current">NOW</span><div class="ai-step-text">Generate executive summary shell</div></div>
       <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Auto-populate timelines &amp; sequencing logic</div></div>
       <div class="ai-step"><span class="ai-step-badge badge-new">NEW</span><div class="ai-step-text">Generate cost estimate ranges from solution components</div></div>
       <div style="margin-top:10px"><a class="tpl-link" onclick="nav('prompts')">→ View Phase 4 Prompts</a></div>
@@ -900,7 +893,6 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
       <div class="sec-label">Templates</div>
       <div class="templates-wrap">
         <a class="tpl-link">📄 Assessment_Solution_Roadmap_Template.pptx</a>
-        <a class="tpl-link">📄 Assessment_Executive_Summary.pptx</a>
       </div>
     </div>
     <div class="card">
@@ -924,7 +916,6 @@ mark { background: #fef9c3; color: inherit; border-radius: 2px; }
         <li>Executive summary presented to leadership</li>
         <li>Client sponsor signs off on prioritization</li>
         <li>Follow-ups and next steps captured</li>
-        <li>SOW for solutions routed for signatures</li>
       </ul>
     </div>
   </div>
@@ -1310,7 +1301,6 @@ Key findings and roadmap:
         <li>Executive summary presented to leadership</li>
         <li>Client sponsor signs off on prioritization</li>
         <li>Follow-ups and next steps captured</li>
-        <li>SOW for solutions routed for signatures</li>
       </ul>
       <div class="gate-next">→ Engagement complete · SOW opens next phase</div>
     </div>
