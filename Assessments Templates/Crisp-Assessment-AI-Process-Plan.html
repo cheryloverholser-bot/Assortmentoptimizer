@@ -1440,6 +1440,19 @@ function nav(page) {
     showToast('Complete all key activities in this phase before moving on.');
     return;
   }
+  const phaseSequence = { phase1: 'phase2', phase2: 'phase3', phase3: 'phase4' };
+  const currentSection = document.querySelector('.page-section.active');
+  const currentPage = currentSection ? currentSection.id.replace('page-', '') : null;
+  if (currentPage && phaseSequence[currentPage] === page && projectData && projectData.client) {
+    const priorPhaseNum = phaseGates[page];
+    const nextPhaseNum = priorPhaseNum + 1;
+    const wantsSave = confirm(
+      `Phase ${priorPhaseNum} is complete. Save your project file before proceeding to Phase ${nextPhaseNum}?\n\n` +
+      `Click OK to download the latest .crispproject.json (drop it in your Drive folder).\n` +
+      `Click Cancel to skip the save and continue.`
+    );
+    if (wantsSave) saveProjectToFile();
+  }
   document.getElementById('searchResults')?.classList.add('hidden');
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item, .nav-link').forEach(i => i.classList.remove('active'));
