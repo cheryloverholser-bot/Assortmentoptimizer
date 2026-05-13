@@ -1352,8 +1352,13 @@ function launchProject() {
   const lead = document.getElementById('engagementLead').value.trim();
   if (!lead) { document.getElementById('engagementLead').focus(); return; }
   const driveLink = document.getElementById('driveLink').value.trim();
-  if (driveLink && !isValidHttpUrl(driveLink)) {
-    alert('Drive folder link must be a valid https:// URL. Leave it blank to skip.');
+  if (!driveLink) {
+    alert('Google Drive folder link is required to launch the project.');
+    document.getElementById('driveLink').focus();
+    return;
+  }
+  if (!isValidHttpUrl(driveLink)) {
+    alert('Drive folder link must be a valid https:// URL.');
     document.getElementById('driveLink').focus();
     return;
   }
