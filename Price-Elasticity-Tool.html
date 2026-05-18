@@ -183,6 +183,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .locked-panel { text-align: center; padding: 48px 24px; color: var(--muted); }
 .locked-panel .lock-icon { font-size: 32px; margin-bottom: 12px; }
 .locked-panel p { font-size: 13px; }
+.comp-sens-opt { font-size: 12px; color: var(--teal-dark); cursor: pointer;
+                 display: flex; align-items: center; gap: 5px; }
 </style>
 </head>
 <body>
@@ -439,7 +441,59 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div id="tab2-output"></div>
   </div>
 </div>
-  <div id="tab3" class="tab-panel"><!-- Tab 3 content injected in Task 6 --></div>
+  <div id="tab3" class="tab-panel">
+  <div id="tab3-locked" class="locked-panel">
+    <div class="lock-icon">🔒</div>
+    <p>Complete the Elasticity Calculator in Tab 1 first.</p>
+  </div>
+  <div id="tab3-content" style="display:none">
+
+    <div class="card open">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div><div class="card-title">Competitive Scenario Inputs</div></div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field" style="max-width:180px">
+            <label>Your Current Price ($)</label>
+            <input type="number" id="compYourPrice" placeholder="0.00" min="0" step="0.01" oninput="runComp()">
+          </div>
+          <div class="field" style="max-width:180px">
+            <label>Competitor Current Price ($)</label>
+            <input type="number" id="compCurrentPrice" placeholder="0.00" min="0" step="0.01" oninput="runComp()">
+          </div>
+          <div class="field" style="max-width:180px">
+            <label>Competitor New Price ($)</label>
+            <input type="number" id="compNewPrice" placeholder="0.00" min="0" step="0.01" oninput="runComp()">
+          </div>
+        </div>
+        <div class="field-row" style="align-items:flex-start">
+          <div class="field">
+            <label>Cross-Price Sensitivity</label>
+            <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+              <label class="comp-sens-opt" title="Your item and the competitor's serve different shopper needs. Switching is rare.">
+                <input type="radio" name="crossSens" value="0.3" onchange="runComp()"> Low (0.3×)
+              </label>
+              <label class="comp-sens-opt" title="Some overlap. Shoppers occasionally switch on price.">
+                <input type="radio" name="crossSens" value="0.6" checked onchange="runComp()"> Medium (0.6×)
+              </label>
+              <label class="comp-sens-opt" title="High substitutability — common in commodity or private-label-heavy categories.">
+                <input type="radio" name="crossSens" value="0.9" onchange="runComp()"> High (0.9×)
+              </label>
+            </div>
+          </div>
+          <div class="field" style="max-width:180px">
+            <label>Your Response Price (optional)</label>
+            <input type="number" id="compResponsePrice" placeholder="Custom counter-price" min="0" step="0.01" oninput="runComp()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab3-output"></div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -906,8 +960,127 @@ function runPromo() {
   `;
 }
 
-// Stub — replaced by Task 5
-function prefillTab3() {}
+// ── Tab 3 Competitive Response ────────────────────────────────────────────────
+function prefillTab3() {
+  if (!state.elasticity) return;
+  document.getElementById('tab3-locked').style.display = 'none';
+  document.getElementById('tab3-content').style.display = 'block';
+  document.getElementById('compYourPrice').value = state.currentPrice.toFixed(2);
+  if (state.competitorPrice) {
+    document.getElementById('compCurrentPrice').value = state.competitorPrice.toFixed(2);
+  }
+}
+
+function runComp() {
+  const yourPrice = parseFloat(document.getElementById('compYourPrice').value);
+  const compCurrent = parseFloat(document.getElementById('compCurrentPrice').value);
+  const compNew = parseFloat(document.getElementById('compNewPrice').value);
+  const baseUnits = state.baselineUnits;
+  const e = state.elasticity;
+  const crossSens = parseFloat(document.querySelector('input[name="crossSens"]:checked')?.value || 0.6);
+  const responsePrice = parseFloat(document.getElementById('compResponsePrice').value) || null;
+
+  if (isNaN(yourPrice) || isNaN(compCurrent) || compCurrent <= 0 || isNaN(compNew) || !e || !baseUnits) return;
+
+  const crossCoeff = e * crossSens;
+  const compPctChange = (compNew - compCurrent) / compCurrent;
+  const demandShiftPct = compPctChange * crossCoeff;
+  const demandShiftUnits = baseUnits * demandShiftPct;
+
+  // Hold scenario: your price unchanged, demand shifts away
+  const holdUnits = baseUnits + demandShiftUnits;
+  const holdRevDiff = (holdUnits - baseUnits) * yourPrice;
+
+  // Match scenario: your price = competitor new price
+  const matchPriceDiff = (compNew - yourPrice) / yourPrice;
+  const matchUnitLift = matchPriceDiff * e;
+  const matchUnits = baseUnits * (1 + matchUnitLift) + demandShiftUnits * -1; // recover shift by matching
+  const matchRevDiff = matchUnits * compNew - baseUnits * yourPrice;
+  const matchMarginNote = state.unitCost !== null
+    ? `Margin per unit: ${fmtDollar(compNew - state.unitCost)} (was ${fmtDollar(yourPrice - state.unitCost)})`
+    : 'Enter unit cost in Tab 1 for margin analysis.';
+
+  // Counter-promote: promo depth needed to recover shift
+  const shiftToRecover = Math.abs(demandShiftUnits);
+  // incr = baseUnits * pctChange * e * 1.35 → solve for pctChange
+  const promoDepthNeeded = baseUnits > 0 && Math.abs(e) > 0
+    ? shiftToRecover / (baseUnits * Math.abs(e) * 1.35)
+    : 0;
+  const counterPromoPrice = yourPrice * (1 - promoDepthNeeded);
+  const counterPromoRevDiff = (baseUnits + shiftToRecover) * counterPromoPrice - baseUnits * yourPrice;
+
+  // Price gap meter
+  const priceGap = compNew > 0 && yourPrice > 0
+    ? Math.abs(yourPrice - compNew) / Math.min(yourPrice, compNew)
+    : 0;
+  const switchThreshold = Math.abs(e) > 0 ? 1 / Math.abs(e) : 1;
+  const warnThreshold = switchThreshold * 0.7;
+  const gapPct = Math.min(priceGap / switchThreshold, 1);
+  const meterColor = priceGap >= switchThreshold ? 'danger' : priceGap >= warnThreshold ? 'warn' : '';
+  const gapWarn = priceGap >= warnThreshold
+    ? `<div class="alert ${priceGap >= switchThreshold ? 'alert-red' : 'alert-amber'}">
+        Price gap of ${fmtPct(priceGap, 1).replace('+','')} approaches the switching threshold (~${fmtPct(switchThreshold,1).replace('+','')}). Shopper switching risk is elevated.
+       </div>`
+    : '';
+
+  const customScenario = responsePrice !== null && !isNaN(responsePrice) && yourPrice > 0
+    ? (() => {
+        const customPct = (responsePrice - yourPrice) / yourPrice;
+        const customLift = customPct * e;
+        const customUnits = baseUnits * (1 + customLift);
+        const customRevDiff = customUnits * responsePrice - baseUnits * yourPrice;
+        return `<div class="scenario-card" style="border-color:var(--green-border)">
+          <div class="scenario-card-title">Custom Response Price: ${fmtDollar(responsePrice)}</div>
+          <div class="scenario-row"><span class="label">Price change</span><span class="value">${fmtPct(customPct)}</span></div>
+          <div class="scenario-row"><span class="label">Proj. units</span><span class="value">${fmt(customUnits,0)}</span></div>
+          <div class="scenario-row"><span class="label">Revenue diff</span><span class="value ${customRevDiff >= 0 ? 'positive' : 'negative'}">${fmtDollar(customRevDiff,0)}</span></div>
+        </div>`;
+      })()
+    : '';
+
+  document.getElementById('tab3-output').innerHTML = `
+    ${gapWarn}
+    <div class="output-section">
+      <div class="output-section-title">Price Gap Meter — Your Price vs. Competitor New Price</div>
+      <div class="card"><div class="card-body">
+        <div class="gap-meter">
+          <div class="gap-meter-label">Gap: ${fmtPct(priceGap,1).replace('+','')} | Warning zone: ${fmtPct(warnThreshold,1).replace('+','')} | Switching threshold: ~${fmtPct(switchThreshold,1).replace('+','')}</div>
+          <div class="gap-meter-track">
+            <div class="gap-meter-fill ${meterColor}" style="width:${(gapPct * 100).toFixed(1)}%"></div>
+          </div>
+          <div class="gap-meter-pins"><span>0%</span><span>${fmtPct(switchThreshold * 0.5,1).replace('+','')}</span><span>${fmtPct(switchThreshold,1).replace('+','')} (threshold)</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="output-section">
+      <div class="output-section-title">Response Scenarios</div>
+      <div class="scenario-grid">
+        <div class="scenario-card">
+          <div class="scenario-card-title">Hold Price — ${fmtDollar(yourPrice)}</div>
+          <div class="scenario-row"><span class="label">Demand shift</span><span class="value ${demandShiftUnits < 0 ? 'negative' : 'positive'}">${fmt(demandShiftUnits,0)} units</span></div>
+          <div class="scenario-row"><span class="label">Proj. units/period</span><span class="value">${fmt(holdUnits,0)}</span></div>
+          <div class="scenario-row"><span class="label">Revenue impact</span><span class="value ${holdRevDiff >= 0 ? 'positive' : 'negative'}">${fmtDollar(holdRevDiff,0)}</span></div>
+          <div class="scenario-row"><span class="label">Price gap vs comp</span><span class="value">${fmtPct(priceGap,1).replace('+','')}</span></div>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-card-title">Match Price — ${fmtDollar(compNew)}</div>
+          <div class="scenario-row"><span class="label">Price change</span><span class="value">${fmtPct(matchPriceDiff)}</span></div>
+          <div class="scenario-row"><span class="label">Proj. units/period</span><span class="value">${fmt(matchUnits,0)}</span></div>
+          <div class="scenario-row"><span class="label">Revenue diff</span><span class="value ${matchRevDiff >= 0 ? 'positive' : 'negative'}">${fmtDollar(matchRevDiff,0)}</span></div>
+          <div class="scenario-row"><span class="label">Margin</span><span class="value">${matchMarginNote}</span></div>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-card-title">Counter-Promote</div>
+          <div class="scenario-row"><span class="label">Promo depth needed</span><span class="value">${fmtPct(-promoDepthNeeded)}</span></div>
+          <div class="scenario-row"><span class="label">Counter-promo price</span><span class="value">${fmtDollar(counterPromoPrice)}</span></div>
+          <div class="scenario-row"><span class="label">Units recovered</span><span class="value positive">${fmt(shiftToRecover,0)}</span></div>
+          <div class="scenario-row"><span class="label">Revenue diff</span><span class="value ${counterPromoRevDiff >= 0 ? 'positive' : 'negative'}">${fmtDollar(counterPromoRevDiff,0)}</span></div>
+        </div>
+        ${customScenario}
+      </div>
+    </div>
+  `;
+}
 </script>
 </body>
 </html>
