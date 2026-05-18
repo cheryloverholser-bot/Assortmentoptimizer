@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>crisp. — Price Elasticity Tool</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+       background: var(--bg); color: #1a1a1a; font-size: 14px; line-height: 1.5; }
+:root {
+  --green:       #00C49A;
+  --green-dark:  #009E7C;
+  --green-light: #e6f9f4;
+  --green-border:#a8e6d9;
+  --teal-dark:   #0D3D35;
+  --bg:          #eef3f2;
+  --card:        #ffffff;
+  --border:      #d4e4e1;
+  --muted:       #5a7a74;
+  --red:         #e53e3e;
+  --amber:       #d97706;
+  --amber-light: #fffbeb;
+}
+
+/* Topbar */
+.topbar {
+  background: var(--teal-dark); color: white;
+  padding: 0 24px; height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.logo-pill { background: var(--green); color: white; font-weight: 700;
+             font-size: 15px; padding: 3px 11px; border-radius: 3px; }
+.topbar-title { font-size: 12px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.8px; }
+
+/* Tab nav */
+.tab-nav {
+  background: white; border-bottom: 1px solid var(--border);
+  display: flex; gap: 0; padding: 0 24px;
+}
+.tab-btn {
+  padding: 14px 20px; font-size: 13px; font-weight: 600;
+  color: var(--muted); border: none; background: none; cursor: pointer;
+  border-bottom: 3px solid transparent; margin-bottom: -1px;
+  transition: all 0.15s;
+}
+.tab-btn.active { color: var(--teal-dark); border-bottom-color: var(--green); }
+.tab-btn:hover:not(.active) { color: var(--teal-dark); background: var(--green-light); }
+.tab-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Main content */
+.main { max-width: 960px; margin: 0 auto; padding: 28px 24px; }
+
+/* Cards */
+.card { background: var(--card); border: 1px solid var(--border);
+        border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+.card-header { padding: 14px 18px; display: flex; align-items: center;
+               justify-content: space-between; cursor: pointer;
+               border-bottom: 1px solid var(--border); }
+.card-header:hover { background: #f9fafb; }
+.card-title { font-size: 13px; font-weight: 700; color: var(--teal-dark); }
+.card-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.card-body { padding: 18px; }
+.card-body.collapsed { display: none; }
+.chevron { color: var(--muted); transition: transform 0.2s; font-size: 12px; }
+.card.open .chevron { transform: rotate(180deg); }
+
+/* Form elements */
+.field-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 140px; }
+.field label { font-size: 11px; font-weight: 600; color: var(--muted);
+               text-transform: uppercase; letter-spacing: 0.5px; }
+.field input, .field select {
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 7px 10px; font-size: 13px; color: #1a1a1a;
+  background: white; outline: none;
+}
+.field input:focus, .field select:focus { border-color: var(--green); }
+
+/* Data table */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { text-align: left; font-size: 11px; font-weight: 600;
+                 color: var(--muted); text-transform: uppercase;
+                 letter-spacing: 0.5px; padding: 6px 8px;
+                 border-bottom: 1px solid var(--border); }
+.data-table td { padding: 4px 4px; }
+.data-table td input {
+  width: 100%; border: 1px solid var(--border); border-radius: 5px;
+  padding: 5px 8px; font-size: 13px;
+}
+.data-table td input:focus { border-color: var(--green); outline: none; }
+
+/* Buttons */
+.btn-primary {
+  background: var(--green); color: white; border: none;
+  padding: 9px 20px; border-radius: 7px; font-size: 13px;
+  font-weight: 600; cursor: pointer;
+}
+.btn-primary:hover { background: var(--green-dark); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-ghost {
+  background: none; border: 1px solid var(--border);
+  padding: 7px 14px; border-radius: 6px; font-size: 12px;
+  color: var(--muted); cursor: pointer;
+}
+.btn-ghost:hover { border-color: var(--green); color: var(--teal-dark); }
+
+/* Output blocks */
+.output-section { margin-top: 24px; }
+.output-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase;
+                         letter-spacing: 0.6px; color: var(--muted); margin-bottom: 12px; }
+.metric-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.metric-card { background: var(--green-light); border: 1px solid var(--green-border);
+               border-radius: 8px; padding: 14px 18px; flex: 1; min-width: 160px; }
+.metric-label { font-size: 11px; color: var(--muted); font-weight: 600;
+                text-transform: uppercase; letter-spacing: 0.5px; }
+.metric-value { font-size: 26px; font-weight: 700; color: var(--teal-dark);
+                margin: 4px 0 2px; }
+.metric-sub { font-size: 12px; color: var(--muted); }
+
+/* Alert banners */
+.alert { padding: 10px 14px; border-radius: 7px; font-size: 12px;
+         margin-bottom: 12px; display: flex; align-items: flex-start; gap: 8px; }
+.alert-amber { background: var(--amber-light); border: 1px solid #fbbf24; color: #92400e; }
+.alert-red { background: #fff5f5; border: 1px solid #feb2b2; color: #742a2a; }
+.alert-green { background: var(--green-light); border: 1px solid var(--green-border); color: #065f46; }
+
+/* Scenario cards (Tab 3) */
+.scenario-grid { display: flex; gap: 14px; flex-wrap: wrap; }
+.scenario-card { flex: 1; min-width: 240px; background: white;
+                 border: 1px solid var(--border); border-radius: 10px;
+                 padding: 16px; }
+.scenario-card-title { font-size: 13px; font-weight: 700; color: var(--teal-dark);
+                       margin-bottom: 10px; padding-bottom: 8px;
+                       border-bottom: 2px solid var(--green-light); }
+.scenario-row { display: flex; justify-content: space-between;
+                font-size: 12px; padding: 4px 0;
+                border-bottom: 1px solid #f0f4f3; }
+.scenario-row:last-child { border-bottom: none; }
+.scenario-row .label { color: var(--muted); }
+.scenario-row .value { font-weight: 600; color: var(--teal-dark); }
+.scenario-row .value.negative { color: var(--red); }
+.scenario-row .value.positive { color: var(--green-dark); }
+
+/* Price gap meter */
+.gap-meter { margin-top: 20px; }
+.gap-meter-label { font-size: 11px; font-weight: 600; color: var(--muted);
+                   text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.gap-meter-track { height: 12px; background: #e2e8e7; border-radius: 6px;
+                   position: relative; overflow: visible; }
+.gap-meter-fill { height: 100%; border-radius: 6px; background: var(--green);
+                  transition: width 0.3s; }
+.gap-meter-fill.warn { background: var(--amber); }
+.gap-meter-fill.danger { background: var(--red); }
+.gap-meter-pins { display: flex; justify-content: space-between;
+                  font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* Toggle switch */
+.toggle-group { display: flex; gap: 0; border: 1px solid var(--border);
+                border-radius: 6px; overflow: hidden; width: fit-content; }
+.toggle-opt { padding: 6px 12px; font-size: 12px; font-weight: 600;
+              color: var(--muted); cursor: pointer; background: white;
+              border: none; transition: all 0.12s; }
+.toggle-opt.active { background: var(--teal-dark); color: white; }
+
+/* Sensitivity table */
+.sens-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.sens-table th { text-align: left; font-size: 11px; font-weight: 600;
+                 color: var(--muted); text-transform: uppercase;
+                 letter-spacing: 0.5px; padding: 6px 10px;
+                 border-bottom: 1px solid var(--border); }
+.sens-table td { padding: 7px 10px; border-bottom: 1px solid #f0f4f3; }
+.sens-table tr:last-child td { border-bottom: none; }
+.sens-bar { height: 6px; border-radius: 3px; background: var(--green); display: inline-block; }
+
+/* Tab panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Locked panel */
+.locked-panel { text-align: center; padding: 48px 24px; color: var(--muted); }
+.locked-panel .lock-icon { font-size: 32px; margin-bottom: 12px; }
+.locked-panel p { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo-pill">crisp.</span>
+    <span class="topbar-title">Price Elasticity Tool</span>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('tab1')">1 — Elasticity Calculator</button>
+  <button class="tab-btn" id="tab2-btn" onclick="switchTab('tab2')">2 — Promo Modeler</button>
+  <button class="tab-btn" id="tab3-btn" onclick="switchTab('tab3')">3 — Competitive Response</button>
+</div>
+
+<div class="main">
+  <div id="tab1" class="tab-panel active"><!-- Tab 1 content injected in Task 3 --></div>
+  <div id="tab2" class="tab-panel"><!-- Tab 2 content injected in Task 5 --></div>
+  <div id="tab3" class="tab-panel"><!-- Tab 3 content injected in Task 6 --></div>
+</div>
+
+<script>
+// ── Shared state ──────────────────────────────────────────────────────────────
+const state = {
+  // Tab 1 outputs
+  elasticity: null,        // number (negative expected)
+  baselinePrice: null,     // average price from data pairs
+  baselineUnits: null,     // average units from data pairs
+  currentPrice: null,      // from competitive context or last data row
+  competitorPrice: null,   // from competitive context
+  unitCost: null,          // optional
+  hasLoyalty: false,       // true if any shopper profile data entered
+  demographics: {},        // { age: {a1834, a3554, a55plus}, income: {...}, hhsize: {...} }
+  purchaseFreq: null,
+  basketSize: null,
+  dataPairs: [],           // [{price, units}]
+};
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toggleCard(el) {
+  const card = el.closest('.card');
+  const body = card.querySelector('.card-body');
+  card.classList.toggle('open');
+  body.classList.toggle('collapsed');
+}
+
+function fmt(n, decimals = 0) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return Number(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function fmtPct(n, decimals = 1) {
+  if (n === null || isNaN(n)) return '—';
+  return (n >= 0 ? '+' : '') + Number(n * 100).toFixed(decimals) + '%';
+}
+
+function fmtDollar(n, decimals = 2) {
+  if (n === null || isNaN(n)) return '—';
+  return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+</script>
+</body>
+</html>
