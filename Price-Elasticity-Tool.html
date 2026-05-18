@@ -1287,8 +1287,9 @@ function importCSV(file) {
         <td style="color:var(--muted);font-size:12px;padding:6px 8px">${rowCount + 1}</td>
         <td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="onDataChange()" value="${price}"></td>
         <td><input type="number" placeholder="0" min="0" step="1" oninput="onDataChange()" value="${units}"></td>
-        <td><input type="text" placeholder="Wk ${rowCount + 1}" value="${period}"></td>
+        <td><input type="text" placeholder="Wk ${rowCount + 1}"></td>
       `;
+      row.querySelector('td:last-child input').value = period;
     }
 
     onDataChange(); // triggers button-enable logic and row count update
