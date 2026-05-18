@@ -1106,6 +1106,7 @@ function runComp() {
 // ── CSV Import ────────────────────────────────────────────────────────────────
 function showImportStatus(msg, level) {
   const el = document.getElementById('importStatus');
+  if (!el) return;
   el.style.display = 'inline';
   el.textContent = msg;
   el.style.color = level === 'error' ? 'var(--red)' : level === 'warn' ? 'var(--amber)' : 'var(--green-dark)';
@@ -1141,15 +1142,19 @@ function downloadTemplate() {
     '3.59,1520,Wk 4',
   ].join('\n');
 
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'price-elasticity-template.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  try {
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'price-elasticity-template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    showImportStatus('✗ Download failed — check browser settings', 'error');
+  }
 }
 </script>
 </body>
