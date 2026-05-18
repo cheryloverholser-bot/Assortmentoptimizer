@@ -982,7 +982,7 @@ function runComp() {
 
   if (isNaN(yourPrice) || isNaN(compCurrent) || compCurrent <= 0 || isNaN(compNew) || !e || !baseUnits) return;
 
-  const crossCoeff = e * crossSens;
+  const crossCoeff = Math.abs(e) * crossSens;
   const compPctChange = (compNew - compCurrent) / compCurrent;
   const demandShiftPct = compPctChange * crossCoeff;
   const demandShiftUnits = baseUnits * demandShiftPct;
