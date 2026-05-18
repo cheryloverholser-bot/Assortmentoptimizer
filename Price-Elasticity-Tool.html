@@ -555,9 +555,9 @@ function demandCurveSVG(pairs, elasticity) {
   const prices = pairs.map(p => p.price);
   const units = pairs.map(p => p.units);
   const minP = Math.min(...prices), maxP = Math.max(...prices);
-  const maxU = Math.max(...units) * 1.15;
+  const maxU = (Math.max(...units) * 1.15) || 1;
 
-  const pRange = maxP - minP || maxP * 0.2;
+  const pRange = (maxP - minP) || Math.max(maxP * 0.2, 0.01);
   const curveMinP = Math.max(0, minP - pRange * 0.15);
   const curveMaxP = maxP + pRange * 0.15;
 
@@ -654,9 +654,15 @@ function calculateElasticity() {
   state.baselinePrice = avgPrice;
   state.baselineUnits = avgUnits;
   state.dataPairs = pairs;
-  state.currentPrice = parseFloat(document.getElementById('yourCurrentPrice').value) || avgPrice;
-  state.competitorPrice = parseFloat(document.getElementById('compPrice').value) || null;
-  state.unitCost = parseFloat(document.getElementById('unitCost').value) || null;
+
+  const rawCurrentPrice = parseFloat(document.getElementById('yourCurrentPrice').value);
+  state.currentPrice = (!isNaN(rawCurrentPrice) && rawCurrentPrice > 0) ? rawCurrentPrice : avgPrice;
+
+  const rawCompPrice = parseFloat(document.getElementById('compPrice').value);
+  state.competitorPrice = (!isNaN(rawCompPrice) && rawCompPrice > 0) ? rawCompPrice : null;
+
+  const rawUnitCost = parseFloat(document.getElementById('unitCost').value);
+  state.unitCost = (!isNaN(rawUnitCost) && rawUnitCost >= 0) ? rawUnitCost : null;
 
   const info = elasticityLabel(e);
   const positiveWarn = e > 0
