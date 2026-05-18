@@ -196,8 +196,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <div class="tab-nav">
   <button class="tab-btn active" onclick="switchTab('tab1')">1 — Elasticity Calculator</button>
-  <button class="tab-btn" id="tab2-btn" onclick="switchTab('tab2')">2 — Promo Modeler</button>
-  <button class="tab-btn" id="tab3-btn" onclick="switchTab('tab3')">3 — Competitive Response</button>
+  <button class="tab-btn" id="tab2-btn" onclick="switchTab('tab2')" disabled>2 — Promo Modeler</button>
+  <button class="tab-btn" id="tab3-btn" onclick="switchTab('tab3')" disabled>3 — Competitive Response</button>
 </div>
 
 <div class="main">
@@ -523,6 +523,199 @@ function onDemoInput(group) {
 document.getElementById('yourCurrentPrice').addEventListener('input', function() {
   this.dataset.manuallyEdited = 'true';
 });
+
+// ── Elasticity calculation ────────────────────────────────────────────────────
+function calcArcElasticity(pairs) {
+  if (pairs.length < 2) return null;
+  let sum = 0, count = 0;
+  for (let i = 1; i < pairs.length; i++) {
+    const p1 = pairs[i-1].price, p2 = pairs[i].price;
+    const q1 = pairs[i-1].units, q2 = pairs[i].units;
+    if (p1 === p2 || (p1 + p2) === 0 || (q1 + q2) === 0) continue;
+    const e = ((q2 - q1) / ((q2 + q1) / 2)) / ((p2 - p1) / ((p2 + p1) / 2));
+    sum += e;
+    count++;
+  }
+  return count > 0 ? sum / count : null;
+}
+
+function elasticityLabel(e) {
+  const abs = Math.abs(e);
+  if (abs > 1.5) return { label: 'Highly elastic', sub: 'Demand drops sharply with price increases', color: '#e53e3e' };
+  if (abs > 1.0) return { label: 'Elastic', sub: 'Shoppers are price-sensitive', color: '#d97706' };
+  if (abs > 0.5) return { label: 'Moderately inelastic', sub: 'Some price sensitivity', color: '#0891b2' };
+  return { label: 'Inelastic', sub: 'Demand is relatively price-stable', color: '#059669' };
+}
+
+function demandCurveSVG(pairs, elasticity) {
+  const W = 480, H = 200, PAD = { top: 16, right: 20, bottom: 40, left: 52 };
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  const prices = pairs.map(p => p.price);
+  const units = pairs.map(p => p.units);
+  const minP = Math.min(...prices), maxP = Math.max(...prices);
+  const maxU = Math.max(...units) * 1.15;
+
+  const pRange = maxP - minP || maxP * 0.2;
+  const curveMinP = Math.max(0, minP - pRange * 0.15);
+  const curveMaxP = maxP + pRange * 0.15;
+
+  const refPair = pairs[pairs.length - 1];
+  function projectedUnits(p) {
+    if (p === refPair.price) return refPair.units;
+    const pctChange = (p - refPair.price) / refPair.price;
+    return Math.max(0, refPair.units * (1 + pctChange * elasticity));
+  }
+
+  const toX = p => PAD.left + ((p - curveMinP) / (curveMaxP - curveMinP)) * plotW;
+  const toY = u => PAD.top + plotH - (u / maxU) * plotH;
+
+  const steps = 50;
+  let curvePts = '';
+  for (let i = 0; i <= steps; i++) {
+    const p = curveMinP + (i / steps) * (curveMaxP - curveMinP);
+    const u = projectedUnits(p);
+    curvePts += (i === 0 ? 'M' : 'L') + toX(p).toFixed(1) + ',' + toY(u).toFixed(1) + ' ';
+  }
+
+  const dots = pairs.map(pair =>
+    `<circle cx="${toX(pair.price).toFixed(1)}" cy="${toY(pair.units).toFixed(1)}" r="4" fill="var(--teal-dark)" opacity="0.85"/>`
+  ).join('');
+
+  let xTicks = '';
+  for (let i = 0; i <= 4; i++) {
+    const p = curveMinP + (i / 4) * (curveMaxP - curveMinP);
+    const x = toX(p);
+    xTicks += `<line x1="${x}" y1="${PAD.top + plotH}" x2="${x}" y2="${PAD.top + plotH + 4}" stroke="#ccc"/>
+               <text x="${x}" y="${PAD.top + plotH + 16}" text-anchor="middle" font-size="10" fill="#9ab8b4">$${p.toFixed(2)}</text>`;
+  }
+
+  let yTicks = '';
+  for (let i = 0; i <= 3; i++) {
+    const u = maxU * (i / 3);
+    const y = toY(u);
+    yTicks += `<line x1="${PAD.left - 4}" y1="${y}" x2="${PAD.left}" y2="${y}" stroke="#ccc"/>
+               <text x="${PAD.left - 8}" y="${y + 4}" text-anchor="end" font-size="10" fill="#9ab8b4">${Math.round(u).toLocaleString()}</text>`;
+  }
+
+  return `<svg width="${W}" height="${H}" style="width:100%;max-width:${W}px;display:block;margin:0 auto" viewBox="0 0 ${W} ${H}">
+    <line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${PAD.top+plotH}" stroke="#d4e4e1"/>
+    <line x1="${PAD.left}" y1="${PAD.top+plotH}" x2="${PAD.left+plotW}" y2="${PAD.top+plotH}" stroke="#d4e4e1"/>
+    ${xTicks}${yTicks}
+    <path d="${curvePts}" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"/>
+    ${dots}
+    <text x="${PAD.left + plotW/2}" y="${H - 2}" text-anchor="middle" font-size="10" fill="#9ab8b4">Price ($)</text>
+    <text x="10" y="${PAD.top + plotH/2}" text-anchor="middle" font-size="10" fill="#9ab8b4" transform="rotate(-90,10,${PAD.top + plotH/2})">Units</text>
+  </svg>`;
+}
+
+function sensitivityTableHTML(elasticity) {
+  const segments = [
+    { group: 'Income', name: 'Under $50K',   idx: 1.6 },
+    { group: 'Income', name: '$50–100K',     idx: 1.0 },
+    { group: 'Income', name: '$100K+',       idx: 0.7 },
+    { group: 'Age',    name: '18–34',        idx: 1.3 },
+    { group: 'Age',    name: '35–54',        idx: 1.0 },
+    { group: 'Age',    name: '55+',          idx: 0.8 },
+    { group: 'HH Size',name: '1–2',          idx: 1.1 },
+    { group: 'HH Size',name: '3–4',          idx: 1.0 },
+    { group: 'HH Size',name: '5+',           idx: 1.2 },
+  ];
+  const maxIdx = Math.max(...segments.map(s => s.idx));
+  const rows = segments.map(s => {
+    const segE = (elasticity * s.idx).toFixed(2);
+    const barW = Math.round((s.idx / maxIdx) * 80);
+    return `<tr>
+      <td style="color:var(--muted);font-size:11px">${s.group}</td>
+      <td>${s.name}</td>
+      <td>${s.idx.toFixed(1)}×</td>
+      <td>${segE}</td>
+      <td><span class="sens-bar" style="width:${barW}px"></span></td>
+    </tr>`;
+  }).join('');
+  return `<table class="sens-table">
+    <thead><tr><th>Group</th><th>Segment</th><th>Index</th><th>Est. Elasticity</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function calculateElasticity() {
+  const pairs = getDataPairs();
+  if (pairs.length < 4) return;
+
+  const e = calcArcElasticity(pairs);
+  if (e === null) return;
+
+  const avgPrice = pairs.reduce((s, p) => s + p.price, 0) / pairs.length;
+  const avgUnits = pairs.reduce((s, p) => s + p.units, 0) / pairs.length;
+
+  state.elasticity = e;
+  state.baselinePrice = avgPrice;
+  state.baselineUnits = avgUnits;
+  state.dataPairs = pairs;
+  state.currentPrice = parseFloat(document.getElementById('yourCurrentPrice').value) || avgPrice;
+  state.competitorPrice = parseFloat(document.getElementById('compPrice').value) || null;
+  state.unitCost = parseFloat(document.getElementById('unitCost').value) || null;
+
+  const info = elasticityLabel(e);
+  const positiveWarn = e > 0
+    ? `<div class="alert alert-red" style="margin-bottom:16px">&#9888; Positive elasticity detected — check your data for entry errors. Price elasticity is expected to be negative.</div>`
+    : '';
+
+  const loyaltyNote = state.hasLoyalty
+    ? ''
+    : `<div class="alert alert-amber" style="margin-bottom:16px">Shopper profile data not entered. Demographic sensitivity analysis is not available.</div>`;
+
+  const sensTable = state.hasLoyalty
+    ? `<div class="output-section"><div class="output-section-title">Shopper Sensitivity by Segment</div>${sensitivityTableHTML(e)}<p style="font-size:11px;color:var(--muted);margin-top:8px">Sensitivity indices are research-based defaults. Edit the index values in the table if you have segment-specific data.</p></div>`
+    : '';
+
+  document.getElementById('tab1-output').style.display = 'block';
+  document.getElementById('tab1-output').innerHTML = `
+    ${positiveWarn}
+    ${loyaltyNote}
+    <div class="output-section">
+      <div class="output-section-title">Elasticity Result</div>
+      <div class="metric-row">
+        <div class="metric-card">
+          <div class="metric-label">Elasticity Coefficient</div>
+          <div class="metric-value" style="color:${info.color}">${e.toFixed(2)}</div>
+          <div class="metric-sub" style="font-weight:600;color:${info.color}">${info.label}</div>
+          <div class="metric-sub">${info.sub}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Avg Baseline Price</div>
+          <div class="metric-value">${fmtDollar(avgPrice)}</div>
+          <div class="metric-sub">across ${pairs.length} data points</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Avg Baseline Units</div>
+          <div class="metric-value">${fmt(avgUnits, 0)}</div>
+          <div class="metric-sub">per period</div>
+        </div>
+      </div>
+    </div>
+    <div class="output-section">
+      <div class="output-section-title">Demand Curve</div>
+      <div class="card"><div class="card-body">${demandCurveSVG(pairs, e)}</div></div>
+    </div>
+    ${sensTable}
+    <div class="alert alert-green" style="margin-top:16px">
+      Elasticity calculated. Tabs 2 and 3 are now unlocked.
+    </div>
+  `;
+
+  document.getElementById('tab2-btn').disabled = false;
+  document.getElementById('tab3-btn').disabled = false;
+
+  if (typeof prefillTab2 === 'function') prefillTab2();
+  if (typeof prefillTab3 === 'function') prefillTab3();
+}
+
+// Stubs — replaced by Tasks 4 and 5
+function prefillTab2() {}
+function prefillTab3() {}
 </script>
 </body>
 </html>
