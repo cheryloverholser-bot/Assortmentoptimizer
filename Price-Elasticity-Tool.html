@@ -277,6 +277,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
             <th>#</th>
             <th>Price ($)</th>
             <th>Units Sold</th>
+            <th>Base Units <span style="font-weight:400;color:var(--muted)">(optional)</span></th>
             <th id="periodHeader">Time Period</th>
           </tr>
         </thead>
@@ -582,6 +583,7 @@ function addDataRow() {
     <td style="color:var(--muted);font-size:12px;padding:6px 8px">${rowCount + 1}</td>
     <td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="onDataChange()"></td>
     <td><input type="number" placeholder="0" min="0" step="1" oninput="onDataChange()"></td>
+    <td><input type="number" placeholder="—" min="0" step="1" oninput="onDataChange()"></td>
     <td><input type="text" placeholder="Wk ${rowCount + 1}"></td>
   `;
   onDataChange();
@@ -612,10 +614,11 @@ function getDataPairs() {
   const pairs = [];
   rows.forEach(row => {
     const inputs = row.querySelectorAll('input');
-    const price = parseFloat(inputs[0].value);
-    const units = parseFloat(inputs[1].value);
+    const price     = parseFloat(inputs[0].value);
+    const units     = parseFloat(inputs[1].value);
+    const baseUnits = parseFloat(inputs[2].value); // optional — blank → NaN
     if (!isNaN(price) && !isNaN(units) && price > 0 && units >= 0) {
-      pairs.push({ price, units });
+      pairs.push({ price, units, baseUnits: isNaN(baseUnits) ? null : baseUnits });
     }
   });
   return pairs;
@@ -667,7 +670,9 @@ function calcArcElasticity(pairs) {
   let sum = 0, count = 0;
   for (let i = 1; i < pairs.length; i++) {
     const p1 = pairs[i-1].price, p2 = pairs[i].price;
-    const q1 = pairs[i-1].units, q2 = pairs[i].units;
+    // Use base units when available — strips promo-driven lift for a cleaner coefficient
+    const q1 = pairs[i-1].baseUnits ?? pairs[i-1].units;
+    const q2 = pairs[i].baseUnits   ?? pairs[i].units;
     if (p1 === p2 || (p1 + p2) === 0 || (q1 + q2) === 0) continue;
     const e = ((q2 - q1) / ((q2 + q1) / 2)) / ((p2 - p1) / ((p2 + p1) / 2));
     sum += e;
@@ -690,19 +695,20 @@ function demandCurveSVG(pairs, elasticity) {
   const plotH = H - PAD.top - PAD.bottom;
 
   const prices = pairs.map(p => p.price);
-  const units = pairs.map(p => p.units);
+  const effUnits = pairs.map(p => p.baseUnits ?? p.units); // what drove the calc
   const minP = Math.min(...prices), maxP = Math.max(...prices);
-  const maxU = (Math.max(...units) * 1.15) || 1;
+  const maxU = (Math.max(...pairs.map(p => p.units)) * 1.15) || 1; // scale to total units
 
   const pRange = (maxP - minP) || Math.max(maxP * 0.2, 0.01);
   const curveMinP = Math.max(0, minP - pRange * 0.15);
   const curveMaxP = maxP + pRange * 0.15;
 
   const refPair = pairs[pairs.length - 1];
+  const refQ = refPair.baseUnits ?? refPair.units;
   function projectedUnits(p) {
-    if (p === refPair.price) return refPair.units;
+    if (p === refPair.price) return refQ;
     const pctChange = (p - refPair.price) / refPair.price;
-    return Math.max(0, refPair.units * (1 + pctChange * elasticity));
+    return Math.max(0, refQ * (1 + pctChange * elasticity));
   }
 
   const toX = p => PAD.left + ((p - curveMinP) / (curveMaxP - curveMinP)) * plotW;
@@ -716,9 +722,15 @@ function demandCurveSVG(pairs, elasticity) {
     curvePts += (i === 0 ? 'M' : 'L') + toX(p).toFixed(1) + ',' + toY(u).toFixed(1) + ' ';
   }
 
-  const dots = pairs.map(pair =>
-    `<circle cx="${toX(pair.price).toFixed(1)}" cy="${toY(pair.units).toFixed(1)}" r="4" fill="var(--teal-dark)" opacity="0.85"/>`
-  ).join('');
+  // Solid teal = base units (used for elasticity calc); hollow gray = total units (promo uplift)
+  const dots = pairs.map(pair => {
+    const bx = toX(pair.price).toFixed(1);
+    const totalDot = `<circle cx="${bx}" cy="${toY(pair.units).toFixed(1)}" r="4" fill="none" stroke="#9ab8b4" stroke-width="1.5" opacity="0.7"/>`;
+    const baseDot  = pair.baseUnits != null
+      ? `<circle cx="${bx}" cy="${toY(pair.baseUnits).toFixed(1)}" r="4" fill="var(--teal-dark)" opacity="0.85"/>`
+      : `<circle cx="${bx}" cy="${toY(pair.units).toFixed(1)}" r="4" fill="var(--teal-dark)" opacity="0.85"/>`;
+    return pair.baseUnits != null ? totalDot + baseDot : baseDot;
+  }).join('');
 
   let xTicks = '';
   for (let i = 0; i <= 4; i++) {
@@ -736,12 +748,19 @@ function demandCurveSVG(pairs, elasticity) {
                <text x="${PAD.left - 8}" y="${y + 4}" text-anchor="end" font-size="10" fill="#9ab8b4">${Math.round(u).toLocaleString()}</text>`;
   }
 
+  const hasBase = pairs.some(p => p.baseUnits != null);
+  const legend = hasBase ? `
+    <circle cx="${PAD.left + plotW - 90}" cy="${PAD.top + 8}" r="4" fill="var(--teal-dark)" opacity="0.85"/>
+    <text x="${PAD.left + plotW - 83}" y="${PAD.top + 12}" font-size="9" fill="#9ab8b4">Base units</text>
+    <circle cx="${PAD.left + plotW - 30}" cy="${PAD.top + 8}" r="4" fill="none" stroke="#9ab8b4" stroke-width="1.5" opacity="0.7"/>
+    <text x="${PAD.left + plotW - 23}" y="${PAD.top + 12}" font-size="9" fill="#9ab8b4">Total</text>` : '';
+
   return `<svg width="${W}" height="${H}" style="width:100%;max-width:${W}px;display:block;margin:0 auto" viewBox="0 0 ${W} ${H}">
     <line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${PAD.top+plotH}" stroke="#d4e4e1"/>
     <line x1="${PAD.left}" y1="${PAD.top+plotH}" x2="${PAD.left+plotW}" y2="${PAD.top+plotH}" stroke="#d4e4e1"/>
     ${xTicks}${yTicks}
     <path d="${curvePts}" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"/>
-    ${dots}
+    ${dots}${legend}
     <text x="${PAD.left + plotW/2}" y="${H - 2}" text-anchor="middle" font-size="10" fill="#9ab8b4">Price ($)</text>
     <text x="10" y="${PAD.top + plotH/2}" text-anchor="middle" font-size="10" fill="#9ab8b4" transform="rotate(-90,10,${PAD.top + plotH/2})">Units</text>
   </svg>`;
@@ -785,7 +804,8 @@ function calculateElasticity() {
   if (e === null) return;
 
   const avgPrice = pairs.reduce((s, p) => s + p.price, 0) / pairs.length;
-  const avgUnits = pairs.reduce((s, p) => s + p.units, 0) / pairs.length;
+  // Baseline units uses base units where available — gives Promo Modeler an uninfluenced shelf velocity
+  const avgUnits = pairs.reduce((s, p) => s + (p.baseUnits ?? p.units), 0) / pairs.length;
 
   state.elasticity = e;
   state.baselinePrice = avgPrice;
@@ -1135,11 +1155,11 @@ function downloadTemplate() {
     'comp_price,3.79',
     'your_current_price,3.99',
     '',
-    'price,units,period',
-    '3.99,1200,Wk 1',
-    '3.79,1380,Wk 2',
-    '4.19,1050,Wk 3',
-    '3.59,1520,Wk 4',
+    'price,units,base units,period',
+    '3.99,1200,1200,Wk 1',
+    '3.79,1380,1050,Wk 2',
+    '4.19,1050,1050,Wk 3',
+    '3.59,1520,1100,Wk 4',
   ].join('\n');
 
   try {
@@ -1211,9 +1231,10 @@ function importCSV(file) {
       return;
     }
     const headerCols = tableLines[0].toLowerCase().split(',').map(c => c.trim());
-    const priceCol  = headerCols.findIndex(c => c === 'price' || c === 'avg price per unit');
-    const unitsCol  = headerCols.indexOf('units');
-    const periodCol = headerCols.findIndex(c => c === 'period' || c === 'period/period ending');
+    const priceCol     = headerCols.findIndex(c => c === 'price' || c === 'avg price per unit');
+    const unitsCol     = headerCols.indexOf('units');
+    const baseUnitsCol = headerCols.findIndex(c => c === 'base units' || c === 'base_units');
+    const periodCol    = headerCols.findIndex(c => c === 'period' || c === 'period/period ending');
     if (priceCol === -1 || unitsCol === -1) {
       showImportStatus('✗ Price/volume table must have price and units columns', 'error');
       return;
@@ -1223,12 +1244,13 @@ function importCSV(file) {
     const dataRows = [];
     for (const line of tableLines.slice(1)) {
       if (dataRows.length >= 12) break;
-      const cols   = line.split(',');
-      const price  = parseFloat(cols[priceCol]);
-      const units  = parseFloat(cols[unitsCol]);
-      const period = periodCol !== -1 ? (cols[periodCol] || '').trim() : '';
+      const cols      = line.split(',');
+      const price     = parseFloat(cols[priceCol]);
+      const units     = parseFloat(cols[unitsCol]);
+      const baseUnits = baseUnitsCol !== -1 ? parseFloat(cols[baseUnitsCol]) : NaN;
+      const period    = periodCol !== -1 ? (cols[periodCol] || '').trim() : '';
       if (!isNaN(price) && !isNaN(units)) {
-        dataRows.push({ price, units, period });
+        dataRows.push({ price, units, baseUnits: isNaN(baseUnits) ? null : baseUnits, period });
       }
     }
 
@@ -1301,6 +1323,7 @@ function importCSV(file) {
         <td style="color:var(--muted);font-size:12px;padding:6px 8px">${rowCount + 1}</td>
         <td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="onDataChange()" value="${price}"></td>
         <td><input type="number" placeholder="0" min="0" step="1" oninput="onDataChange()" value="${units}"></td>
+        <td><input type="number" placeholder="—" min="0" step="1" oninput="onDataChange()"${baseUnits != null ? ` value="${baseUnits}"` : ''}></td>
         <td><input type="text" placeholder="Wk ${rowCount + 1}"></td>
       `;
       row.querySelector('td:last-child input').value = period;
