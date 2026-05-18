@@ -1156,6 +1156,85 @@ function downloadTemplate() {
     showImportStatus('✗ Download failed — check browser settings', 'error');
   }
 }
+
+function importCSV(file) {
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.csv')) {
+    showImportStatus('✗ File must be a .csv', 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const lines = e.target.result
+      .split('\n')
+      .map(l => l.replace(/\r/g, '').trim());
+
+    // Split into scalar section and table section at first blank line
+    const blankIdx = lines.findIndex(l => l === '');
+    if (blankIdx === -1) {
+      showImportStatus('✗ File must contain a blank row separating scalar fields from the price/volume table', 'error');
+      return;
+    }
+
+    const scalarLines = lines.slice(0, blankIdx);
+    const tableLines  = lines.slice(blankIdx + 1).filter(l => l !== '');
+
+    // Parse scalar key-value pairs
+    const scalars = {};
+    for (const line of scalarLines) {
+      const commaIdx = line.indexOf(',');
+      if (commaIdx === -1) continue;
+      const key = line.slice(0, commaIdx).trim().toLowerCase();
+      const val = line.slice(commaIdx + 1).trim();
+      if (!key || key === 'field') continue; // skip header row
+      scalars[key] = val;
+    }
+
+    // Validate table header
+    if (tableLines.length === 0) {
+      showImportStatus('✗ No price/volume table found after blank row', 'error');
+      return;
+    }
+    const headerCols = tableLines[0].toLowerCase().split(',').map(c => c.trim());
+    if (!headerCols.includes('price') || !headerCols.includes('units')) {
+      showImportStatus('✗ Price/volume table must have "price" and "units" columns', 'error');
+      return;
+    }
+    const priceCol  = headerCols.indexOf('price');
+    const unitsCol  = headerCols.indexOf('units');
+    const periodCol = headerCols.indexOf('period');
+
+    // Parse data rows (max 12)
+    const dataRows = [];
+    for (const line of tableLines.slice(1)) {
+      if (dataRows.length >= 12) break;
+      const cols   = line.split(',');
+      const price  = parseFloat(cols[priceCol]);
+      const units  = parseFloat(cols[unitsCol]);
+      const period = periodCol !== -1 ? (cols[periodCol] || '').trim() : '';
+      if (!isNaN(price) && !isNaN(units)) {
+        dataRows.push({ price, units, period });
+      }
+    }
+
+    if (dataRows.length < 2) {
+      showImportStatus('✗ File must contain at least 2 price/volume data rows', 'error');
+      return;
+    }
+
+    // TODO: populate fields (Tasks 4–5)
+    console.log('Scalars:', scalars);
+    console.log('Data rows:', dataRows);
+    showImportStatus('✓ Parsed ' + dataRows.length + ' rows (fields not yet populated)', 'ok');
+  };
+
+  reader.onerror = function() {
+    showImportStatus('✗ Could not read file', 'error');
+  };
+
+  reader.readAsText(file);
+}
 </script>
 </body>
 </html>
