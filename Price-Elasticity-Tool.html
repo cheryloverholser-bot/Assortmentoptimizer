@@ -1180,14 +1180,28 @@ function importCSV(file) {
     const scalarLines = lines.slice(0, blankIdx);
     const tableLines  = lines.slice(blankIdx + 1).filter(l => l !== '');
 
-    // Parse scalar key-value pairs
+    // Parse scalar key-value pairs — supports both machine keys (item_name) and
+    // Excel export labels (Item Name & UPC, Avg Retail Price, etc.)
+    const LABEL_ALIASES = {
+      'item name & upc':                 'item_name',
+      'item name':                       'item_name',
+      'avg retail price':                'your_current_price',
+      'unit cost':                       'unit_cost',
+      'avg item purchase freq for l13w': 'purchase_freq',
+      'avg item purchase freq':          'purchase_freq',
+      'basket size for l13w':            'basket_size',
+      'basket size':                     'basket_size',
+      'competitive retail':              'comp_name',
+      'competitive retail avg price':    'comp_price',
+    };
     const scalars = {};
     for (const line of scalarLines) {
       const commaIdx = line.indexOf(',');
       if (commaIdx === -1) continue;
-      const key = line.slice(0, commaIdx).trim().toLowerCase();
-      const val = line.slice(commaIdx + 1).trim();
-      if (!key || key === 'field') continue; // skip header row
+      const rawKey = line.slice(0, commaIdx).trim().toLowerCase();
+      const val    = line.slice(commaIdx + 1).trim();
+      if (!rawKey || rawKey === 'field') continue; // skip header row
+      const key = LABEL_ALIASES[rawKey] || rawKey;
       scalars[key] = val;
     }
 
@@ -1197,13 +1211,13 @@ function importCSV(file) {
       return;
     }
     const headerCols = tableLines[0].toLowerCase().split(',').map(c => c.trim());
-    if (!headerCols.includes('price') || !headerCols.includes('units')) {
-      showImportStatus('✗ Price/volume table must have "price" and "units" columns', 'error');
+    const priceCol  = headerCols.findIndex(c => c === 'price' || c === 'avg price per unit');
+    const unitsCol  = headerCols.indexOf('units');
+    const periodCol = headerCols.findIndex(c => c === 'period' || c === 'period/period ending');
+    if (priceCol === -1 || unitsCol === -1) {
+      showImportStatus('✗ Price/volume table must have price and units columns', 'error');
       return;
     }
-    const priceCol  = headerCols.indexOf('price');
-    const unitsCol  = headerCols.indexOf('units');
-    const periodCol = headerCols.indexOf('period');
 
     // Parse data rows (max 12)
     const dataRows = [];
