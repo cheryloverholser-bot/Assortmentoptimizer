@@ -201,7 +201,181 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 </div>
 
 <div class="main">
-  <div id="tab1" class="tab-panel active"><!-- Tab 1 content injected in Task 3 --></div>
+  <div id="tab1" class="tab-panel active">
+
+  <!-- Item Baseline -->
+  <div class="card open" id="card-baseline">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div>
+        <div class="card-title">Item Baseline</div>
+        <div class="card-subtitle">POS or syndicated data — required</div>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Item Name</label>
+          <input type="text" id="itemName" placeholder="e.g. Brand X 32oz">
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <input type="text" id="itemCategory" placeholder="e.g. Beverages">
+        </div>
+        <div class="field">
+          <label>Retailer</label>
+          <input type="text" id="itemRetailer" placeholder="e.g. Kroger">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field" style="max-width:180px">
+          <label>Unit Cost (optional)</label>
+          <input type="number" id="unitCost" placeholder="$0.00" min="0" step="0.01">
+        </div>
+        <div class="field" style="max-width:220px">
+          <label>Period Type</label>
+          <div class="toggle-group" style="margin-top:4px">
+            <button class="toggle-opt active" id="toggleWeekly" onclick="setPeriodType('weekly')">Weekly</button>
+            <button class="toggle-opt" id="toggle4wk" onclick="setPeriodType('4week')">4-Week</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px; margin-bottom:8px">
+        <span style="font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px">
+          Price / Volume Data <span style="color:var(--red)">*</span>
+        </span>
+        <span style="font-size:11px; color:var(--muted); margin-left:8px">Minimum 4 rows required</span>
+      </div>
+
+      <table class="data-table" id="dataTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Price ($)</th>
+            <th>Units Sold</th>
+            <th id="periodHeader">Time Period</th>
+          </tr>
+        </thead>
+        <tbody id="dataRows"></tbody>
+      </table>
+
+      <div style="margin-top:10px; display:flex; gap:8px; align-items:center">
+        <button class="btn-ghost" onclick="addDataRow()">+ Add Row</button>
+        <span id="rowCountNote" style="font-size:11px; color:var(--muted)"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shopper Profile -->
+  <div class="card" id="card-shopper">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div>
+        <div class="card-title">Shopper Profile</div>
+        <div class="card-subtitle">Loyalty or panel data — optional, enables demographic analysis</div>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body collapsed">
+      <div class="field-row">
+        <div class="field">
+          <label>Avg Purchase Frequency (per year)</label>
+          <input type="number" id="purchaseFreq" placeholder="e.g. 6" min="0" step="0.1" oninput="onLoyaltyInput()">
+        </div>
+        <div class="field">
+          <label>Avg Basket Size ($)</label>
+          <input type="number" id="basketSize" placeholder="e.g. 45.00" min="0" step="0.01" oninput="onLoyaltyInput()">
+        </div>
+      </div>
+
+      <div style="font-size:12px; font-weight:600; color:var(--teal-dark); margin:14px 0 8px">Demographic Breakdown (% of shoppers)</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Age 18–34 %</label>
+          <input type="number" id="age1834" placeholder="0" min="0" max="100" oninput="onDemoInput('age')">
+        </div>
+        <div class="field">
+          <label>Age 35–54 %</label>
+          <input type="number" id="age3554" placeholder="0" min="0" max="100" oninput="onDemoInput('age')">
+        </div>
+        <div class="field">
+          <label>Age 55+ %</label>
+          <input type="number" id="age55plus" placeholder="0" min="0" max="100" oninput="onDemoInput('age')">
+        </div>
+      </div>
+      <div id="ageWarn" class="alert alert-amber" style="display:none">Age percentages don't sum to 100%. Analysis will use entered values.</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Income &lt;$50K %</label>
+          <input type="number" id="inc50" placeholder="0" min="0" max="100" oninput="onDemoInput('income')">
+        </div>
+        <div class="field">
+          <label>Income $50–100K %</label>
+          <input type="number" id="inc100" placeholder="0" min="0" max="100" oninput="onDemoInput('income')">
+        </div>
+        <div class="field">
+          <label>Income $100K+ %</label>
+          <input type="number" id="inc100plus" placeholder="0" min="0" max="100" oninput="onDemoInput('income')">
+        </div>
+      </div>
+      <div id="incomeWarn" class="alert alert-amber" style="display:none">Income percentages don't sum to 100%. Analysis will use entered values.</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>HH Size 1–2 %</label>
+          <input type="number" id="hh12" placeholder="0" min="0" max="100" oninput="onDemoInput('hh')">
+        </div>
+        <div class="field">
+          <label>HH Size 3–4 %</label>
+          <input type="number" id="hh34" placeholder="0" min="0" max="100" oninput="onDemoInput('hh')">
+        </div>
+        <div class="field">
+          <label>HH Size 5+ %</label>
+          <input type="number" id="hh5plus" placeholder="0" min="0" max="100" oninput="onDemoInput('hh')">
+        </div>
+      </div>
+      <div id="hhWarn" class="alert alert-amber" style="display:none">Household size percentages don't sum to 100%. Analysis will use entered values.</div>
+    </div>
+  </div>
+
+  <!-- Competitive Context -->
+  <div class="card" id="card-competitive">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div>
+        <div class="card-title">Competitive Context</div>
+        <div class="card-subtitle">Seeds the Competitive Response tab — optional</div>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body collapsed">
+      <div class="field-row">
+        <div class="field">
+          <label>Competitor Item Name</label>
+          <input type="text" id="compName" placeholder="e.g. Brand Y 32oz">
+        </div>
+        <div class="field" style="max-width:160px">
+          <label>Competitor Current Price ($)</label>
+          <input type="number" id="compPrice" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="field" style="max-width:160px">
+          <label>Your Current Price ($)</label>
+          <input type="number" id="yourCurrentPrice" placeholder="Auto-filled" min="0" step="0.01">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:8px; display:flex; align-items:center; gap:12px">
+    <button class="btn-primary" id="calcBtn" onclick="calculateElasticity()" disabled>
+      Calculate Elasticity
+    </button>
+    <span id="calcNote" style="font-size:12px; color:var(--muted)">Enter at least 4 price/volume rows to calculate.</span>
+  </div>
+
+  <div id="tab1-output" style="display:none"><!-- outputs rendered by JS --></div>
+</div>
   <div id="tab2" class="tab-panel"><!-- Tab 2 content injected in Task 5 --></div>
   <div id="tab3" class="tab-panel"><!-- Tab 3 content injected in Task 6 --></div>
 </div>
@@ -251,6 +425,104 @@ function fmtDollar(n, decimals = 2) {
   if (n === null || isNaN(n)) return '—';
   return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
+
+// ── Tab 1 data table ──────────────────────────────────────────────────────────
+let periodType = 'weekly';
+
+function setPeriodType(type) {
+  periodType = type;
+  document.getElementById('toggleWeekly').classList.toggle('active', type === 'weekly');
+  document.getElementById('toggle4wk').classList.toggle('active', type === '4week');
+  document.getElementById('periodHeader').textContent = type === 'weekly' ? 'Time Period' : '4-Week Period';
+}
+
+function addDataRow() {
+  const tbody = document.getElementById('dataRows');
+  const rowCount = tbody.rows.length;
+  if (rowCount >= 12) return;
+  const row = tbody.insertRow();
+  row.innerHTML = `
+    <td style="color:var(--muted);font-size:12px;padding:6px 8px">${rowCount + 1}</td>
+    <td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="onDataChange()"></td>
+    <td><input type="number" placeholder="0" min="0" step="1" oninput="onDataChange()"></td>
+    <td><input type="text" placeholder="Wk ${rowCount + 1}"></td>
+  `;
+  onDataChange();
+}
+
+function onDataChange() {
+  const pairs = getDataPairs();
+  const btn = document.getElementById('calcBtn');
+  const note = document.getElementById('calcNote');
+  if (pairs.length >= 4) {
+    btn.disabled = false;
+    note.textContent = `${pairs.length} valid rows entered.`;
+    // Auto-fill your current price from last row
+    const lastPrice = pairs[pairs.length - 1].price;
+    const yourPriceField = document.getElementById('yourCurrentPrice');
+    if (!yourPriceField.dataset.manuallyEdited) {
+      yourPriceField.value = lastPrice.toFixed(2);
+    }
+  } else {
+    btn.disabled = true;
+    note.textContent = `Enter at least 4 price/volume rows to calculate. (${pairs.length} valid so far)`;
+  }
+  updateRowCount();
+}
+
+function getDataPairs() {
+  const rows = document.querySelectorAll('#dataRows tr');
+  const pairs = [];
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const price = parseFloat(inputs[0].value);
+    const units = parseFloat(inputs[1].value);
+    if (!isNaN(price) && !isNaN(units) && price > 0 && units >= 0) {
+      pairs.push({ price, units });
+    }
+  });
+  return pairs;
+}
+
+function updateRowCount() {
+  const count = document.querySelectorAll('#dataRows tr').length;
+  document.getElementById('rowCountNote').textContent =
+    count >= 12 ? 'Maximum 12 rows reached.' : `${count} / 12 rows`;
+}
+
+function onLoyaltyInput() {
+  const freq = parseFloat(document.getElementById('purchaseFreq').value);
+  const basket = parseFloat(document.getElementById('basketSize').value);
+  state.hasLoyalty = !isNaN(freq) || !isNaN(basket);
+  state.purchaseFreq = isNaN(freq) ? null : freq;
+  state.basketSize = isNaN(basket) ? null : basket;
+}
+
+function onDemoInput(group) {
+  const groups = {
+    age:    ['age1834','age3554','age55plus'],
+    income: ['inc50','inc100','inc100plus'],
+    hh:     ['hh12','hh34','hh5plus'],
+  };
+  const warnIds = { age: 'ageWarn', income: 'incomeWarn', hh: 'hhWarn' };
+  const vals = groups[group].map(id => parseFloat(document.getElementById(id).value) || 0);
+  const sum = vals.reduce((a, b) => a + b, 0);
+  const warn = document.getElementById(warnIds[group]);
+  warn.style.display = (sum > 0 && Math.abs(sum - 100) > 0.5) ? 'flex' : 'none';
+  if (sum > 0) state.hasLoyalty = true;
+}
+
+// Init 4 rows on load
+(function initRows() {
+  for (let i = 0; i < 4; i++) addDataRow();
+  // Add 4 rows, reset count note
+  updateRowCount();
+})();
+
+// Mark your current price as manually edited if user types in it
+document.getElementById('yourCurrentPrice').addEventListener('input', function() {
+  this.dataset.manuallyEdited = 'true';
+});
 </script>
 </body>
 </html>
