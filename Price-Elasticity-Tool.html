@@ -1275,8 +1275,43 @@ function importCSV(file) {
       }
     }
 
-    // TODO: populate table rows (Task 5)
-    showImportStatus('✓ Scalars loaded (' + dataRows.length + ' price rows not yet populated)', 'ok');
+    // ── Populate price/volume table ───────────────────────────────────────────
+    const tbody = document.getElementById('dataRows');
+    // Clear existing rows
+    while (tbody.rows.length > 0) tbody.deleteRow(0);
+
+    for (const { price, units, period } of dataRows) {
+      const rowCount = tbody.rows.length;
+      const row = tbody.insertRow();
+      row.innerHTML = `
+        <td style="color:var(--muted);font-size:12px;padding:6px 8px">${rowCount + 1}</td>
+        <td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="onDataChange()" value="${price}"></td>
+        <td><input type="number" placeholder="0" min="0" step="1" oninput="onDataChange()" value="${units}"></td>
+        <td><input type="text" placeholder="Wk ${rowCount + 1}" value="${period}"></td>
+      `;
+    }
+
+    onDataChange(); // triggers button-enable logic and row count update
+
+    // Auto-fill yourCurrentPrice from last row only if scalar section didn't set it
+    if (!scalars['your_current_price']) {
+      const lastPrice = dataRows[dataRows.length - 1].price;
+      const ycpField = document.getElementById('yourCurrentPrice');
+      if (ycpField && !ycpField.dataset.manuallyEdited) {
+        ycpField.value = lastPrice.toFixed(2);
+      }
+    }
+
+    // Reset file input so the same file can be re-imported
+    document.getElementById('csvFileInput').value = '';
+
+    // ── Final status message ──────────────────────────────────────────────────
+    const itemLabel = scalars['item_name'] || 'item';
+    if (dataRows.length < 4) {
+      showImportStatus(`⚠ Loaded with warnings: ${itemLabel} — ${dataRows.length} price rows (4 required to calculate)`, 'warn');
+    } else {
+      showImportStatus(`✓ Loaded: ${itemLabel} — ${dataRows.length} price/volume rows`, 'ok');
+    }
   };
 
   reader.onerror = function() {
