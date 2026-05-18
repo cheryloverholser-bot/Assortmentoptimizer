@@ -1,0 +1,1314 @@
+# Price Elasticity Tool Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Build a self-contained interactive HTML tool that calculates price elasticity from entered POS/loyalty data and models three pricing decisions: everyday price defense, promo evaluation, and competitive response.
+
+**Architecture:** Single HTML file (`Price-Elasticity-Tool.html`) at the repo root. All CSS, JS, and markup in one file — same pattern as `Crisp-Assessment-AI-Process-Plan.html`. A shared `state` JS object holds Tab 1 outputs; Tabs 2 and 3 read from it and re-render when it changes. SVG demand curve and price gap meter — no external chart libraries.
+
+**Tech Stack:** Vanilla HTML/CSS/JavaScript. No build tools, no dependencies, no CDN imports.
+
+---
+
+## File to Create
+
+- `Price-Elasticity-Tool.html` — the entire tool
+
+---
+
+### Task 1: HTML Shell, Crisp CSS, and Tab Navigation
+
+**Files:**
+- Create: `Price-Elasticity-Tool.html`
+
+- [ ] **Step 1: Create the file with full Crisp CSS variables, topbar, and tab shell**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>crisp. — Price Elasticity Tool</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+       background: var(--bg); color: #1a1a1a; font-size: 14px; line-height: 1.5; }
+:root {
+  --green:       #00C49A;
+  --green-dark:  #009E7C;
+  --green-light: #e6f9f4;
+  --green-border:#a8e6d9;
+  --teal-dark:   #0D3D35;
+  --bg:          #eef3f2;
+  --card:        #ffffff;
+  --border:      #d4e4e1;
+  --muted:       #5a7a74;
+  --red:         #e53e3e;
+  --amber:       #d97706;
+  --amber-light: #fffbeb;
+}
+
+/* Topbar */
+.topbar {
+  background: var(--teal-dark); color: white;
+  padding: 0 24px; height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.logo-pill { background: var(--green); color: white; font-weight: 700;
+             font-size: 15px; padding: 3px 11px; border-radius: 3px; }
+.topbar-title { font-size: 12px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.8px; }
+
+/* Tab nav */
+.tab-nav {
+  background: white; border-bottom: 1px solid var(--border);
+  display: flex; gap: 0; padding: 0 24px;
+}
+.tab-btn {
+  padding: 14px 20px; font-size: 13px; font-weight: 600;
+  color: var(--muted); border: none; background: none; cursor: pointer;
+  border-bottom: 3px solid transparent; margin-bottom: -1px;
+  transition: all 0.15s;
+}
+.tab-btn.active { color: var(--teal-dark); border-bottom-color: var(--green); }
+.tab-btn:hover:not(.active) { color: var(--teal-dark); background: var(--green-light); }
+.tab-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Main content */
+.main { max-width: 960px; margin: 0 auto; padding: 28px 24px; }
+
+/* Cards */
+.card { background: var(--card); border: 1px solid var(--border);
+        border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+.card-header { padding: 14px 18px; display: flex; align-items: center;
+               justify-content: space-between; cursor: pointer;
+               border-bottom: 1px solid var(--border); }
+.card-header:hover { background: #f9fafb; }
+.card-title { font-size: 13px; font-weight: 700; color: var(--teal-dark); }
+.card-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.card-body { padding: 18px; }
+.card-body.collapsed { display: none; }
+.chevron { color: var(--muted); transition: transform 0.2s; font-size: 12px; }
+.card.open .chevron { transform: rotate(180deg); }
+
+/* Form elements */
+.field-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 140px; }
+.field label { font-size: 11px; font-weight: 600; color: var(--muted);
+               text-transform: uppercase; letter-spacing: 0.5px; }
+.field input, .field select {
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 7px 10px; font-size: 13px; color: #1a1a1a;
+  background: white; outline: none;
+}
+.field input:focus, .field select:focus { border-color: var(--green); }
+
+/* Data table */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { text-align: left; font-size: 11px; font-weight: 600;
+                 color: var(--muted); text-transform: uppercase;
+                 letter-spacing: 0.5px; padding: 6px 8px;
+                 border-bottom: 1px solid var(--border); }
+.data-table td { padding: 4px 4px; }
+.data-table td input {
+  width: 100%; border: 1px solid var(--border); border-radius: 5px;
+  padding: 5px 8px; font-size: 13px;
+}
+.data-table td input:focus { border-color: var(--green); outline: none; }
+
+/* Buttons */
+.btn-primary {
+  background: var(--green); color: white; border: none;
+  padding: 9px 20px; border-radius: 7px; font-size: 13px;
+  font-weight: 600; cursor: pointer;
+}
+.btn-primary:hover { background: var(--green-dark); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-ghost {
+  background: none; border: 1px solid var(--border);
+  padding: 7px 14px; border-radius: 6px; font-size: 12px;
+  color: var(--muted); cursor: pointer;
+}
+.btn-ghost:hover { border-color: var(--green); color: var(--teal-dark); }
+
+/* Output blocks */
+.output-section { margin-top: 24px; }
+.output-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase;
+                         letter-spacing: 0.6px; color: var(--muted); margin-bottom: 12px; }
+.metric-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.metric-card { background: var(--green-light); border: 1px solid var(--green-border);
+               border-radius: 8px; padding: 14px 18px; flex: 1; min-width: 160px; }
+.metric-label { font-size: 11px; color: var(--muted); font-weight: 600;
+                text-transform: uppercase; letter-spacing: 0.5px; }
+.metric-value { font-size: 26px; font-weight: 700; color: var(--teal-dark);
+                margin: 4px 0 2px; }
+.metric-sub { font-size: 12px; color: var(--muted); }
+
+/* Alert banners */
+.alert { padding: 10px 14px; border-radius: 7px; font-size: 12px;
+         margin-bottom: 12px; display: flex; align-items: flex-start; gap: 8px; }
+.alert-amber { background: var(--amber-light); border: 1px solid #fbbf24; color: #92400e; }
+.alert-red { background: #fff5f5; border: 1px solid #feb2b2; color: #742a2a; }
+.alert-green { background: var(--green-light); border: 1px solid var(--green-border); color: #065f46; }
+
+/* Scenario cards (Tab 3) */
+.scenario-grid { display: flex; gap: 14px; flex-wrap: wrap; }
+.scenario-card { flex: 1; min-width: 240px; background: white;
+                 border: 1px solid var(--border); border-radius: 10px;
+                 padding: 16px; }
+.scenario-card-title { font-size: 13px; font-weight: 700; color: var(--teal-dark);
+                       margin-bottom: 10px; padding-bottom: 8px;
+                       border-bottom: 2px solid var(--green-light); }
+.scenario-row { display: flex; justify-content: space-between;
+                font-size: 12px; padding: 4px 0;
+                border-bottom: 1px solid #f0f4f3; }
+.scenario-row:last-child { border-bottom: none; }
+.scenario-row .label { color: var(--muted); }
+.scenario-row .value { font-weight: 600; color: var(--teal-dark); }
+.scenario-row .value.negative { color: var(--red); }
+.scenario-row .value.positive { color: var(--green-dark); }
+
+/* Price gap meter */
+.gap-meter { margin-top: 20px; }
+.gap-meter-label { font-size: 11px; font-weight: 600; color: var(--muted);
+                   text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.gap-meter-track { height: 12px; background: #e2e8e7; border-radius: 6px;
+                   position: relative; overflow: visible; }
+.gap-meter-fill { height: 100%; border-radius: 6px; background: var(--green);
+                  transition: width 0.3s; }
+.gap-meter-fill.warn { background: var(--amber); }
+.gap-meter-fill.danger { background: var(--red); }
+.gap-meter-pins { display: flex; justify-content: space-between;
+                  font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* Toggle switch */
+.toggle-group { display: flex; gap: 0; border: 1px solid var(--border);
+                border-radius: 6px; overflow: hidden; width: fit-content; }
+.toggle-opt { padding: 6px 12px; font-size: 12px; font-weight: 600;
+              color: var(--muted); cursor: pointer; background: white;
+              border: none; transition: all 0.12s; }
+.toggle-opt.active { background: var(--teal-dark); color: white; }
+
+/* Sensitivity table */
+.sens-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.sens-table th { text-align: left; font-size: 11px; font-weight: 600;
+                 color: var(--muted); text-transform: uppercase;
+                 letter-spacing: 0.5px; padding: 6px 10px;
+                 border-bottom: 1px solid var(--border); }
+.sens-table td { padding: 7px 10px; border-bottom: 1px solid #f0f4f3; }
+.sens-table tr:last-child td { border-bottom: none; }
+.sens-bar { height: 6px; border-radius: 3px; background: var(--green); display: inline-block; }
+
+/* Tab panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Locked panel */
+.locked-panel { text-align: center; padding: 48px 24px; color: var(--muted); }
+.locked-panel .lock-icon { font-size: 32px; margin-bottom: 12px; }
+.locked-panel p { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo-pill">crisp.</span>
+    <span class="topbar-title">Price Elasticity Tool</span>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('tab1')">1 — Elasticity Calculator</button>
+  <button class="tab-btn" id="tab2-btn" onclick="switchTab('tab2')">2 — Promo Modeler</button>
+  <button class="tab-btn" id="tab3-btn" onclick="switchTab('tab3')">3 — Competitive Response</button>
+</div>
+
+<div class="main">
+  <div id="tab1" class="tab-panel active"><!-- Tab 1 content injected in Task 3 --></div>
+  <div id="tab2" class="tab-panel"><!-- Tab 2 content injected in Task 5 --></div>
+  <div id="tab3" class="tab-panel"><!-- Tab 3 content injected in Task 6 --></div>
+</div>
+
+<script>
+// ── Shared state ──────────────────────────────────────────────────────────────
+const state = {
+  // Tab 1 outputs
+  elasticity: null,        // number (negative expected)
+  baselinePrice: null,     // average price from data pairs
+  baselineUnits: null,     // average units from data pairs
+  currentPrice: null,      // from competitive context or last data row
+  competitorPrice: null,   // from competitive context
+  unitCost: null,          // optional
+  hasLoyalty: false,       // true if any shopper profile data entered
+  demographics: {},        // { age: {a1834, a3554, a55plus}, income: {...}, hhsize: {...} }
+  purchaseFreq: null,
+  basketSize: null,
+  dataPairs: [],           // [{price, units}]
+};
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toggleCard(el) {
+  const card = el.closest('.card');
+  const body = card.querySelector('.card-body');
+  card.classList.toggle('open');
+  body.classList.toggle('collapsed');
+}
+
+function fmt(n, decimals = 0) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return Number(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function fmtPct(n, decimals = 1) {
+  if (n === null || isNaN(n)) return '—';
+  return (n >= 0 ? '+' : '') + Number(n * 100).toFixed(decimals) + '%';
+}
+
+function fmtDollar(n, decimals = 2) {
+  if (n === null || isNaN(n)) return '—';
+  return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+</script>
+</body>
+</html>
+```
+
+- [ ] **Step 2: Open `Price-Elasticity-Tool.html` in a browser**
+
+Verify: topbar shows "crisp. — Price Elasticity Tool", three tab buttons render, clicking tabs doesn't throw JS errors (panels are empty but switch works).
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add Price-Elasticity-Tool.html
+git commit -m "feat: add price elasticity tool shell with Crisp CSS and tab nav"
+```
+
+---
+
+### Task 2: Tab 1 — Input Sections HTML
+
+**Files:**
+- Modify: `Price-Elasticity-Tool.html` — replace `<!-- Tab 1 content injected in Task 3 -->` with full Tab 1 HTML
+
+- [ ] **Step 1: Replace the Tab 1 panel div contents with the three collapsible input cards + Calculate button**
+
+Replace `<div id="tab1" class="tab-panel active"><!-- Tab 1 content injected in Task 3 --></div>` with:
+
+```html
+<div id="tab1" class="tab-panel active">
+
+  <!-- Item Baseline -->
+  <div class="card open" id="card-baseline">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div>
+        <div class="card-title">Item Baseline</div>
+        <div class="card-subtitle">POS or syndicated data — required</div>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Item Name</label>
+          <input type="text" id="itemName" placeholder="e.g. Brand X 32oz">
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <input type="text" id="itemCategory" placeholder="e.g. Beverages">
+        </div>
+        <div class="field">
+          <label>Retailer</label>
+          <input type="text" id="itemRetailer" placeholder="e.g. Kroger">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field" style="max-width:180px">
+          <label>Unit Cost (optional)</label>
+          <input type="number" id="unitCost" placeholder="$0.00" min="0" step="0.01">
+        </div>
+        <div class="field" style="max-width:220px">
+          <label>Period Type</label>
+          <div class="toggle-group" style="margin-top:4px">
+            <button class="toggle-opt active" id="toggleWeekly" onclick="setPeriodType('weekly')">Weekly</button>
+            <button class="toggle-opt" id="toggle4wk" onclick="setPeriodType('4week')">4-Week</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px; margin-bottom:8px">
+        <span style="font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px">
+          Price / Volume Data <span style="color:var(--red)">*</span>
+        </span>
+        <span style="font-size:11px; color:var(--muted); margin-left:8px">Minimum 4 rows required</span>
+      </div>
+
+      <table class="data-table" id="dataTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Price ($)</th>
+            <th>Units Sold</th>
+            <th id="periodHeader">Time Period</th>
+          </tr>
+        </thead>
+        <tbody id="dataRows"></tbody>
+      </table>
+
+      <div style="margin-top:10px; display:flex; gap:8px; align-items:center">
+        <button class="btn-ghost" onclick="addDataRow()">+ Add Row</button>
+        <span id="rowCountNote" style="font-size:11px; color:var(--muted)"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shopper Profile -->
+  <div class="card" id="card-shopper">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div>
+        <div class="card-title">Shopper Profile</div>
+        <div class="card-subtitle">Loyalty or panel data — optional, enables demographic analysis</div>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body collapsed">
+      <div class="field-row">
+        <div class="field">
+          <label>Avg Purchase Frequency (per year)</label>
+          <input type="number" id="purchaseFreq" placeholder="e.g. 6" min="0" step="0.1" oninput="onLoyaltyInput()">
+        </div>
+        <div class="field">
+          <label>Avg Basket Size ($)</label>
+          <input type="number" id="basketSize" placeholder="e.g. 45.00" min="0" step="0.01" oninput="onLoyaltyInput()">
+        </div>
+      </div>
+
+      <div style="font-size:12px; font-weight:600; color:var(--teal-dark); margin:14px 0 8px">Demographic Breakdown (% of shoppers)</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Age 18–34 %</label>
+          <input type="number" id="age1834" placeholder="0" min="0" max="100" oninput="onDemoInput('age')">
+        </div>
+        <div class="field">
+          <label>Age 35–54 %</label>
+          <input type="number" id="age3554" placeholder="0" min="0" max="100" oninput="onDemoInput('age')">
+        </div>
+        <div class="field">
+          <label>Age 55+ %</label>
+          <input type="number" id="age55plus" placeholder="0" min="0" max="100" oninput="onDemoInput('age')">
+        </div>
+      </div>
+      <div id="ageWarn" class="alert alert-amber" style="display:none">Age percentages don't sum to 100%. Analysis will use entered values.</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Income &lt;$50K %</label>
+          <input type="number" id="inc50" placeholder="0" min="0" max="100" oninput="onDemoInput('income')">
+        </div>
+        <div class="field">
+          <label>Income $50–100K %</label>
+          <input type="number" id="inc100" placeholder="0" min="0" max="100" oninput="onDemoInput('income')">
+        </div>
+        <div class="field">
+          <label>Income $100K+ %</label>
+          <input type="number" id="inc100plus" placeholder="0" min="0" max="100" oninput="onDemoInput('income')">
+        </div>
+      </div>
+      <div id="incomeWarn" class="alert alert-amber" style="display:none">Income percentages don't sum to 100%. Analysis will use entered values.</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>HH Size 1–2 %</label>
+          <input type="number" id="hh12" placeholder="0" min="0" max="100" oninput="onDemoInput('hh')">
+        </div>
+        <div class="field">
+          <label>HH Size 3–4 %</label>
+          <input type="number" id="hh34" placeholder="0" min="0" max="100" oninput="onDemoInput('hh')">
+        </div>
+        <div class="field">
+          <label>HH Size 5+ %</label>
+          <input type="number" id="hh5plus" placeholder="0" min="0" max="100" oninput="onDemoInput('hh')">
+        </div>
+      </div>
+      <div id="hhWarn" class="alert alert-amber" style="display:none">Household size percentages don't sum to 100%. Analysis will use entered values.</div>
+    </div>
+  </div>
+
+  <!-- Competitive Context -->
+  <div class="card" id="card-competitive">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div>
+        <div class="card-title">Competitive Context</div>
+        <div class="card-subtitle">Seeds the Competitive Response tab — optional</div>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="card-body collapsed">
+      <div class="field-row">
+        <div class="field">
+          <label>Competitor Item Name</label>
+          <input type="text" id="compName" placeholder="e.g. Brand Y 32oz">
+        </div>
+        <div class="field" style="max-width:160px">
+          <label>Competitor Current Price ($)</label>
+          <input type="number" id="compPrice" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="field" style="max-width:160px">
+          <label>Your Current Price ($)</label>
+          <input type="number" id="yourCurrentPrice" placeholder="Auto-filled" min="0" step="0.01">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:8px; display:flex; align-items:center; gap:12px">
+    <button class="btn-primary" id="calcBtn" onclick="calculateElasticity()" disabled>
+      Calculate Elasticity
+    </button>
+    <span id="calcNote" style="font-size:12px; color:var(--muted)">Enter at least 4 price/volume rows to calculate.</span>
+  </div>
+
+  <div id="tab1-output" style="display:none"><!-- outputs rendered by JS --></div>
+</div>
+```
+
+- [ ] **Step 2: Add the data table initialization JS — append inside the `<script>` tag before `</script>`**
+
+```javascript
+// ── Tab 1 data table ──────────────────────────────────────────────────────────
+let periodType = 'weekly';
+
+function setPeriodType(type) {
+  periodType = type;
+  document.getElementById('toggleWeekly').classList.toggle('active', type === 'weekly');
+  document.getElementById('toggle4wk').classList.toggle('active', type === '4week');
+  document.getElementById('periodHeader').textContent = type === 'weekly' ? 'Time Period' : '4-Week Period';
+}
+
+function addDataRow() {
+  const tbody = document.getElementById('dataRows');
+  const rowCount = tbody.rows.length;
+  if (rowCount >= 12) return;
+  const row = tbody.insertRow();
+  row.innerHTML = `
+    <td style="color:var(--muted);font-size:12px;padding:6px 8px">${rowCount + 1}</td>
+    <td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="onDataChange()"></td>
+    <td><input type="number" placeholder="0" min="0" step="1" oninput="onDataChange()"></td>
+    <td><input type="text" placeholder="Wk ${rowCount + 1}"></td>
+  `;
+  onDataChange();
+}
+
+function onDataChange() {
+  const pairs = getDataPairs();
+  const btn = document.getElementById('calcBtn');
+  const note = document.getElementById('calcNote');
+  if (pairs.length >= 4) {
+    btn.disabled = false;
+    note.textContent = `${pairs.length} valid rows entered.`;
+    // Auto-fill your current price from last row
+    const lastPrice = pairs[pairs.length - 1].price;
+    const yourPriceField = document.getElementById('yourCurrentPrice');
+    if (!yourPriceField.dataset.manuallyEdited) {
+      yourPriceField.value = lastPrice.toFixed(2);
+    }
+  } else {
+    btn.disabled = true;
+    note.textContent = `Enter at least 4 price/volume rows to calculate. (${pairs.length} valid so far)`;
+  }
+  updateRowCount();
+}
+
+function getDataPairs() {
+  const rows = document.querySelectorAll('#dataRows tr');
+  const pairs = [];
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const price = parseFloat(inputs[0].value);
+    const units = parseFloat(inputs[1].value);
+    if (!isNaN(price) && !isNaN(units) && price > 0 && units >= 0) {
+      pairs.push({ price, units });
+    }
+  });
+  return pairs;
+}
+
+function updateRowCount() {
+  const count = document.querySelectorAll('#dataRows tr').length;
+  document.getElementById('rowCountNote').textContent =
+    count >= 12 ? 'Maximum 12 rows reached.' : `${count} / 12 rows`;
+}
+
+function onLoyaltyInput() {
+  const freq = parseFloat(document.getElementById('purchaseFreq').value);
+  const basket = parseFloat(document.getElementById('basketSize').value);
+  state.hasLoyalty = !isNaN(freq) || !isNaN(basket);
+  state.purchaseFreq = isNaN(freq) ? null : freq;
+  state.basketSize = isNaN(basket) ? null : basket;
+}
+
+function onDemoInput(group) {
+  const groups = {
+    age:    ['age1834','age3554','age55plus'],
+    income: ['inc50','inc100','inc100plus'],
+    hh:     ['hh12','hh34','hh5plus'],
+  };
+  const warnIds = { age: 'ageWarn', income: 'incomeWarn', hh: 'hhWarn' };
+  const vals = groups[group].map(id => parseFloat(document.getElementById(id).value) || 0);
+  const sum = vals.reduce((a, b) => a + b, 0);
+  const warn = document.getElementById(warnIds[group]);
+  warn.style.display = (sum > 0 && Math.abs(sum - 100) > 0.5) ? 'flex' : 'none';
+  if (sum > 0) state.hasLoyalty = true;
+}
+
+// Init 4 rows on load
+(function initRows() {
+  for (let i = 0; i < 4; i++) addDataRow();
+  // Add 4 rows, reset count note
+  updateRowCount();
+})();
+
+// Mark your current price as manually edited if user types in it
+document.getElementById('yourCurrentPrice').addEventListener('input', function() {
+  this.dataset.manuallyEdited = 'true';
+});
+```
+
+- [ ] **Step 3: Open in browser**
+
+Verify: three collapsible cards render with correct labels. Click each header to expand/collapse. Typing in the data table updates the row count note. After 4 valid rows the Calculate button enables.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add Price-Elasticity-Tool.html
+git commit -m "feat: add Tab 1 input sections and data table"
+```
+
+---
+
+### Task 3: Tab 1 — Elasticity Calculation and Outputs
+
+**Files:**
+- Modify: `Price-Elasticity-Tool.html` — add `calculateElasticity()` and output rendering
+
+- [ ] **Step 1: Add the elasticity calculation functions inside `<script>` before `</script>`**
+
+```javascript
+// ── Elasticity calculation ────────────────────────────────────────────────────
+function calcArcElasticity(pairs) {
+  if (pairs.length < 2) return null;
+  let sum = 0, count = 0;
+  for (let i = 1; i < pairs.length; i++) {
+    const p1 = pairs[i-1].price, p2 = pairs[i].price;
+    const q1 = pairs[i-1].units, q2 = pairs[i].units;
+    if (p1 === p2 || (p1 + p2) === 0 || (q1 + q2) === 0) continue;
+    const e = ((q2 - q1) / ((q2 + q1) / 2)) / ((p2 - p1) / ((p2 + p1) / 2));
+    sum += e;
+    count++;
+  }
+  return count > 0 ? sum / count : null;
+}
+
+function elasticityLabel(e) {
+  const abs = Math.abs(e);
+  if (abs > 1.5) return { label: 'Highly elastic', sub: 'Demand drops sharply with price increases', color: '#e53e3e' };
+  if (abs > 1.0) return { label: 'Elastic', sub: 'Shoppers are price-sensitive', color: '#d97706' };
+  if (abs > 0.5) return { label: 'Moderately inelastic', sub: 'Some price sensitivity', color: '#0891b2' };
+  return { label: 'Inelastic', sub: 'Demand is relatively price-stable', color: '#059669' };
+}
+
+function demandCurveSVG(pairs, elasticity) {
+  // Build an SVG 480×220 demand curve from entered data + extrapolated curve
+  const W = 480, H = 200, PAD = { top: 16, right: 20, bottom: 40, left: 52 };
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  const prices = pairs.map(p => p.price);
+  const units = pairs.map(p => p.units);
+  const minP = Math.min(...prices), maxP = Math.max(...prices);
+  const minU = 0, maxU = Math.max(...units) * 1.15;
+
+  // Extend curve slightly beyond data range
+  const pRange = maxP - minP || maxP * 0.2;
+  const curveMinP = Math.max(0, minP - pRange * 0.15);
+  const curveMaxP = maxP + pRange * 0.15;
+
+  // Use last pair as reference point for curve
+  const refPair = pairs[pairs.length - 1];
+  function projectedUnits(p) {
+    if (p === refPair.price) return refPair.units;
+    const pctChange = (p - refPair.price) / refPair.price;
+    return Math.max(0, refPair.units * (1 + pctChange * elasticity));
+  }
+
+  const toX = p => PAD.left + ((p - curveMinP) / (curveMaxP - curveMinP)) * plotW;
+  const toY = u => PAD.top + plotH - (u / maxU) * plotH;
+
+  // Curve path (50 points)
+  const steps = 50;
+  let curvePts = '';
+  for (let i = 0; i <= steps; i++) {
+    const p = curveMinP + (i / steps) * (curveMaxP - curveMinP);
+    const u = projectedUnits(p);
+    curvePts += (i === 0 ? 'M' : 'L') + toX(p).toFixed(1) + ',' + toY(u).toFixed(1) + ' ';
+  }
+
+  // Scatter dots
+  const dots = pairs.map(pair =>
+    `<circle cx="${toX(pair.price).toFixed(1)}" cy="${toY(pair.units).toFixed(1)}" r="4" fill="var(--teal-dark)" opacity="0.85"/>`
+  ).join('');
+
+  // X axis ticks (5)
+  let xTicks = '';
+  for (let i = 0; i <= 4; i++) {
+    const p = curveMinP + (i / 4) * (curveMaxP - curveMinP);
+    const x = toX(p);
+    xTicks += `<line x1="${x}" y1="${PAD.top + plotH}" x2="${x}" y2="${PAD.top + plotH + 4}" stroke="#ccc"/>
+               <text x="${x}" y="${PAD.top + plotH + 16}" text-anchor="middle" font-size="10" fill="#9ab8b4">$${p.toFixed(2)}</text>`;
+  }
+
+  // Y axis ticks (4)
+  let yTicks = '';
+  for (let i = 0; i <= 3; i++) {
+    const u = maxU * (i / 3);
+    const y = toY(u);
+    yTicks += `<line x1="${PAD.left - 4}" y1="${y}" x2="${PAD.left}" y2="${y}" stroke="#ccc"/>
+               <text x="${PAD.left - 8}" y="${y + 4}" text-anchor="end" font-size="10" fill="#9ab8b4">${Math.round(u).toLocaleString()}</text>`;
+  }
+
+  return `<svg width="${W}" height="${H}" style="width:100%;max-width:${W}px;display:block;margin:0 auto" viewBox="0 0 ${W} ${H}">
+    <line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${PAD.top+plotH}" stroke="#d4e4e1"/>
+    <line x1="${PAD.left}" y1="${PAD.top+plotH}" x2="${PAD.left+plotW}" y2="${PAD.top+plotH}" stroke="#d4e4e1"/>
+    ${xTicks}${yTicks}
+    <path d="${curvePts}" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"/>
+    ${dots}
+    <text x="${PAD.left + plotW/2}" y="${H - 2}" text-anchor="middle" font-size="10" fill="#9ab8b4">Price ($)</text>
+    <text x="10" y="${PAD.top + plotH/2}" text-anchor="middle" font-size="10" fill="#9ab8b4" transform="rotate(-90,10,${PAD.top + plotH/2})">Units</text>
+  </svg>`;
+}
+
+function sensitivityTableHTML(elasticity) {
+  const segments = [
+    { group: 'Income', name: 'Under $50K',   idx: 1.6 },
+    { group: 'Income', name: '$50–100K',     idx: 1.0 },
+    { group: 'Income', name: '$100K+',       idx: 0.7 },
+    { group: 'Age',    name: '18–34',        idx: 1.3 },
+    { group: 'Age',    name: '35–54',        idx: 1.0 },
+    { group: 'Age',    name: '55+',          idx: 0.8 },
+    { group: 'HH Size',name: '1–2',          idx: 1.1 },
+    { group: 'HH Size',name: '3–4',          idx: 1.0 },
+    { group: 'HH Size',name: '5+',           idx: 1.2 },
+  ];
+  const maxIdx = Math.max(...segments.map(s => s.idx));
+  const rows = segments.map(s => {
+    const segE = (elasticity * s.idx).toFixed(2);
+    const barW = Math.round((s.idx / maxIdx) * 80);
+    return `<tr>
+      <td style="color:var(--muted);font-size:11px">${s.group}</td>
+      <td>${s.name}</td>
+      <td>${s.idx.toFixed(1)}×</td>
+      <td>${segE}</td>
+      <td><span class="sens-bar" style="width:${barW}px"></span></td>
+    </tr>`;
+  }).join('');
+  return `<table class="sens-table">
+    <thead><tr><th>Group</th><th>Segment</th><th>Index</th><th>Est. Elasticity</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function calculateElasticity() {
+  const pairs = getDataPairs();
+  if (pairs.length < 4) return;
+
+  const e = calcArcElasticity(pairs);
+  if (e === null) return;
+
+  const avgPrice = pairs.reduce((s, p) => s + p.price, 0) / pairs.length;
+  const avgUnits = pairs.reduce((s, p) => s + p.units, 0) / pairs.length;
+
+  // Populate state
+  state.elasticity = e;
+  state.baselinePrice = avgPrice;
+  state.baselineUnits = avgUnits;
+  state.dataPairs = pairs;
+  state.currentPrice = parseFloat(document.getElementById('yourCurrentPrice').value) || avgPrice;
+  state.competitorPrice = parseFloat(document.getElementById('compPrice').value) || null;
+  state.unitCost = parseFloat(document.getElementById('unitCost').value) || null;
+
+  const info = elasticityLabel(e);
+  const positiveWarn = e > 0
+    ? `<div class="alert alert-red" style="margin-bottom:16px">⚠ Positive elasticity detected — check your data for entry errors. Price elasticity is expected to be negative.</div>`
+    : '';
+
+  const loyaltyNote = state.hasLoyalty
+    ? ''
+    : `<div class="alert alert-amber" style="margin-bottom:16px">Shopper profile data not entered. Demographic sensitivity analysis is not available.</div>`;
+
+  const sensTable = state.hasLoyalty
+    ? `<div class="output-section"><div class="output-section-title">Shopper Sensitivity by Segment</div>${sensitivityTableHTML(e)}<p style="font-size:11px;color:var(--muted);margin-top:8px">Sensitivity indices are research-based defaults. Edit the index values in the table if you have segment-specific data.</p></div>`
+    : '';
+
+  document.getElementById('tab1-output').style.display = 'block';
+  document.getElementById('tab1-output').innerHTML = `
+    ${positiveWarn}
+    ${loyaltyNote}
+    <div class="output-section">
+      <div class="output-section-title">Elasticity Result</div>
+      <div class="metric-row">
+        <div class="metric-card">
+          <div class="metric-label">Elasticity Coefficient</div>
+          <div class="metric-value" style="color:${info.color}">${e.toFixed(2)}</div>
+          <div class="metric-sub" style="font-weight:600;color:${info.color}">${info.label}</div>
+          <div class="metric-sub">${info.sub}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Avg Baseline Price</div>
+          <div class="metric-value">${fmtDollar(avgPrice)}</div>
+          <div class="metric-sub">across ${pairs.length} data points</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Avg Baseline Units</div>
+          <div class="metric-value">${fmt(avgUnits, 0)}</div>
+          <div class="metric-sub">per period</div>
+        </div>
+      </div>
+    </div>
+    <div class="output-section">
+      <div class="output-section-title">Demand Curve</div>
+      <div class="card"><div class="card-body">${demandCurveSVG(pairs, e)}</div></div>
+    </div>
+    ${sensTable}
+    <div class="alert alert-green" style="margin-top:16px">
+      Elasticity calculated. Tabs 2 and 3 are now unlocked.
+    </div>
+  `;
+
+  // Unlock tabs 2 and 3
+  document.getElementById('tab2-btn').disabled = false;
+  document.getElementById('tab3-btn').disabled = false;
+
+  // Pre-fill downstream tabs
+  prefillTab2();
+  prefillTab3();
+}
+```
+
+- [ ] **Step 2: Open in browser, enter 4+ rows of price/volume data, click Calculate**
+
+Verify:
+- Coefficient displays with correct sign (negative if price and units move opposite directions)
+- Demand curve SVG renders with scatter dots and a smooth curve
+- If demographic data entered, sensitivity table appears
+- Positive elasticity warning appears if price and units move in same direction
+- Tabs 2 and 3 are no longer disabled after calculation
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add Price-Elasticity-Tool.html
+git commit -m "feat: add elasticity calculation, demand curve SVG, and sensitivity table"
+```
+
+---
+
+### Task 4: Tab 2 — Promo Modeler
+
+**Files:**
+- Modify: `Price-Elasticity-Tool.html` — replace Tab 2 placeholder + add `prefillTab2()` + promo calculation
+
+- [ ] **Step 1: Replace `<div id="tab2" class="tab-panel"><!-- Tab 2 content injected in Task 5 --></div>` with:**
+
+```html
+<div id="tab2" class="tab-panel">
+  <div id="tab2-locked" class="locked-panel">
+    <div class="lock-icon">🔒</div>
+    <p>Complete the Elasticity Calculator in Tab 1 first.</p>
+  </div>
+  <div id="tab2-content" style="display:none">
+
+    <div class="card open">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div><div class="card-title">Promo Inputs</div></div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field" style="max-width:180px">
+            <label>Baseline Price ($)</label>
+            <input type="number" id="promoBasePrice" placeholder="0.00" min="0" step="0.01" oninput="runPromo()">
+          </div>
+          <div class="field" style="max-width:180px">
+            <label>Baseline Weekly Units</label>
+            <input type="number" id="promoBaseUnits" placeholder="0" min="0" step="1" oninput="runPromo()">
+          </div>
+        </div>
+
+        <div class="field-row" style="align-items:flex-end">
+          <div class="field" style="max-width:80px">
+            <label>Promo Input</label>
+            <div class="toggle-group" style="margin-top:4px">
+              <button class="toggle-opt active" id="promoDollarBtn" onclick="setPromoInputType('dollar')">$</button>
+              <button class="toggle-opt" id="promoPctBtn" onclick="setPromoInputType('pct')">%</button>
+            </div>
+          </div>
+          <div class="field" style="max-width:180px">
+            <label id="promoPriceLabel">Promo Price ($)</label>
+            <input type="number" id="promoPrice" placeholder="0.00" min="0" step="0.01" oninput="runPromo()">
+          </div>
+          <div class="field" style="max-width:160px">
+            <label>Duration (weeks)</label>
+            <input type="number" id="promoDuration" value="4" min="1" step="1" oninput="runPromo()">
+          </div>
+        </div>
+
+        <div class="field-row" style="align-items:flex-end">
+          <div class="field">
+            <label>Merchandising Support</label>
+            <select id="promoMerch" onchange="runPromo()">
+              <option value="1.00">None</option>
+              <option value="1.15">Feature Only</option>
+              <option value="1.20">Display Only</option>
+              <option value="1.35" selected>Feature + Display</option>
+            </select>
+          </div>
+          <div class="field" style="max-width:160px">
+            <label>Merch Multiplier (editable)</label>
+            <input type="number" id="promoMerchMultiplier" value="1.35" step="0.01" oninput="runPromo()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab2-output"></div>
+  </div>
+</div>
+```
+
+- [ ] **Step 2: Add promo JS inside `<script>`**
+
+```javascript
+// ── Tab 2 Promo Modeler ───────────────────────────────────────────────────────
+let promoInputType = 'dollar';
+
+function setPromoInputType(type) {
+  promoInputType = type;
+  document.getElementById('promoDollarBtn').classList.toggle('active', type === 'dollar');
+  document.getElementById('promoPctBtn').classList.toggle('active', type === 'pct');
+  document.getElementById('promoPriceLabel').textContent = type === 'dollar' ? 'Promo Price ($)' : 'Discount (%)';
+  document.getElementById('promoPrice').placeholder = type === 'dollar' ? '0.00' : '10';
+  runPromo();
+}
+
+function prefillTab2() {
+  if (!state.elasticity) return;
+  document.getElementById('tab2-locked').style.display = 'none';
+  document.getElementById('tab2-content').style.display = 'block';
+  document.getElementById('promoBasePrice').value = state.baselinePrice.toFixed(2);
+  document.getElementById('promoBaseUnits').value = Math.round(state.baselineUnits);
+}
+
+document.getElementById('promoMerch').addEventListener('change', function() {
+  document.getElementById('promoMerchMultiplier').value = this.value;
+  runPromo();
+});
+
+function runPromo() {
+  const basePrice = parseFloat(document.getElementById('promoBasePrice').value);
+  const baseUnits = parseFloat(document.getElementById('promoBaseUnits').value);
+  const rawPromo = parseFloat(document.getElementById('promoPrice').value);
+  const duration = parseInt(document.getElementById('promoDuration').value) || 1;
+  const multiplier = parseFloat(document.getElementById('promoMerchMultiplier').value) || 1;
+  const e = state.elasticity;
+
+  if (isNaN(basePrice) || isNaN(baseUnits) || isNaN(rawPromo) || !e) return;
+
+  const promoPrice = promoInputType === 'dollar'
+    ? rawPromo
+    : basePrice * (1 - rawPromo / 100);
+
+  const pctChange = (promoPrice - basePrice) / basePrice;
+  const unitLiftPct = pctChange * e * multiplier;  // e is negative, pctChange is negative → lift is positive
+  const incrUnitsPerWeek = baseUnits * unitLiftPct;
+  const totalIncrUnits = incrUnitsPerWeek * duration;
+  const promoRevWeek = (baseUnits + incrUnitsPerWeek) * promoPrice;
+  const baseRevWeek = baseUnits * basePrice;
+  const promoRevTotal = promoRevWeek * duration;
+  const baseRevTotal = baseRevWeek * duration;
+  const breakeven = ((basePrice - promoPrice) * baseUnits * duration) / promoPrice;
+  const breakevenMet = totalIncrUnits >= breakeven;
+  const promoDepth = Math.abs(pctChange);
+  const pantryRisk = promoDepth > 0.20 && state.hasLoyalty;
+
+  const promoHigherWarn = promoPrice > basePrice
+    ? `<div class="alert alert-amber">Promo price is higher than baseline price — verify this is intentional.</div>`
+    : '';
+  const pantryWarn = pantryRisk
+    ? `<div class="alert alert-amber">Promotions deeper than 20% typically drive pantry loading rather than new trip occasions. Incremental units may not represent new buyers.</div>`
+    : '';
+
+  document.getElementById('tab2-output').innerHTML = `
+    ${promoHigherWarn}
+    ${pantryWarn}
+    <div class="output-section">
+      <div class="output-section-title">Projected Lift</div>
+      <div class="metric-row">
+        <div class="metric-card">
+          <div class="metric-label">Weekly Unit Lift</div>
+          <div class="metric-value" style="color:var(--green-dark)">${fmt(incrUnitsPerWeek, 0)}</div>
+          <div class="metric-sub">${fmtPct(unitLiftPct)} vs baseline</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Total Incremental Units</div>
+          <div class="metric-value">${fmt(totalIncrUnits, 0)}</div>
+          <div class="metric-sub">over ${duration} week${duration !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Promo Price</div>
+          <div class="metric-value">${fmtDollar(promoPrice)}</div>
+          <div class="metric-sub">${fmtPct(pctChange)} vs baseline ${fmtDollar(basePrice)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="output-section">
+      <div class="output-section-title">Revenue Comparison</div>
+      <div class="metric-row">
+        <div class="metric-card">
+          <div class="metric-label">Promo Period Revenue</div>
+          <div class="metric-value">${fmtDollar(promoRevTotal, 0)}</div>
+          <div class="metric-sub">${duration} weeks at promo price</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Baseline Revenue (same period)</div>
+          <div class="metric-value">${fmtDollar(baseRevTotal, 0)}</div>
+          <div class="metric-sub">${duration} weeks at base price</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Revenue Difference</div>
+          <div class="metric-value" style="color:${promoRevTotal >= baseRevTotal ? 'var(--green-dark)' : 'var(--red)'}">
+            ${fmtDollar(promoRevTotal - baseRevTotal, 0)}
+          </div>
+          <div class="metric-sub">${promoRevTotal >= baseRevTotal ? 'Revenue positive' : 'Revenue negative'}</div>
+        </div>
+      </div>
+    </div>
+    <div class="output-section">
+      <div class="output-section-title">Breakeven</div>
+      <div class="card"><div class="card-body" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Needs to break even</div>
+          <div style="font-size:22px;font-weight:700;color:var(--teal-dark)">${fmt(breakeven, 0)} units</div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Projected lift</div>
+          <div style="font-size:22px;font-weight:700;color:var(--teal-dark)">${fmt(totalIncrUnits, 0)} units</div>
+        </div>
+        <div class="alert ${breakevenMet ? 'alert-green' : 'alert-red'}" style="flex:1;min-width:200px">
+          ${breakevenMet ? '✓ On track to break even' : '✗ At risk — projected lift falls short of breakeven'}
+        </div>
+      </div></div>
+    </div>
+  `;
+}
+```
+
+- [ ] **Step 3: Open in browser, complete Tab 1, switch to Tab 2**
+
+Verify: Tab 2 unlocks after Tab 1 calculates. Baseline fields pre-fill. Changing promo price updates all output cards live. Breakeven shows pass/fail correctly. % toggle changes the input label and recalculates.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add Price-Elasticity-Tool.html
+git commit -m "feat: add Tab 2 promo modeler with live calculations"
+```
+
+---
+
+### Task 5: Tab 3 — Competitive Response
+
+**Files:**
+- Modify: `Price-Elasticity-Tool.html` — replace Tab 3 placeholder + add `prefillTab3()` + competitive response calculation
+
+- [ ] **Step 1: Replace `<div id="tab3" class="tab-panel"><!-- Tab 3 content injected in Task 6 --></div>` with:**
+
+```html
+<div id="tab3" class="tab-panel">
+  <div id="tab3-locked" class="locked-panel">
+    <div class="lock-icon">🔒</div>
+    <p>Complete the Elasticity Calculator in Tab 1 first.</p>
+  </div>
+  <div id="tab3-content" style="display:none">
+
+    <div class="card open">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div><div class="card-title">Competitive Scenario Inputs</div></div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field" style="max-width:180px">
+            <label>Your Current Price ($)</label>
+            <input type="number" id="compYourPrice" placeholder="0.00" min="0" step="0.01" oninput="runComp()">
+          </div>
+          <div class="field" style="max-width:180px">
+            <label>Competitor Current Price ($)</label>
+            <input type="number" id="compCurrentPrice" placeholder="0.00" min="0" step="0.01" oninput="runComp()">
+          </div>
+          <div class="field" style="max-width:180px">
+            <label>Competitor New Price ($)</label>
+            <input type="number" id="compNewPrice" placeholder="0.00" min="0" step="0.01" oninput="runComp()">
+          </div>
+        </div>
+        <div class="field-row" style="align-items:flex-start">
+          <div class="field">
+            <label>Cross-Price Sensitivity</label>
+            <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+              <label class="comp-sens-opt" title="Your item and the competitor's serve different shopper needs. Switching is rare.">
+                <input type="radio" name="crossSens" value="0.3" onchange="runComp()"> Low (0.3×)
+              </label>
+              <label class="comp-sens-opt" title="Some overlap. Shoppers occasionally switch on price.">
+                <input type="radio" name="crossSens" value="0.6" checked onchange="runComp()"> Medium (0.6×)
+              </label>
+              <label class="comp-sens-opt" title="High substitutability — common in commodity or private-label-heavy categories.">
+                <input type="radio" name="crossSens" value="0.9" onchange="runComp()"> High (0.9×)
+              </label>
+            </div>
+          </div>
+          <div class="field" style="max-width:180px">
+            <label>Your Response Price (optional)</label>
+            <input type="number" id="compResponsePrice" placeholder="Custom counter-price" min="0" step="0.01" oninput="runComp()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab3-output"></div>
+  </div>
+</div>
+```
+
+- [ ] **Step 2: Add the `.comp-sens-opt` style inside `<style>`**
+
+```css
+.comp-sens-opt { font-size: 12px; color: var(--teal-dark); cursor: pointer;
+                 display: flex; align-items: center; gap: 5px; }
+```
+
+- [ ] **Step 3: Add competitive response JS inside `<script>`**
+
+```javascript
+// ── Tab 3 Competitive Response ────────────────────────────────────────────────
+function prefillTab3() {
+  if (!state.elasticity) return;
+  document.getElementById('tab3-locked').style.display = 'none';
+  document.getElementById('tab3-content').style.display = 'block';
+  document.getElementById('compYourPrice').value = state.currentPrice.toFixed(2);
+  if (state.competitorPrice) {
+    document.getElementById('compCurrentPrice').value = state.competitorPrice.toFixed(2);
+  }
+}
+
+function runComp() {
+  const yourPrice = parseFloat(document.getElementById('compYourPrice').value);
+  const compCurrent = parseFloat(document.getElementById('compCurrentPrice').value);
+  const compNew = parseFloat(document.getElementById('compNewPrice').value);
+  const baseUnits = state.baselineUnits;
+  const e = state.elasticity;
+  const crossSens = parseFloat(document.querySelector('input[name="crossSens"]:checked')?.value || 0.6);
+  const responsePrice = parseFloat(document.getElementById('compResponsePrice').value) || null;
+
+  if (isNaN(yourPrice) || isNaN(compCurrent) || isNaN(compNew) || !e || !baseUnits) return;
+
+  const crossCoeff = e * crossSens;
+  const compPctChange = (compNew - compCurrent) / compCurrent;
+  const demandShiftPct = compPctChange * crossCoeff;
+  const demandShiftUnits = baseUnits * demandShiftPct;
+
+  // Hold scenario: your price unchanged, demand shifts away
+  const holdUnits = baseUnits + demandShiftUnits;
+  const holdRevDiff = (holdUnits - baseUnits) * yourPrice;
+
+  // Match scenario: your price = competitor new price
+  const matchPriceDiff = (compNew - yourPrice) / yourPrice;
+  const matchUnitLift = matchPriceDiff * e;
+  const matchUnits = baseUnits * (1 + matchUnitLift) + demandShiftUnits * -1; // recover shift by matching
+  const matchRevDiff = matchUnits * compNew - baseUnits * yourPrice;
+  const matchMarginNote = state.unitCost
+    ? `Margin per unit: ${fmtDollar(compNew - state.unitCost)} (was ${fmtDollar(yourPrice - state.unitCost)})`
+    : 'Enter unit cost in Tab 1 for margin analysis.';
+
+  // Counter-promote: promo depth needed to recover shift
+  const shiftToRecover = Math.abs(demandShiftUnits);
+  // incr = baseUnits * pctChange * e * 1.35 → solve for pctChange
+  const promoDepthNeeded = shiftToRecover / (baseUnits * Math.abs(e) * 1.35);
+  const counterPromoPrice = yourPrice * (1 - promoDepthNeeded);
+  const counterPromoRevDiff = (baseUnits + shiftToRecover) * counterPromoPrice - baseUnits * yourPrice;
+
+  // Price gap meter
+  const priceGap = Math.abs(yourPrice - compNew) / Math.min(yourPrice, compNew);
+  const switchThreshold = 1 / Math.abs(e);
+  const warnThreshold = switchThreshold * 0.7;
+  const gapPct = Math.min(priceGap / switchThreshold, 1);
+  const meterColor = priceGap >= switchThreshold ? 'danger' : priceGap >= warnThreshold ? 'warn' : '';
+  const gapWarn = priceGap >= warnThreshold
+    ? `<div class="alert ${priceGap >= switchThreshold ? 'alert-red' : 'alert-amber'}">
+        Price gap of ${fmtPct(priceGap, 1).replace('+','')} approaches the switching threshold (~${fmtPct(switchThreshold,1).replace('+','')}). Shopper switching risk is elevated.
+       </div>`
+    : '';
+
+  const customScenario = responsePrice
+    ? (() => {
+        const customPct = (responsePrice - yourPrice) / yourPrice;
+        const customLift = customPct * e;
+        const customUnits = baseUnits * (1 + customLift);
+        const customRevDiff = customUnits * responsePrice - baseUnits * yourPrice;
+        return `<div class="scenario-card" style="border-color:var(--green-border)">
+          <div class="scenario-card-title">Custom Response Price: ${fmtDollar(responsePrice)}</div>
+          <div class="scenario-row"><span class="label">Price change</span><span class="value">${fmtPct(customPct)}</span></div>
+          <div class="scenario-row"><span class="label">Proj. units</span><span class="value">${fmt(customUnits,0)}</span></div>
+          <div class="scenario-row"><span class="label">Revenue diff</span><span class="value ${customRevDiff >= 0 ? 'positive' : 'negative'}">${fmtDollar(customRevDiff,0)}</span></div>
+        </div>`;
+      })()
+    : '';
+
+  document.getElementById('tab3-output').innerHTML = `
+    ${gapWarn}
+    <div class="output-section">
+      <div class="output-section-title">Price Gap Meter — Your Price vs. Competitor New Price</div>
+      <div class="card"><div class="card-body">
+        <div class="gap-meter">
+          <div class="gap-meter-label">Gap: ${fmtPct(priceGap,1).replace('+','')} | Warning zone: ${fmtPct(warnThreshold,1).replace('+','')} | Switching threshold: ~${fmtPct(switchThreshold,1).replace('+','')}</div>
+          <div class="gap-meter-track">
+            <div class="gap-meter-fill ${meterColor}" style="width:${(gapPct * 100).toFixed(1)}%"></div>
+          </div>
+          <div class="gap-meter-pins"><span>0%</span><span>${fmtPct(switchThreshold * 0.5,1).replace('+','')}</span><span>${fmtPct(switchThreshold,1).replace('+','')} (threshold)</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="output-section">
+      <div class="output-section-title">Response Scenarios</div>
+      <div class="scenario-grid">
+        <div class="scenario-card">
+          <div class="scenario-card-title">Hold Price — ${fmtDollar(yourPrice)}</div>
+          <div class="scenario-row"><span class="label">Demand shift</span><span class="value ${demandShiftUnits < 0 ? 'negative' : 'positive'}">${fmt(demandShiftUnits,0)} units</span></div>
+          <div class="scenario-row"><span class="label">Proj. units/period</span><span class="value">${fmt(holdUnits,0)}</span></div>
+          <div class="scenario-row"><span class="label">Revenue impact</span><span class="value ${holdRevDiff >= 0 ? 'positive' : 'negative'}">${fmtDollar(holdRevDiff,0)}</span></div>
+          <div class="scenario-row"><span class="label">Price gap vs comp</span><span class="value">${fmtPct(priceGap,1).replace('+','')}</span></div>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-card-title">Match Price — ${fmtDollar(compNew)}</div>
+          <div class="scenario-row"><span class="label">Price change</span><span class="value">${fmtPct(matchPriceDiff)}</span></div>
+          <div class="scenario-row"><span class="label">Proj. units/period</span><span class="value">${fmt(matchUnits,0)}</span></div>
+          <div class="scenario-row"><span class="label">Revenue diff</span><span class="value ${matchRevDiff >= 0 ? 'positive' : 'negative'}">${fmtDollar(matchRevDiff,0)}</span></div>
+          <div class="scenario-row"><span class="label">Margin</span><span class="value">${matchMarginNote}</span></div>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-card-title">Counter-Promote</div>
+          <div class="scenario-row"><span class="label">Promo depth needed</span><span class="value">${fmtPct(-promoDepthNeeded)}</span></div>
+          <div class="scenario-row"><span class="label">Counter-promo price</span><span class="value">${fmtDollar(counterPromoPrice)}</span></div>
+          <div class="scenario-row"><span class="label">Units recovered</span><span class="value positive">${fmt(shiftToRecover,0)}</span></div>
+          <div class="scenario-row"><span class="label">Revenue diff</span><span class="value ${counterPromoRevDiff >= 0 ? 'positive' : 'negative'}">${fmtDollar(counterPromoRevDiff,0)}</span></div>
+        </div>
+        ${customScenario}
+      </div>
+    </div>
+  `;
+}
+```
+
+- [ ] **Step 4: Open in browser, complete Tab 1, switch to Tab 3**
+
+Verify: Tab 3 unlocks, your current price and competitor price pre-fill from Tab 1. Enter a competitor new price lower than current — Hold shows negative units shift, Match shows price drop, Counter-Promote shows required depth. Price gap meter fills and turns amber/red as the gap widens. Custom response price field adds a fourth card when filled.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add Price-Elasticity-Tool.html
+git commit -m "feat: add Tab 3 competitive response with scenario cards and price gap meter"
+```
+
+---
+
+### Task 6: Final Validation Pass and Browser Smoke Test
+
+**Files:**
+- Modify: `Price-Elasticity-Tool.html` — minor validation wiring and edge case hardening
+
+- [ ] **Step 1: Verify all validation states in browser**
+
+Work through each case manually:
+
+| Scenario | Expected behavior |
+|---|---|
+| Fewer than 4 data rows | Calculate button disabled; note shows row count |
+| Positive elasticity entered | Red alert above Tab 1 output |
+| Tab 2 opened before Tab 1 calculated | Locked panel shows |
+| Tab 3 opened before Tab 1 calculated | Locked panel shows |
+| Promo price > baseline price | Amber warning in Tab 2 |
+| Promo depth > 20% with loyalty data | Pantry loading warning in Tab 2 |
+| Demographic inputs not summing to 100% | Per-group amber warnings in shopper profile |
+| Price gap reaches 70% of switching threshold | Amber warning in Tab 3 |
+| Price gap exceeds switching threshold | Red warning in Tab 3 |
+
+Fix any case that doesn't behave as described.
+
+- [ ] **Step 2: Test with real-feeling data**
+
+Enter this scenario and verify outputs are arithmetically correct:
+
+```
+Item Baseline:
+  Row 1: Price $3.99, Units 1200, Period "Wk 1"
+  Row 2: Price $3.79, Units 1380, Period "Wk 2"
+  Row 3: Price $4.19, Units 1050, Period "Wk 3"
+  Row 4: Price $3.59, Units 1520, Period "Wk 4"
+
+Expected: elasticity ≈ −1.8 to −2.2 (elastic range)
+Demand curve should slope downward left-to-right
+
+Tab 2:
+  Promo price $3.29, Duration 2 weeks, Feature + Display
+  Verify: unit lift is positive, breakeven calculation makes sense
+
+Tab 3:
+  Competitor current $3.79, new $3.49, Cross-price = Medium
+  Verify: Hold shows negative demand shift, Match price = $3.49
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add Price-Elasticity-Tool.html
+git commit -m "fix: validation hardening and smoke test corrections"
+```
+
+---
+
+### Task 7: Self-contained file verification
+
+- [ ] **Step 1: Confirm no external dependencies**
+
+Open the browser's Network tab while loading `Price-Elasticity-Tool.html`. Verify zero network requests are made (no CDN fonts, no scripts, no stylesheets loaded externally).
+
+- [ ] **Step 2: Confirm file opens from disk with no server**
+
+Close any local server. Open the file directly via `file://` path in browser. All functionality should work identically.
+
+- [ ] **Step 3: Final commit**
+
+```bash
+git add Price-Elasticity-Tool.html
+git commit -m "feat: price elasticity tool complete — self-contained single file"
+```
