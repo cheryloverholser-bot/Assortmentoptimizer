@@ -1245,7 +1245,7 @@ function importCSV(file) {
 
     setNum('purchaseFreq', scalars['purchase_freq']  || '');
     setNum('basketSize',   scalars['basket_size']    || '');
-    if (scalars['purchase_freq'] || scalars['basket_size']) state.hasLoyalty = true;
+    if (scalars['purchase_freq'] || scalars['basket_size']) onLoyaltyInput();
 
     // Demographic fields — set all in group before calling onDemoInput to avoid partial-sum warnings
     setNum('age1834',   scalars['age_18_34']    || '');
@@ -1267,8 +1267,12 @@ function importCSV(file) {
     setNum('compPrice', scalars['comp_price'] || '');
 
     if (scalars['your_current_price']) {
-      setNum('yourCurrentPrice', scalars['your_current_price']);
-      document.getElementById('yourCurrentPrice').dataset.manuallyEdited = 'true';
+      const ycpEl = document.getElementById('yourCurrentPrice');
+      if (ycpEl) {
+        const n = parseFloat(scalars['your_current_price']);
+        if (!isNaN(n)) ycpEl.value = n;
+        ycpEl.dataset.manuallyEdited = 'true';
+      }
     }
 
     // TODO: populate table rows (Task 5)
