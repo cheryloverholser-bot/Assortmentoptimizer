@@ -376,7 +376,69 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   <div id="tab1-output" style="display:none"><!-- outputs rendered by JS --></div>
 </div>
-  <div id="tab2" class="tab-panel"><!-- Tab 2 content injected in Task 5 --></div>
+  <div id="tab2" class="tab-panel">
+  <div id="tab2-locked" class="locked-panel">
+    <div class="lock-icon">🔒</div>
+    <p>Complete the Elasticity Calculator in Tab 1 first.</p>
+  </div>
+  <div id="tab2-content" style="display:none">
+
+    <div class="card open">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div><div class="card-title">Promo Inputs</div></div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field" style="max-width:180px">
+            <label>Baseline Price ($)</label>
+            <input type="number" id="promoBasePrice" placeholder="0.00" min="0" step="0.01" oninput="runPromo()">
+          </div>
+          <div class="field" style="max-width:180px">
+            <label>Baseline Weekly Units</label>
+            <input type="number" id="promoBaseUnits" placeholder="0" min="0" step="1" oninput="runPromo()">
+          </div>
+        </div>
+
+        <div class="field-row" style="align-items:flex-end">
+          <div class="field" style="max-width:80px">
+            <label>Promo Input</label>
+            <div class="toggle-group" style="margin-top:4px">
+              <button class="toggle-opt active" id="promoDollarBtn" onclick="setPromoInputType('dollar')">$</button>
+              <button class="toggle-opt" id="promoPctBtn" onclick="setPromoInputType('pct')">%</button>
+            </div>
+          </div>
+          <div class="field" style="max-width:180px">
+            <label id="promoPriceLabel">Promo Price ($)</label>
+            <input type="number" id="promoPrice" placeholder="0.00" min="0" step="0.01" oninput="runPromo()">
+          </div>
+          <div class="field" style="max-width:160px">
+            <label>Duration (weeks)</label>
+            <input type="number" id="promoDuration" value="4" min="1" step="1" oninput="runPromo()">
+          </div>
+        </div>
+
+        <div class="field-row" style="align-items:flex-end">
+          <div class="field">
+            <label>Merchandising Support</label>
+            <select id="promoMerch" onchange="runPromo()">
+              <option value="1.00">None</option>
+              <option value="1.15">Feature Only</option>
+              <option value="1.20">Display Only</option>
+              <option value="1.35" selected>Feature + Display</option>
+            </select>
+          </div>
+          <div class="field" style="max-width:160px">
+            <label>Merch Multiplier (editable)</label>
+            <input type="number" id="promoMerchMultiplier" value="1.35" step="0.01" oninput="runPromo()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab2-output"></div>
+  </div>
+</div>
   <div id="tab3" class="tab-panel"><!-- Tab 3 content injected in Task 6 --></div>
 </div>
 
@@ -719,8 +781,130 @@ function calculateElasticity() {
   if (typeof prefillTab3 === 'function') prefillTab3();
 }
 
-// Stubs — replaced by Tasks 4 and 5
-function prefillTab2() {}
+// ── Tab 2 Promo Modeler ───────────────────────────────────────────────────────
+let promoInputType = 'dollar';
+
+function setPromoInputType(type) {
+  promoInputType = type;
+  document.getElementById('promoDollarBtn').classList.toggle('active', type === 'dollar');
+  document.getElementById('promoPctBtn').classList.toggle('active', type === 'pct');
+  document.getElementById('promoPriceLabel').textContent = type === 'dollar' ? 'Promo Price ($)' : 'Discount (%)';
+  document.getElementById('promoPrice').placeholder = type === 'dollar' ? '0.00' : '10';
+  runPromo();
+}
+
+function prefillTab2() {
+  if (!state.elasticity) return;
+  document.getElementById('tab2-locked').style.display = 'none';
+  document.getElementById('tab2-content').style.display = 'block';
+  document.getElementById('promoBasePrice').value = state.baselinePrice.toFixed(2);
+  document.getElementById('promoBaseUnits').value = Math.round(state.baselineUnits);
+}
+
+document.getElementById('promoMerch').addEventListener('change', function() {
+  document.getElementById('promoMerchMultiplier').value = this.value;
+  runPromo();
+});
+
+function runPromo() {
+  const basePrice = parseFloat(document.getElementById('promoBasePrice').value);
+  const baseUnits = parseFloat(document.getElementById('promoBaseUnits').value);
+  const rawPromo = parseFloat(document.getElementById('promoPrice').value);
+  const duration = parseInt(document.getElementById('promoDuration').value) || 1;
+  const multiplier = parseFloat(document.getElementById('promoMerchMultiplier').value) || 1;
+  const e = state.elasticity;
+
+  if (isNaN(basePrice) || isNaN(baseUnits) || isNaN(rawPromo) || !e) return;
+
+  const promoPrice = promoInputType === 'dollar'
+    ? rawPromo
+    : basePrice * (1 - rawPromo / 100);
+
+  const pctChange = (promoPrice - basePrice) / basePrice;
+  const unitLiftPct = pctChange * e * multiplier;  // e is negative, pctChange is negative → lift is positive
+  const incrUnitsPerWeek = baseUnits * unitLiftPct;
+  const totalIncrUnits = incrUnitsPerWeek * duration;
+  const promoRevWeek = (baseUnits + incrUnitsPerWeek) * promoPrice;
+  const baseRevWeek = baseUnits * basePrice;
+  const promoRevTotal = promoRevWeek * duration;
+  const baseRevTotal = baseRevWeek * duration;
+  const breakeven = ((basePrice - promoPrice) * baseUnits * duration) / promoPrice;
+  const breakevenMet = totalIncrUnits >= breakeven;
+  const promoDepth = Math.abs(pctChange);
+  const pantryRisk = promoDepth > 0.20 && state.hasLoyalty;
+
+  const promoHigherWarn = promoPrice > basePrice
+    ? `<div class="alert alert-amber">Promo price is higher than baseline price — verify this is intentional.</div>`
+    : '';
+  const pantryWarn = pantryRisk
+    ? `<div class="alert alert-amber">Promotions deeper than 20% typically drive pantry loading rather than new trip occasions. Incremental units may not represent new buyers.</div>`
+    : '';
+
+  document.getElementById('tab2-output').innerHTML = `
+    ${promoHigherWarn}
+    ${pantryWarn}
+    <div class="output-section">
+      <div class="output-section-title">Projected Lift</div>
+      <div class="metric-row">
+        <div class="metric-card">
+          <div class="metric-label">Weekly Unit Lift</div>
+          <div class="metric-value" style="color:var(--green-dark)">${fmt(incrUnitsPerWeek, 0)}</div>
+          <div class="metric-sub">${fmtPct(unitLiftPct)} vs baseline</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Total Incremental Units</div>
+          <div class="metric-value">${fmt(totalIncrUnits, 0)}</div>
+          <div class="metric-sub">over ${duration} week${duration !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Promo Price</div>
+          <div class="metric-value">${fmtDollar(promoPrice)}</div>
+          <div class="metric-sub">${fmtPct(pctChange)} vs baseline ${fmtDollar(basePrice)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="output-section">
+      <div class="output-section-title">Revenue Comparison</div>
+      <div class="metric-row">
+        <div class="metric-card">
+          <div class="metric-label">Promo Period Revenue</div>
+          <div class="metric-value">${fmtDollar(promoRevTotal, 0)}</div>
+          <div class="metric-sub">${duration} weeks at promo price</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Baseline Revenue (same period)</div>
+          <div class="metric-value">${fmtDollar(baseRevTotal, 0)}</div>
+          <div class="metric-sub">${duration} weeks at base price</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Revenue Difference</div>
+          <div class="metric-value" style="color:${promoRevTotal >= baseRevTotal ? 'var(--green-dark)' : 'var(--red)'}">
+            ${fmtDollar(promoRevTotal - baseRevTotal, 0)}
+          </div>
+          <div class="metric-sub">${promoRevTotal >= baseRevTotal ? 'Revenue positive' : 'Revenue negative'}</div>
+        </div>
+      </div>
+    </div>
+    <div class="output-section">
+      <div class="output-section-title">Breakeven</div>
+      <div class="card"><div class="card-body" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Needs to break even</div>
+          <div style="font-size:22px;font-weight:700;color:var(--teal-dark)">${fmt(breakeven, 0)} units</div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Projected lift</div>
+          <div style="font-size:22px;font-weight:700;color:var(--teal-dark)">${fmt(totalIncrUnits, 0)} units</div>
+        </div>
+        <div class="alert ${breakevenMet ? 'alert-green' : 'alert-red'}" style="flex:1;min-width:200px">
+          ${breakevenMet ? '✓ On track to break even' : '✗ At risk — projected lift falls short of breakeven'}
+        </div>
+      </div></div>
+    </div>
+  `;
+}
+
+// Stub — replaced by Task 5
 function prefillTab3() {}
 </script>
 </body>
