@@ -1223,10 +1223,56 @@ function importCSV(file) {
       return;
     }
 
-    // TODO: populate fields (Tasks 4–5)
-    console.log('Scalars:', scalars);
-    console.log('Data rows:', dataRows);
-    showImportStatus('✓ Parsed ' + dataRows.length + ' rows (fields not yet populated)', 'ok');
+    // ── Populate scalar fields ────────────────────────────────────────────────
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && val !== '') el.value = val;
+    };
+    const setNum = (id, val) => {
+      const n = parseFloat(val);
+      if (!isNaN(n)) { const el = document.getElementById(id); if (el) el.value = n; }
+    };
+
+    setVal('itemName',     scalars['item_name']     || '');
+    setVal('itemCategory', scalars['category']       || '');
+    setVal('itemRetailer', scalars['retailer']       || '');
+    setNum('unitCost',     scalars['unit_cost']      || '');
+
+    if (scalars['period_type']) {
+      const pt = scalars['period_type'].toLowerCase();
+      setPeriodType(pt === '4week' ? '4week' : 'weekly');
+    }
+
+    setNum('purchaseFreq', scalars['purchase_freq']  || '');
+    setNum('basketSize',   scalars['basket_size']    || '');
+    if (scalars['purchase_freq'] || scalars['basket_size']) state.hasLoyalty = true;
+
+    // Demographic fields — set all in group before calling onDemoInput to avoid partial-sum warnings
+    setNum('age1834',   scalars['age_18_34']    || '');
+    setNum('age3554',   scalars['age_35_54']    || '');
+    setNum('age55plus', scalars['age_55_plus']  || '');
+    if (scalars['age_18_34'] || scalars['age_35_54'] || scalars['age_55_plus']) onDemoInput('age');
+
+    setNum('inc50',     scalars['income_under_50k'] || '');
+    setNum('inc100',    scalars['income_50_100k']   || '');
+    setNum('inc100plus',scalars['income_100k_plus'] || '');
+    if (scalars['income_under_50k'] || scalars['income_50_100k'] || scalars['income_100k_plus']) onDemoInput('income');
+
+    setNum('hh12',   scalars['hh_size_1_2']   || '');
+    setNum('hh34',   scalars['hh_size_3_4']   || '');
+    setNum('hh5plus',scalars['hh_size_5_plus'] || '');
+    if (scalars['hh_size_1_2'] || scalars['hh_size_3_4'] || scalars['hh_size_5_plus']) onDemoInput('hh');
+
+    setVal('compName',  scalars['comp_name']  || '');
+    setNum('compPrice', scalars['comp_price'] || '');
+
+    if (scalars['your_current_price']) {
+      setNum('yourCurrentPrice', scalars['your_current_price']);
+      document.getElementById('yourCurrentPrice').dataset.manuallyEdited = 'true';
+    }
+
+    // TODO: populate table rows (Task 5)
+    showImportStatus('✓ Scalars loaded (' + dataRows.length + ' price rows not yet populated)', 'ok');
   };
 
   reader.onerror = function() {
