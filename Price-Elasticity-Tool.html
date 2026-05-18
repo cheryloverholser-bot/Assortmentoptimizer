@@ -1019,7 +1019,7 @@ function runComp() {
   const meterColor = priceGap >= switchThreshold ? 'danger' : priceGap >= warnThreshold ? 'warn' : '';
   const gapWarn = priceGap >= warnThreshold
     ? `<div class="alert ${priceGap >= switchThreshold ? 'alert-red' : 'alert-amber'}">
-        Price gap of ${fmtPct(priceGap, 1).replace('+','')} approaches the switching threshold (~${fmtPct(switchThreshold,1).replace('+','')}). Shopper switching risk is elevated.
+        Price gap of ${fmtPct(priceGap, 1).replace('+','')} ${priceGap >= switchThreshold ? 'exceeds' : 'approaches'} the switching threshold (~${fmtPct(switchThreshold,1).replace('+','')}). Shopper switching risk is elevated.
        </div>`
     : '';
 
