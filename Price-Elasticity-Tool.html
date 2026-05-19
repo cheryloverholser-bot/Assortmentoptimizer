@@ -259,7 +259,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
           <label>Period Type</label>
           <div class="toggle-group" style="margin-top:4px">
             <button class="toggle-opt active" id="toggleWeekly" onclick="setPeriodType('weekly')">Weekly</button>
-            <button class="toggle-opt" id="toggle4wk" onclick="setPeriodType('4week')">4-Week</button>
           </div>
         </div>
       </div>
@@ -520,8 +519,6 @@ let periodType = 'weekly';
 function setPeriodType(type) {
   periodType = type;
   document.getElementById('toggleWeekly').classList.toggle('active', type === 'weekly');
-  document.getElementById('toggle4wk').classList.toggle('active', type === '4week');
-  document.getElementById('periodHeader').textContent = type === 'weekly' ? 'Time Period' : '4-Week Period';
 }
 
 function addDataRow() {
@@ -1162,7 +1159,7 @@ function importCSV(file) {
 
     if (scalars['period_type']) {
       const pt = scalars['period_type'].toLowerCase();
-      setPeriodType(pt === '4week' ? '4week' : 'weekly');
+      setPeriodType('weekly'); // only weekly supported
     }
 
     setNum('purchaseFreq', scalars['purchase_freq']  || '');
