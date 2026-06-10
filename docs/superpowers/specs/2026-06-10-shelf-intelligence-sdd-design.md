@@ -14,7 +14,7 @@ The template will be filled in by the ProServices lead at the start of a dashboa
 
 ### 2.1 Why this template is needed
 
-Shelf Intelligence is a Crisp SaaS product with standardized dashboards. The Implementation & Training playbook (Notion) lists "Solution Design Document (if required)" as a Phase 2 deliverable but no standard template exists today. ProServices leads currently improvise per engagement, which slows discovery and creates inconsistent client-facing artifacts.
+Shelf Intelligence comes with a set of standardized dashboards for retail account teams. The Implementation & Training playbook (Notion) lists "Solution Design Document (if required)" as a Phase 2 deliverable, but no standard template exists today. ProServices leads currently improvise per engagement, which slows discovery and creates inconsistent client-facing artifacts.
 
 ### 2.2 What this template is for
 
@@ -28,14 +28,6 @@ Shelf Intelligence is a Crisp SaaS product with standardized dashboards. The Imp
 - Business Requirements Document (BRD) — separate artifact
 - Replacement for the SOW (the SOW remains the canonical scope document; this SDD references it)
 - Internal Crisp engineering specs (custom dashboards still need product/engineering specs in addition to this SDD)
-
-### 2.4 Reference materials reviewed
-
-| Source | Role in this design |
-|---|---|
-| Notion: Shelf Intelligence Implementation & Training | Authoritative source for SI phases, Phase 3 mod classification (Product Enhancement / Retailer Specific / Personalization), per-team framing |
-| `CX.PGSM.Solution Design Document.v1.2.docx` | Structural inspiration — ceremony-forward frontmatter, per-feature deep structure |
-| `[NOT FINAL] Gemini Created SDD Template.docx` | Considered as a structural alternative; rejected as too IT/platform-heavy for SaaS dashboard work. A few ideas borrowed (System Dependencies framing, UAT framework concept) |
 
 ## 3. Design Decisions
 
@@ -105,26 +97,23 @@ Shelf Intelligence is a Crisp SaaS product with standardized dashboards. The Imp
      - 8.7.2 Detailed Modifications *(one Heading-3 section per mod, structure in §5)*
 
 ### Closing Chapters *(cross-team)*
+
+Each closing chapter is a short reference section that points to the canonical Shelf Intelligence document(s) for that topic. The chapter captures only client-specific notes that supplement those standards.
+
 9. Data & Integration Considerations
-   - Source systems overview
-   - Pipeline architecture *(high-level only)*
-   - Validation rules / data quality framework
-   - Cross-team data dependencies
+   - See `Shelf Intelligence/Shelf Intelligence Data Quality Verification.docx` for the standard data quality framework
+   - See `Shelf Intelligence/Shelf Intelligence TPA.docx` for Third-Party Agreement scope and signed positions
+   - Capture only client-specific data quality or TPA notes that supplement these references
 10. UAT & Acceptance Criteria
-    - Test environment description
-    - UAT approach *(per team or unified)*
-    - QA process *(references the JIRA-comment QA loop from Notion Phase 3)*
-    - Sign-off criteria & artifact list
+    - See `Shelf Intelligence/Shelf Intelligence UAT.docx` for the standard UAT framework, test scripts, and sign-off process
+    - Capture only client-specific UAT scope, environments, or acceptance criteria that supplement the standard framework
 11. Training & Enablement Tie-In
-    - Office Hours cadence
-    - Documentation pipeline *(Notion → Mintlify → docs.gocrisp.com)*
-    - Amplitude usage tracking expectations
-    - Training resources for end users *(per persona)*
+    - See `Shelf Intelligence/Shelf Intelligence Training Paths.docx` for the standard per-persona training paths
+    - See `Shelf Intelligence/Shelf Intelligence Facilitator Guide.docx` for the facilitator-led training approach
+    - Capture only client-specific training adaptations, scheduling, or office-hours cadence
 12. Rollout & Go-Live
-    - Rollout approach *(retailer-by-retailer per the SI playbook)*
-    - User provisioning checklist reference
-    - Go-live communication plan
-    - Post go-live cadence & feedback channels
+    - See `Shelf Intelligence/Go Live Documentation & Client Signoff.docx` for the standard go-live documentation and client sign-off process
+    - Capture only client-specific rollout sequencing, readiness checkpoints, or post go-live cadence
 
 ### Appendices
 13. Appendices
