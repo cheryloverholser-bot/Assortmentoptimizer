@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shelf Intelligence SDD — Template Design Spec</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --accent: #0066cc;
+    --accent-dark: #004999;
+    --border: #e5e7eb;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 0;
+    min-height: 100vh;
+  }
+  /* Sidebar */
+  aside {
+    background: #fff;
+    border-right: 1px solid var(--border);
+    padding: 28px 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  aside h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 14px;
+  }
+  aside ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: navcount;
+  }
+  aside li { margin: 0; padding: 0; }
+  aside a {
+    display: block;
+    padding: 7px 10px;
+    color: var(--text);
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    border-left: 2px solid transparent;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  aside a:hover {
+    background: #f0f7ff;
+    color: var(--accent);
+  }
+  aside a.active {
+    background: #f0f7ff;
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+  aside .num {
+    display: inline-block;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    width: 22px;
+    font-size: 13px;
+  }
+  /* Main */
+  main {
+    padding: 40px 56px 80px;
+    max-width: 1080px;
+  }
+  header.page-header {
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  header.page-header .eyebrow {
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  header.page-header h1 {
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 0 0 14px;
+    color: var(--text);
+  }
+  .meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .meta .badge {
+    background: #e8f4ea;
+    color: #1b6d2c;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  section.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+  }
+  section.card h2 {
+    font-size: 22px;
+    margin: 0 0 14px;
+    color: var(--text);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  section.card h2 .sec-num {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 18px;
+  }
+  section.card h3 {
+    font-size: 17px;
+    margin: 24px 0 10px;
+    color: var(--text);
+  }
+  section.card h4 {
+    font-size: 15px;
+    margin: 18px 0 8px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  p { margin: 0 0 12px; }
+  ul, ol { margin: 0 0 12px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  code {
+    background: #f1f3f5;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.9em;
+  }
+  blockquote {
+    margin: 12px 0;
+    padding: 10px 16px;
+    border-left: 3px solid var(--accent);
+    background: #f0f7ff;
+    color: var(--text);
+    border-radius: 0 6px 6px 0;
+    font-style: italic;
+  }
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 14px;
+  }
+  thead th {
+    background: #f3f6fa;
+    color: var(--text);
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+    font-size: 13px;
+  }
+  tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: #fafbfc; }
+  tbody tr:hover { background: #f0f7ff; }
+  /* TOC visualization */
+  .toc-tree {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .toc-group {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .toc-group-header {
+    background: linear-gradient(180deg, #f7faff, #eef4fc);
+    padding: 12px 16px;
+    font-weight: 600;
+    color: var(--accent-dark);
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .toc-items {
+    padding: 8px 0;
+  }
+  .toc-item {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    padding: 8px 16px;
+    border-top: 1px solid #f1f3f5;
+    align-items: baseline;
+  }
+  .toc-item:first-child { border-top: 0; }
+  .toc-num {
+    color: var(--accent);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .toc-title {
+    color: var(--text);
+  }
+  .toc-sub {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 13px;
+    padding-left: 14px;
+    border-left: 2px solid #e9eef5;
+  }
+  .toc-sub-item {
+    display: block;
+    margin: 3px 0;
+  }
+  .toc-sub-num {
+    color: var(--accent);
+    font-weight: 600;
+    margin-right: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .team-block-banner {
+    background: linear-gradient(135deg, #0066cc, #004999);
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0;
+    font-size: 14px;
+  }
+  .team-block-banner strong { display: block; margin-bottom: 4px; font-size: 15px; }
+  /* Mod schema card */
+  .mod-schema {
+    background: #fafbfc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    margin: 14px 0;
+  }
+  .mod-schema-title {
+    background: var(--accent);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    margin: -18px -18px 14px;
+    border-radius: 6px 6px 0 0;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+  .mod-fields {
+    display: grid;
+    gap: 10px;
+  }
+  .mod-field {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eef0f3;
+  }
+  .mod-field:last-child { border-bottom: 0; }
+  .mod-field-name {
+    font-weight: 600;
+    color: var(--accent-dark);
+    font-size: 14px;
+  }
+  .mod-field-desc {
+    color: var(--text);
+    font-size: 14px;
+  }
+  .classification-pills {
+    display: inline-flex;
+    gap: 6px;
+    margin-left: 6px;
+  }
+  .pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .pill-pe { background: #e3f2fd; color: #1565c0; }
+  .pill-rs { background: #fff3e0; color: #e65100; }
+  .pill-pz { background: #f3e5f5; color: #6a1b9a; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    main { padding: 24px; }
+    .mod-field { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <h2>On this page</h2>
+    <ol>
+      <li><a href="#sec-1"><span class="num">1.</span>Purpose</a></li>
+      <li><a href="#sec-2"><span class="num">2.</span>Context</a></li>
+      <li><a href="#sec-3"><span class="num">3.</span>Design Decisions</a></li>
+      <li><a href="#sec-4"><span class="num">4.</span>Document Structure</a></li>
+      <li><a href="#sec-5"><span class="num">5.</span>Per-Mod Schema</a></li>
+      <li><a href="#sec-6"><span class="num">6.</span>Authoring Conventions</a></li>
+      <li><a href="#sec-7"><span class="num">7.</span>Output Artifacts</a></li>
+      <li><a href="#sec-8"><span class="num">8.</span>Out of Scope</a></li>
+      <li><a href="#sec-9"><span class="num">9.</span>Next Steps</a></li>
+    </ol>
+  </aside>
+
+  <main>
+    <header class="page-header">
+      <div class="eyebrow">Design Spec</div>
+      <h1>Shelf Intelligence Solution Design Document — Template</h1>
+      <div class="meta">
+        <span><strong>Date:</strong> 2026-06-10</span>
+        <span><strong>Author:</strong> Cheryl Overholser (ProServices)</span>
+        <span class="badge">Approved for implementation planning</span>
+      </div>
+    </header>
+
+    <section class="card" id="sec-1">
+      <h2><span class="sec-num">1.</span> Purpose</h2>
+      <p>Design a <strong>reusable Solution Design Document (SDD) template</strong> for Crisp ProServices to use whenever a Shelf Intelligence client requests modifications to the standardized dashboards.</p>
+      <p>The template will be filled in by the ProServices lead at the start of a dashboard-modification engagement (Phase 2 Discovery → Phase 3 Build &amp; Validation in the Shelf Intelligence Implementation playbook) and used as the canonical, client-facing artifact for sign-off on the modifications scope.</p>
+    </section>
+
+    <section class="card" id="sec-2">
+      <h2><span class="sec-num">2.</span> Context</h2>
+
+      <h3>2.1 Why this template is needed</h3>
+      <p>Shelf Intelligence is a Crisp SaaS product with standardized dashboards. The Implementation &amp; Training playbook (Notion) lists "Solution Design Document (if required)" as a Phase 2 deliverable but no standard template exists today. ProServices leads currently improvise per engagement, which slows discovery and creates inconsistent client-facing artifacts.</p>
+
+      <h3>2.2 What this template is for</h3>
+      <ul>
+        <li>Engagements where one or more retail account teams within a client request modifications to the standard SI dashboards</li>
+        <li>Captures discovery findings, per-team modifications, and sign-off criteria in a single client-facing document</li>
+      </ul>
+
+      <h3>2.3 What this template is NOT for</h3>
+      <ul>
+        <li>Full Shelf Intelligence implementation SDD (broader scope — out of scope here)</li>
+        <li>Project plan, timeline, or resource assignment (separate artifacts)</li>
+        <li>Business Requirements Document (BRD) — separate artifact</li>
+        <li>Replacement for the SOW (the SOW remains the canonical scope document; this SDD references it)</li>
+        <li>Internal Crisp engineering specs (custom dashboards still need product/engineering specs in addition to this SDD)</li>
+      </ul>
+
+      <h3>2.4 Reference materials reviewed</h3>
+      <table>
+        <thead>
+          <tr><th>Source</th><th>Role in this design</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Notion: Shelf Intelligence Implementation &amp; Training</td><td>Authoritative source for SI phases, Phase 3 mod classification (Product Enhancement / Retailer Specific / Personalization), per-team framing</td></tr>
+          <tr><td><code>CX.PGSM.Solution Design Document.v1.2.docx</code></td><td>Structural inspiration — ceremony-forward frontmatter, per-feature deep structure</td></tr>
+          <tr><td><code>[NOT FINAL] Gemini Created SDD Template.docx</code></td><td>Considered as a structural alternative; rejected as too IT/platform-heavy for SaaS dashboard work. A few ideas borrowed (System Dependencies framing, UAT framework concept)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="sec-3">
+      <h2><span class="sec-num">3.</span> Design Decisions</h2>
+      <table>
+        <thead>
+          <tr><th>Decision</th><th>Choice</th><th>Rationale</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Deliverable type</td><td>Reusable template</td><td>ProServices needs a standard artifact; per-client copies generated from it</td></tr>
+          <tr><td>Scope of template</td><td>Dashboard modifications only</td><td>Narrower scope = faster to fill, easier to maintain. Aligns with the discrete "modifications" request pattern</td></tr>
+          <tr><td>Output formats</td><td>Markdown source + Crisp-branded .docx export</td><td>Markdown is version-controllable and AI-editable; .docx is client-deliverable</td></tr>
+          <tr><td>Per-mod structure</td><td>Section per mod (PGSM Feature pattern adapted)</td><td>Depth needed for client sign-off; matches established Cantactix/Crisp documentation style</td></tr>
+          <tr><td>Discovery findings</td><td>Captured inline (not just referenced)</td><td>Single source of truth for client sign-off; reader can pick up the SDD cold</td></tr>
+          <tr><td>Body organization</td><td>Per-retail-team blocks</td><td>Matches how the work actually happens (Phase 2 &amp; 3 are explicitly "Per Retail Team" in the Notion); supports multi-team clients (Walmart team + Ahold team + etc.)</td></tr>
+          <tr><td>Considerations scope</td><td>Both client-level AND per-team</td><td>Some risks/dependencies are cross-team (platform-wide); others are team-specific</td></tr>
+          <tr><td>Project Scope section</td><td>Short pointer to SOW</td><td>Avoids restating canonical scope; SOW is the source of truth</td></tr>
+          <tr><td>Assumptions section</td><td>Removed</td><td>Replaced by per-team structure; project-wide assumptions belong in SOW</td></tr>
+          <tr><td>Modification ID convention</td><td><code>[TEAM]-[NN]</code> (e.g., <code>WMT-01</code>, <code>AHD-03</code>)</td><td>Referenceable in JIRA, Slack, appendices</td></tr>
+          <tr><td>Per-team summary table</td><td>Yes, inside each team block</td><td>Small enough scope to benefit from a skim table; supports sign-off</td></tr>
+          <tr><td>Cross-team mod master table</td><td>No</td><td>Each team's modifications are independent; a cross-team master would just duplicate the per-team tables</td></tr>
+          <tr><td>Rollout &amp; Go-Live section</td><td>Yes, lightweight</td><td>Mostly references the SI playbook; included for completeness at sign-off</td></tr>
+          <tr><td>Data Dictionary appendix</td><td>Yes, placeholder</td><td>Clients often request at sign-off; included as optional placeholder</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="sec-4">
+      <h2><span class="sec-num">4.</span> Document Structure</h2>
+      <p>Full table of contents grouped by document role.</p>
+
+      <div class="toc-tree">
+
+        <div class="toc-group">
+          <div class="toc-group-header">Frontmatter</div>
+          <div class="toc-items">
+            <div class="toc-item"><span class="toc-num">1</span><span class="toc-title">Document Reviewers / Contributors <em style="color:var(--muted)">(table: Name · Role · Reviewer Y/N · Contributor Y/N)</em></span></div>
+            <div class="toc-item"><span class="toc-num">2</span><span class="toc-title">Final Approvers <em style="color:var(--muted)">(table: Name · Version · Signature · Date)</em></span></div>
+            <div class="toc-item"><span class="toc-num">3</span><span class="toc-title">Document Revision History <em style="color:var(--muted)">(table: Version · Date · Author(s) · Revision Notes)</em></span></div>
+          </div>
+        </div>
+
+        <div class="toc-group">
+          <div class="toc-group-header">Project Framing</div>
+          <div class="toc-items">
+            <div class="toc-item"><span class="toc-num">4</span><span class="toc-title">Introduction</span></div>
+            <div class="toc-item"><span class="toc-num">5</span><span class="toc-title">Purpose of the Document
+              <span class="toc-sub">
+                <span class="toc-sub-item"><span class="toc-sub-num">5.1</span>Project Scope <em style="color:var(--muted)">(short pointer to SOW)</em></span>
+                <span class="toc-sub-item"><span class="toc-sub-num">5.2</span>Not in Project Scope</span>
+                <span class="toc-sub-item"><span class="toc-sub-num">5.3</span>Related Documents</span>
+                <span class="toc-sub-item"><span class="toc-sub-num">5.4</span>Requirements Gathering Methodology</span>
+              </span>
+            </span></div>
+          </div>
+        </div>
+
+        <div class="toc-group">
+          <div class="toc-group-header">Client Overview</div>
+          <div class="toc-items">
+            <div class="toc-item"><span class="toc-num">6</span><span class="toc-title">Client Overview
+              <span class="toc-sub">
+                <span class="toc-sub-item">Client name &amp; business context</span>
+                <span class="toc-sub-item">Sponsor &amp; COE lead</span>
+                <span class="toc-sub-item">Master Notion page link · Master JIRA epic</span>
+                <span class="toc-sub-item">In-scope retail teams (index for per-team blocks)</span>
+              </span>
+            </span></div>
+          </div>
+        </div>
+
+        <div class="toc-group">
+          <div class="toc-group-header">Client-Level Considerations (cross-team only)</div>
+          <div class="toc-items">
+            <div class="toc-item"><span class="toc-num">7</span><span class="toc-title">Client-Level Considerations
+              <span class="toc-sub">
+                <span class="toc-sub-item"><span class="toc-sub-num">7.1</span>Constraints</span>
+                <span class="toc-sub-item"><span class="toc-sub-num">7.2</span>Risks <em style="color:var(--muted)">(table: Risk · Impact · Likelihood · Mitigation · Owner)</em></span>
+                <span class="toc-sub-item"><span class="toc-sub-num">7.3</span>System Dependencies</span>
+                <span class="toc-sub-item"><span class="toc-sub-num">7.4</span>Success Criteria</span>
+              </span>
+            </span></div>
+          </div>
+        </div>
+
+        <div class="toc-group">
+          <div class="toc-group-header">Per Retail Team Blocks (repeat for each team)</div>
+          <div class="toc-items">
+            <div style="padding: 0 16px;">
+              <div class="team-block-banner">
+                <strong>Repeat this entire block for each retail team in scope</strong>
+                Example: Walmart team block, Ahold team block, etc.
+              </div>
+            </div>
+            <div class="toc-item"><span class="toc-num">8</span><span class="toc-title">[Retail Team Name]
+              <span class="toc-sub">
+                <span class="toc-sub-item"><span class="toc-sub-num">8.1</span>Team Overview</span>
+                <span class="toc-sub-item"><span class="toc-sub-num">8.2</span>Discovery Findings <em style="color:var(--muted)">(personas, decision drivers, current tools, gaps, working style)</em></span>
+                <span class="toc-sub-item"><span class="toc-sub-num">8.3</span>Constraints <em style="color:var(--muted)">(team-specific)</em></span>
+                <span class="toc-sub-item"><span class="toc-sub-num">8.4</span>Risks <em style="color:var(--muted)">(team-specific)</em></span>
+                <span class="toc-sub-item"><span class="toc-sub-num">8.5</span>System Dependencies <em style="color:var(--muted)">(team-specific)</em></span>
+                <span class="toc-sub-item"><span class="toc-sub-num">8.6</span>Success Criteria <em style="color:var(--muted)">(team-specific)</em></span>
+                <span class="toc-sub-item"><span class="toc-sub-num">8.7</span>Dashboard Modifications
+                  <span style="display:block;padding-left:14px;border-left:2px solid #e9eef5;margin-top:4px;">
+                    <span class="toc-sub-item"><span class="toc-sub-num">8.7.1</span>Modifications Summary <em style="color:var(--muted)">(skim table)</em></span>
+                    <span class="toc-sub-item"><span class="toc-sub-num">8.7.2</span>Detailed Modifications <em style="color:var(--muted)">(one section per mod — schema in §5)</em></span>
+                  </span>
+                </span>
+              </span>
+            </span></div>
+          </div>
+        </div>
+
+        <div class="toc-group">
+          <div class="toc-group-header">Closing Chapters (cross-team)</div>
+          <div class="toc-items">
+            <div class="toc-item"><span class="toc-num">9</span><span class="toc-title">Data &amp; Integration Considerations</span></div>
+            <div class="toc-item"><span class="toc-num">10</span><span class="toc-title">UAT &amp; Acceptance Criteria</span></div>
+            <div class="toc-item"><span class="toc-num">11</span><span class="toc-title">Training &amp; Enablement Tie-In</span></div>
+            <div class="toc-item"><span class="toc-num">12</span><span class="toc-title">Rollout &amp; Go-Live</span></div>
+          </div>
+        </div>
+
+        <div class="toc-group">
+          <div class="toc-group-header">Appendices</div>
+          <div class="toc-items">
+            <div class="toc-item"><span class="toc-num">13</span><span class="toc-title">Appendices
+              <span class="toc-sub">
+                <span class="toc-sub-item"><span class="toc-sub-num">13.1</span>Glossary</span>
+                <span class="toc-sub-item"><span class="toc-sub-num">13.2</span>Mockup gallery / screenshots</span>
+                <span class="toc-sub-item"><span class="toc-sub-num">13.3</span>JIRA ticket index</span>
+                <span class="toc-sub-item"><span class="toc-sub-num">13.4</span>Data dictionary <em style="color:var(--muted)">(placeholder)</em></span>
+                <span class="toc-sub-item"><span class="toc-sub-num">13.5</span>Open questions / parking lot</span>
+              </span>
+            </span></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="card" id="sec-5">
+      <h2><span class="sec-num">5.</span> Per-Modification Field Schema</h2>
+      <p>Every detailed modification under §8.7.2 uses this structure.</p>
+
+      <div class="mod-schema">
+        <div class="mod-schema-title">[MOD-ID] [Modification Name] &nbsp;—&nbsp; Heading 3</div>
+        <div class="mod-fields">
+          <div class="mod-field">
+            <div class="mod-field-name">Modification Summary</div>
+            <div class="mod-field-desc">1-paragraph narrative description</div>
+          </div>
+          <div class="mod-field">
+            <div class="mod-field-name">Classification</div>
+            <div class="mod-field-desc">
+              One of
+              <span class="classification-pills">
+                <span class="pill pill-pe">Product Enhancement</span>
+                <span class="pill pill-rs">Retailer Specific</span>
+                <span class="pill pill-pz">Personalization</span>
+              </span>
+              with brief rationale. <em style="color:var(--muted)">(Source: Notion Phase 3 framing)</em>
+            </div>
+          </div>
+          <div class="mod-field">
+            <div class="mod-field-name">Business Need</div>
+            <div class="mod-field-desc">Why the client requested this; explicit link back to a Discovery decision driver (§8.2)</div>
+          </div>
+          <div class="mod-field">
+            <div class="mod-field-name">Current State</div>
+            <div class="mod-field-desc">What the standard dashboard does today</div>
+          </div>
+          <div class="mod-field">
+            <div class="mod-field-name">Future State / Solution Design</div>
+            <div class="mod-field-desc">What the modified version will do, with mockup or screenshot reference</div>
+          </div>
+          <div class="mod-field">
+            <div class="mod-field-name">Data Dependencies</div>
+            <div class="mod-field-desc">New fields, calculations, filters, joins, source-system impacts</div>
+          </div>
+          <div class="mod-field">
+            <div class="mod-field-name">Acceptance Criteria</div>
+            <div class="mod-field-desc">Bulleted, testable</div>
+          </div>
+          <div class="mod-field">
+            <div class="mod-field-name">References</div>
+            <div class="mod-field-desc">JIRA ticket · Mockup link · Related discovery notes · Gong timestamp</div>
+          </div>
+          <div class="mod-field">
+            <div class="mod-field-name">Status &amp; Delivery</div>
+            <div class="mod-field-desc">Owner · Target Date · Current Status</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="sec-6">
+      <h2><span class="sec-num">6.</span> Template Authoring Conventions</h2>
+      <ul>
+        <li><strong>Heading levels:</strong> Frontmatter and major numbered sections use Heading 1. Per-team blocks use Heading 1 for the team name. Sub-sections within a team use Heading 2 (e.g., <code>8.2 Discovery Findings</code>). Individual modifications use Heading 3.</li>
+        <li><strong>Placeholder text:</strong> All fill-in fields use <code>[bracketed italic placeholder]</code> style so they're visually obvious and easy to find/replace.</li>
+        <li><strong>Instructional callouts:</strong> Sections that repeat (per-team blocks, per-mod sections) include an instructional callout at the top.</li>
+      </ul>
+      <blockquote>Duplicate this block for each retail team in scope. If only one team is in scope, retain a single instance and remove this note.</blockquote>
+      <ul>
+        <li><strong>Tables:</strong> Used for any tabular data (revision history, risks, mods summary). Markdown tables convert cleanly to .docx tables via the export workflow.</li>
+        <li><strong>Crisp branding:</strong> The exported .docx must use Crisp brand colors and fonts (Montserrat per the Crisp Brand Book 2025). Markdown source is brand-agnostic; styling is applied at export.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="sec-7">
+      <h2><span class="sec-num">7.</span> Output Artifacts</h2>
+      <p>Naming follows the existing convention in the <code>Shelf Intelligence/</code> folder (<code>Shelf Intelligence [Topic].docx</code>).</p>
+      <table>
+        <thead>
+          <tr><th>Artifact</th><th>Path</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Markdown template</td>
+            <td><code>Shelf Intelligence/Shelf Intelligence SDD Template.md</code></td>
+            <td>Source of truth, version-controlled, AI-editable</td>
+          </tr>
+          <tr>
+            <td>Crisp-branded .docx</td>
+            <td><code>Shelf Intelligence/Shelf Intelligence SDD Template.docx</code></td>
+            <td>Client-deliverable; generated from the markdown</td>
+          </tr>
+          <tr>
+            <td>Usage README</td>
+            <td><code>Shelf Intelligence/Shelf Intelligence SDD README.md</code></td>
+            <td>Short guide: when to use, how to fill in, how to regenerate the .docx</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>The .docx export workflow will use the existing Crisp brand skill (<code>crisp-marketing:crisp-brand</code>) for brand compliance. Exact tooling (pandoc, python-docx, or skill-driven generation) to be determined in implementation planning.</p>
+    </section>
+
+    <section class="card" id="sec-8">
+      <h2><span class="sec-num">8.</span> Out of Scope for This Spec</h2>
+      <ul>
+        <li>Filling in the template for a specific client engagement</li>
+        <li>Building tooling for automated SDD generation from JIRA data</li>
+        <li>Modifying the Notion Shelf Intelligence Implementation playbook</li>
+        <li>Building a Crisp-branded .docx template from scratch (leverage existing Crisp brand assets)</li>
+      </ul>
+    </section>
+
+    <section class="card" id="sec-9">
+      <h2><span class="sec-num">9.</span> Next Steps</h2>
+      <p>This spec is the input to the <code>writing-plans</code> skill, which will produce a sequenced implementation plan covering:</p>
+      <ol>
+        <li>Draft the Markdown template with all sections, tables, and placeholder text</li>
+        <li>Author the usage README</li>
+        <li>Establish the Markdown → .docx export workflow</li>
+        <li>Generate the initial Crisp-branded .docx</li>
+        <li>Validate the template by walking it through a representative dashboard-modification scenario</li>
+      </ol>
+    </section>
+  </main>
+</div>
+
+<script>
+  // Active-section highlight on scroll
+  const sections = document.querySelectorAll('section.card[id]');
+  const links = document.querySelectorAll('aside a[href^="#"]');
+  function setActive() {
+    const scrollPos = window.scrollY + 120;
+    let active = sections[0].id;
+    sections.forEach(sec => {
+      if (sec.offsetTop <= scrollPos) active = sec.id;
+    });
+    links.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + active);
+    });
+  }
+  window.addEventListener('scroll', setActive, { passive: true });
+  window.addEventListener('load', setActive);
+</script>
+</body>
+</html>
