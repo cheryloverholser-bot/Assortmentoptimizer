@@ -20,6 +20,7 @@ claude plugin install https://github.com/cheryloverholser-bot/Assessmentskills.g
 |---|---|---|
 | `crisp-prompt-builder` | ✅ Production-ready | Add new AI prompts to the HTML file |
 | `crisp-questionnaire-outreach` | ✅ Production-ready | Draft the Phase 1 (Onboarding) client email introducing the CMS Questionnaire |
+| `crisp-discovery-outreach` | ✅ Production-ready | Draft the Phase 2 (Discovery) workshop logistics + individual stakeholder interview invites from the client's reply |
 | `crisp-engagement-setup` | 🔲 Scaffold | Configure a new client engagement (localStorage project setup) |
 | `crisp-phase-generator` | 🔲 Scaffold | Generate or update a phase section in the HTML |
 | `crisp-raci-sync` | 🔲 Scaffold | Sync RACI matrix content into the HTML |
